@@ -1,193 +1,201 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Config from "./config/config";
 
-const API = Config.BACKEND_URL + "/public/jobs";
+const JOBS_API = Config.BACKEND_URL + "/public/jobs";
+const COMPANIES_API = Config.BACKEND_URL + "/public/profiles"; // make sure backend config matches
 
 export default function BrowseJobs() {
+    const [activeTab, setActiveTab] = useState("jobs"); // "jobs" | "companies" | "applications"
     const [jobs, setJobs] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const navigate = useNavigate();
+
+    // Fetch data whenever tab changes
     useEffect(() => {
-        fetchJobs();
-    }, []);
+        if (activeTab === "jobs") fetchJobs();
+        if (activeTab === "companies") fetchCompanies();
+    }, [activeTab]);
 
     const fetchJobs = async () => {
+        setLoading(true);
         try {
-            const res = await axios.get(API);
-            console.log("JOB API RESPONSE:", res.data); // ⭐ debug
-
-            if (Array.isArray(res.data)) {
-                setJobs(res.data);
-            } else {
-                setJobs([]);
-            }
+            const res = await axios.get(JOBS_API);
+            setJobs(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
-            console.error("Error fetching jobs:", err);
+            console.error(err);
             alert("Failed to load jobs");
         } finally {
             setLoading(false);
         }
     };
 
+    const fetchCompanies = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(COMPANIES_API);
+            setCompanies(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load companies");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewCompany = (domain) => {
+        const subdomain = domain.split(".")[0]; // extract subdomain
+        navigate(`/companies/${subdomain}`);     // navigate to company profile
+    };
+
     if (loading) {
         return (
             <div style={center}>
-                <h2>Loading jobs...</h2>
+                <h2>Loading...</h2>
             </div>
         );
     }
 
     return (
-        <div style={page}>
-            <h1 style={heading}>🔥 Available Jobs</h1>
+        <>
+            {/* NAVBAR */}
+            <div style={navbar}>
+                <div style={logo}>🔥 HirePath</div>
 
-            {jobs.length === 0 && (
-                <p style={{ textAlign: "center" }}>No jobs available</p>
-            )}
+                <div style={navLinks}>
+                    <span
+                        style={activeTab === "jobs" ? activeLink : link}
+                        onClick={() => setActiveTab("jobs")}
+                    >
+                        Browse Jobs
+                    </span>
 
-            <div style={grid}>
-                {jobs.map((job, index) => {
-                    const j = job?.jobPostingsResponse;
+                    <span
+                        style={activeTab === "companies" ? activeLink : link}
+                        onClick={() => setActiveTab("companies")}
+                    >
+                        Companies
+                    </span>
 
-                    if (!j) return null; // safety
+                    <span
+                        style={activeTab === "applications" ? activeLink : link}
+                        onClick={() => setActiveTab("applications")}
+                    >
+                        My Applications
+                    </span>
+                </div>
 
-                    return (
-                        <div key={j.id || index} style={card}>
+                <button style={loginBtn} onClick={() => navigate("/candidate-auth")}>
+                    Login
+                </button>
+            </div>
 
-                            {/* COMPANY */}
-                            <div style={companyBox}>
-                                <h2 style={{ margin: 0 }}>{job.companyName}</h2>
-                                <p style={domain}>{job.companyDomain}</p>
-                            </div>
+            {/* MAIN CONTENT */}
+            <div style={layout}>
+                {/* SIDEBAR - only for jobs */}
+                {activeTab === "jobs" && (
+                    <div style={sidebar}>
+                        <h3>Filters</h3>
+                        <div style={filterBlock}>
+                            <strong>Job Type</strong>
+                            <label><input type="checkbox" /> Full-time</label>
+                            <label><input type="checkbox" /> Part-time</label>
+                            <label><input type="checkbox" /> Remote</label>
+                        </div>
 
-                            {/* JOB TITLE */}
-                            <h3 style={title}>{j.title}</h3>
+                        <div style={filterBlock}>
+                            <strong>Experience</strong>
+                            <label><input type="checkbox" /> 0–2 years</label>
+                            <label><input type="checkbox" /> 3–5 years</label>
+                            <label><input type="checkbox" /> 5+ years</label>
+                        </div>
 
-                            {/* DESCRIPTION */}
-                            <p style={desc}>{j.description}</p>
+                        <div style={filterBlock}>
+                            <strong>Salary</strong>
+                            <label><input type="checkbox" /> 3–6 LPA</label>
+                            <label><input type="checkbox" /> 6–10 LPA</label>
+                            <label><input type="checkbox" /> 10+ LPA</label>
+                        </div>
+                    </div>
+                )}
 
-                            {/* SKILLS */}
-                            <div style={skillBox}>
-                                {j.skillsRequired?.map((skill, i) => (
-                                    <span key={i} style={skillStyle}>
-                                        {skill}
-                                    </span>
+                {/* CONTENT */}
+                <div style={content}>
+                    {/* JOBS LIST */}
+                    {activeTab === "jobs" && (
+                        <>
+                            <h2>Available Jobs ({jobs.length})</h2>
+                            {jobs.map((job, index) => {
+                                const j = job?.jobPostingsResponse;
+                                if (!j) return null;
+                                return (
+                                    <div key={index} style={jobCard}>
+                                        <h3>{job.companyName}</h3>
+                                        <h4>{j.title}</h4>
+                                        <p>{j.description}</p>
+                                        <button style={applyBtn}>Apply Now</button>
+                                    </div>
+                                );
+                            })}
+                        </>
+                    )}
+
+                    {/* COMPANIES LIST */}
+                    {activeTab === "companies" && (
+                        <>
+                            <h2>Companies ({companies.length})</h2>
+                            <div style={companyGrid}>
+                                {companies.map((c, i) => (
+                                    <div key={i} style={companyCard}>
+                                        <h3>{c.basicSetting?.companyName}</h3>
+                                        <p>Domain: {c.basicSetting?.companyDomain}</p>
+                                        <p>Email: {c.contactDetails?.companyEmail}</p>
+                                        <p>Phone: {c.contactDetails?.companyMobileNumber}</p>
+                                        <p>Address: {c.contactDetails?.companyAddress}</p>
+                                        <button
+                                            style={applyBtn}
+                                            onClick={() => handleViewCompany(c.basicSetting?.companyDomain)}
+                                        >
+                                            View Company
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
+                        </>
+                    )}
 
-                            {/* INFO */}
-                            <div style={infoRow}>
-                                <span>💼 {j.jobType}</span>
-                                <span>💰 {j.salaryRange}</span>
-                            </div>
-
-                            <div style={infoRow}>
-                                <span>🧠 {j.experienceRequired} yrs</span>
-                                <span>
-                                    📅 {new Date(j.createdAt).toLocaleDateString()}
-                                </span>
-                            </div>
-
-                            <button style={applyBtn}>
-                                Apply Now
-                            </button>
-                        </div>
-                    );
-                })}
+                    {/* APPLICATIONS */}
+                    {activeTab === "applications" && (
+                        <>
+                            <h2>My Applications</h2>
+                            <p>Application data coming soon...</p>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
-/* STYLES */
-const page = {
-    padding: "40px 20px",
-    maxWidth: 1200,
-    margin: "auto",
-    fontFamily: "Arial"
-};
+/* ===== STYLES ===== */
+const navbar = { display: "flex", justifyContent: "space-between", padding: "15px 30px", borderBottom: "1px solid #eee" };
+const logo = { fontWeight: "bold", fontSize: 22, color: "#ef4444" };
+const navLinks = { display: "flex", gap: 25 };
+const link = { cursor: "pointer", color: "#444" };
+const activeLink = { color: "#4f46e5", borderBottom: "2px solid #4f46e5" };
+const loginBtn = { background: "#2563eb", color: "#fff", padding: "8px 16px", borderRadius: 6, border: "none", cursor: "pointer" };
 
-const heading = {
-    textAlign: "center",
-    marginBottom: 40,
-    color: "#4f46e5"
-};
+const layout = { display: "flex", padding: 25 };
+const sidebar = { width: 220, paddingRight: 20 };
+const filterBlock = { marginBottom: 20, display: "flex", flexDirection: "column", gap: 6, fontSize: 14 };
+const content = { flex: 1 };
 
-const grid = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-    gap: 25
-};
+const jobCard = { border: "1px solid #ddd", padding: 20, marginBottom: 20, borderRadius: 8 };
+const applyBtn = { padding: 10, background: "#4f46e5", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" };
+const center = { height: "60vh", display: "flex", alignItems: "center", justifyContent: "center" };
 
-const card = {
-    background: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 6px 20px rgba(0,0,0,0.08)"
-};
-
-const companyBox = {
-    borderBottom: "1px solid #eee",
-    paddingBottom: 10,
-    marginBottom: 15
-};
-
-const domain = {
-    margin: 0,
-    fontSize: 13,
-    color: "#666"
-};
-
-const title = {
-    margin: "10px 0",
-    color: "#111"
-};
-
-const desc = {
-    fontSize: 14,
-    color: "#444",
-    marginBottom: 15
-};
-
-const skillBox = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 15
-};
-
-const skillStyle = {
-    background: "#eef2ff",
-    padding: "5px 10px",
-    borderRadius: 6,
-    fontSize: 12,
-    color: "#4f46e5"
-};
-
-const infoRow = {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 13,
-    color: "#555",
-    marginBottom: 8
-};
-
-const applyBtn = {
-    marginTop: 15,
-    padding: "12px",
-    border: "none",
-    background: "#4f46e5",
-    color: "white",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: "bold",
-    width: "100%"
-};
-
-const center = {
-    height: "60vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-};
+const companyGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 };
+const companyCard = { padding: 20, borderRadius: 12, background: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,.1)" };
