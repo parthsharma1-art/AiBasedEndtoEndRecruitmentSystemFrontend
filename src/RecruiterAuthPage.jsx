@@ -2,7 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8081/api";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
+
+console.log("API_BASE:", API_BASE);
+console.log("ENV URL:", import.meta.env.VITE_API_URL);
+
 
 // Auto-send token with every request
 axios.interceptors.request.use(function (config) {
@@ -21,10 +25,11 @@ export default function RecruiterAuthPage() {
   const submit = async () => {
     try {
       if (isLogin) {
-        const res = await axios.post(API + "/recruiter/login", {
+        const res = await axios.post(API_BASE + "/recruiter/login", {
           mobileNumber: form.mobileNumber,
           email: form.email
         });
+        console.log("Login response:", res.data);
 
         localStorage.setItem("token", res.data.token.authKey);
         localStorage.setItem("hrId", res.data.id);
