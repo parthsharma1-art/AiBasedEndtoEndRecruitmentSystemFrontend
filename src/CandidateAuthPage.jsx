@@ -1,61 +1,98 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
 
-const API = Config.BACKEND_URL + "/candidate";
-
-// Auto-send token with every request
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
 export default function CandidateAuthPage() {
   const [isLogin, setIsLogin] = React.useState(true);
-  const [form, setForm] = React.useState({});
+  const [form, setForm] = React.useState({
+    name: "",
+    email: "",
+    mobileNumber: "",
+    age: "",
+    gender: "",
+    location: { city: "", state: "", country: "" },
+    skills: [],
+    experienceYears: "",
+    highestQualification: "",
+    currentJobRole: "",
+    resumeUrl: "",
+    profileImageUrl: "",
+    expectedSalary: "",
+    cityPreference: "",
+  });
   const nav = useNavigate();
+  const location = useLocation();
+  const subdomain = location.state?.subdomain || "";
 
-  const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // Handle input changes for nested and normal fields
+  const handle = (e) => {
+    const { name, value } = e.target;
+
+    if (name.startsWith("location.")) {
+      const locField = name.split(".")[1];
+      setForm({
+        ...form,
+        location: { ...form.location, [locField]: value },
+      });
+    } else if (name === "skills") {
+      setForm({ ...form, skills: value.split(",").map(s => s.trim()) });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  };
 
   const submit = async () => {
     try {
       if (isLogin) {
-        // Candidate login API (replace with actual candidate login if different)
-        const res = await axios.post(API + "/login", {
-          mobileNumber: form.mobileNumber,
-          email: form.email,
-        });
+        // Candidate login
+        const res = await axios.post(
+          Config.BACKEND_URL + "/candidate/login",
+          {
+            email: form.email,
+            mobileNumber: form.mobileNumber,
+          },
+          {
+            headers: { subdomain },
+          }
+        );
 
         localStorage.setItem("token", res.data.token.authKey);
         localStorage.setItem("id", res.data.id);
         localStorage.setItem("name", res.data.name);
-        localStorage.setItem("email", res.data.email);
-        localStorage.setItem("mobileNumber", res.data.mobileNumber);
-
         nav("/candidate-landing");
       } else {
-        // Candidate signup API
-        const res = await axios.post(API + "/create", {
+        // Candidate signup (send full CandidateRequest)
+        const payload = {
           name: form.name,
-          mobileNumber: form.mobileNumber,
           email: form.email,
+          mobileNumber: form.mobileNumber,
           age: parseInt(form.age),
-          state: form.state,
-          country: form.country,
-        });
+          gender: form.gender,
+          location: form.location,
+          skills: form.skills,
+          experienceYears: parseInt(form.experienceYears),
+          highestQualification: form.highestQualification,
+          currentJobRole: form.currentJobRole,
+          resumeUrl: form.resumeUrl,
+          profileImageUrl: form.profileImageUrl,
+          expectedSalary: parseInt(form.expectedSalary),
+          cityPreference: form.cityPreference,
+        };
+
+        const res = await axios.post(
+          Config.BACKEND_URL + "/candidate/create",
+          payload,
+          { headers: { subdomain } }
+        );
 
         localStorage.setItem("token", res.data.token.authKey);
         localStorage.setItem("id", res.data.id);
         localStorage.setItem("name", res.data.name);
-        localStorage.setItem("email", res.data.email);
-        localStorage.setItem("mobileNumber", res.data.mobileNumber);
-
         nav("/candidate-landing");
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       alert("Login / Signup failed. Please check your credentials.");
     }
   };
@@ -86,10 +123,12 @@ export default function CandidateAuthPage() {
       >
         <div
           style={{
-            width: 380,
+            width: 400,
             padding: 30,
             boxShadow: "0 10px 25px rgba(0,0,0,.1)",
             borderRadius: 12,
+            overflowY: "auto",
+            maxHeight: "90vh",
           }}
         >
           <h2>{isLogin ? "Candidate Login" : "Create Account"}</h2>
@@ -97,12 +136,21 @@ export default function CandidateAuthPage() {
           {!isLogin && <input name="name" placeholder="Full Name" onChange={handle} style={inp} />}
           <input name="mobileNumber" placeholder="Mobile" onChange={handle} style={inp} />
           <input name="email" placeholder="Email" onChange={handle} style={inp} />
-
           {!isLogin && (
             <>
               <input name="age" placeholder="Age" onChange={handle} style={inp} />
-              <input name="state" placeholder="State" onChange={handle} style={inp} />
-              <input name="country" placeholder="Country" onChange={handle} style={inp} />
+              <input name="gender" placeholder="Gender" onChange={handle} style={inp} />
+              <input name="location.city" placeholder="City" onChange={handle} style={inp} />
+              <input name="location.state" placeholder="State" onChange={handle} style={inp} />
+              <input name="location.country" placeholder="Country" onChange={handle} style={inp} />
+              <input name="skills" placeholder="Skills (comma separated)" onChange={handle} style={inp} />
+              <input name="experienceYears" placeholder="Experience Years" onChange={handle} style={inp} />
+              <input name="highestQualification" placeholder="Highest Qualification" onChange={handle} style={inp} />
+              <input name="currentJobRole" placeholder="Current Job Role" onChange={handle} style={inp} />
+              <input name="resumeUrl" placeholder="Resume URL" onChange={handle} style={inp} />
+              <input name="profileImageUrl" placeholder="Profile Image URL" onChange={handle} style={inp} />
+              <input name="expectedSalary" placeholder="Expected Salary" onChange={handle} style={inp} />
+              <input name="cityPreference" placeholder="Preferred City" onChange={handle} style={inp} />
             </>
           )}
 
