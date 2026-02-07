@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import CONFIG from "./config/config";
 
-// const API_BASE = "http://localhost:8081/api/profile";
-const API_BASE = `${import.meta.env.VITE_API_URL}/api/profile`;
+const API_BASE = CONFIG.BACKEND_URL+"/profile";
 
-console.log("current code is " + API_BASE);
+// axios.get(`${API_BASE}/jobs`)
+
 
 export default function AllJobs() {
     const [jobs, setJobs] = useState([]);

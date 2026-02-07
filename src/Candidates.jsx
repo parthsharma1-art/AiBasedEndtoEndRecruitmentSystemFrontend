@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Config from "./config/config";
 
-const API = "http://localhost:8081/api/recruiter";
+const API = Config.BACKEND_URL + "/recruiter";
 
 export default function Candidates() {
     const [list, setList] = useState([]);

@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import CONFIG from "./config/config";
 
-const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
+const API_BASE = CONFIG.BACKEND_URL;
+
 
 console.log("API_BASE:", API_BASE);
 console.log("ENV URL:", import.meta.env.VITE_API_URL);

@@ -18,7 +18,7 @@ function Overview() {
             const token = localStorage.getItem("token");
 
             const response = await fetch(
-                CONFIG.BACKEND_URL + "/api/hr/overview",
+                CONFIG.BACKEND_URL + "/recruiter/overview",
                 {
                     method: "GET",
                     headers: {
@@ -29,7 +29,14 @@ function Overview() {
             );
 
             const data = await response.json();
-            setStats(data);
+
+            // Normalize null values to 0
+            setStats({
+                totalJobs: data.totalJobs ?? 0,
+                totalCandidates: data.totalCandidates ?? 0,
+                totalResumes: data.totalResumes ?? 0,
+                activeJobs: data.activeJobs ?? 0,
+            });
         } catch (err) {
             console.error("Overview error:", err);
         }

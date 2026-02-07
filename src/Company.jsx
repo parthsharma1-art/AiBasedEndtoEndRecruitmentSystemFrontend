@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Config from "./config/config";
 
-const API_BASE = "http://localhost:8081/api";
+const API_BASE = Config.BACKEND_URL 
 const API_PROFILE = `${API_BASE}/profile`;
 const API_CREATE = `${API_BASE}/profile/update`;
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Config from "./config/config";
 
-const API_BASE = "http://localhost:8081/api";
+const API = Config.BACKEND_URL + "/candidate";
 
 export default function CandidateLandingPage() {
     const [company, setCompany] = useState(null);

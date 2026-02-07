@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Config from "./config/config";
 
-const API = "http://localhost:8081/api";
+const API = Config.BACKEND_URL + "/candidate";
 
 // Auto-send token with every request
 axios.interceptors.request.use((config) => {
@@ -22,7 +23,7 @@ export default function CandidateAuthPage() {
     try {
       if (isLogin) {
         // Candidate login API (replace with actual candidate login if different)
-        const res = await axios.post(API + "/candidate/login", {
+        const res = await axios.post(API + "/login", {
           mobileNumber: form.mobileNumber,
           email: form.email,
         });
@@ -36,7 +37,7 @@ export default function CandidateAuthPage() {
         nav("/candidate-landing");
       } else {
         // Candidate signup API
-        const res = await axios.post(API + "/candidate/create", {
+        const res = await axios.post(API + "/create", {
           name: form.name,
           mobileNumber: form.mobileNumber,
           email: form.email,
