@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import CONFIG from "./config/config";
 
-const BACKEND_URL = "http://localhost:8081/api";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
 export default function CompanyPublicPage() {
     const { companySlug } = useParams();
