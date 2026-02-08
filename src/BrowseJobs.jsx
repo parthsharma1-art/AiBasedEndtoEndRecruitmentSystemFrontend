@@ -62,6 +62,7 @@ export default function BrowseJobs() {
     return (
         <>
             {/* NAVBAR */}
+            <div>iam here kya kar raha h bhai </div>
             <div style={navbar}>
                 <div style={logo}>🔥 HirePath</div>
 
