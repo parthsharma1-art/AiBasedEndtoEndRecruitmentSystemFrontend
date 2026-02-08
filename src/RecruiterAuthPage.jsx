@@ -62,8 +62,7 @@ export default function RecruiterAuthPage() {
   const googleLogin = async () => {
     try {
       const res = await axios.get(
-        API_BASE +
-        "/recruiter/google/login-url-recruiter"
+        API_BASE + "/recruiter/google/login-url-recruiter"
       );
       const googleUrl = res.data.url;
       if (googleUrl) {
