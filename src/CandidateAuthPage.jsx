@@ -21,11 +21,11 @@ export default function CandidateAuthPage() {
     expectedSalary: "",
     cityPreference: "",
   });
+
   const nav = useNavigate();
   const location = useLocation();
   const subdomain = location.state?.subdomain || "";
 
-  // Handle input changes for nested and normal fields
   const handle = (e) => {
     const { name, value } = e.target;
 
@@ -36,7 +36,7 @@ export default function CandidateAuthPage() {
         location: { ...form.location, [locField]: value },
       });
     } else if (name === "skills") {
-      setForm({ ...form, skills: value.split(",").map(s => s.trim()) });
+      setForm({ ...form, skills: value.split(",").map((s) => s.trim()) });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -45,7 +45,6 @@ export default function CandidateAuthPage() {
   const submit = async () => {
     try {
       if (isLogin) {
-        // Candidate login
         const res = await axios.post(
           Config.BACKEND_URL + "/candidate/login",
           {
@@ -62,7 +61,6 @@ export default function CandidateAuthPage() {
         localStorage.setItem("name", res.data.name);
         nav("/candidate-landing");
       } else {
-        // Candidate signup (send full CandidateRequest)
         const payload = {
           name: form.name,
           email: form.email,
@@ -97,8 +95,14 @@ export default function CandidateAuthPage() {
     }
   };
 
+  // GOOGLE CLICK (NO API NOW)
+  const googleLogin = () => {
+    alert("Google login UI only (API not connected yet)");
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "Arial" }}>
+      {/* LEFT */}
       <div
         style={{
           flex: 1,
@@ -113,6 +117,7 @@ export default function CandidateAuthPage() {
         Candidate Login
       </div>
 
+      {/* RIGHT */}
       <div
         style={{
           flex: 1,
@@ -133,9 +138,12 @@ export default function CandidateAuthPage() {
         >
           <h2>{isLogin ? "Candidate Login" : "Create Account"}</h2>
 
-          {!isLogin && <input name="name" placeholder="Full Name" onChange={handle} style={inp} />}
+          {!isLogin && (
+            <input name="name" placeholder="Full Name" onChange={handle} style={inp} />
+          )}
           <input name="mobileNumber" placeholder="Mobile" onChange={handle} style={inp} />
           <input name="email" placeholder="Email" onChange={handle} style={inp} />
+
           {!isLogin && (
             <>
               <input name="age" placeholder="Age" onChange={handle} style={inp} />
@@ -158,10 +166,27 @@ export default function CandidateAuthPage() {
             {isLogin ? "Login" : "Create Account"}
           </button>
 
+          {/* OR DIVIDER */}
+          <div style={dividerWrap}>
+            <div style={line}></div>
+            <span style={{ margin: "0 10px", color: "#999" }}>OR</span>
+            <div style={line}></div>
+          </div>
+
+          {/* GOOGLE BUTTON UI */}
+          <button onClick={googleLogin} style={googleBtn}>
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="google"
+              style={{ width: 22, marginRight: 10 }}
+            />
+            Continue with Google
+          </button>
+
           <p style={{ marginTop: 15 }}>
             {isLogin ? "No account? " : "Already have account? "}
             <span
-              style={{ color: "#4f46e5", cursor: "pointer" }}
+              style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
               onClick={() => setIsLogin(!isLogin)}
             >
               {isLogin ? "Sign Up" : "Login"}
@@ -173,5 +198,53 @@ export default function CandidateAuthPage() {
   );
 }
 
-const inp = { width: "100%", padding: 12, marginTop: 10, border: "1px solid #ddd", borderRadius: 8 };
-const btn = { width: "100%", padding: 12, marginTop: 15, background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" };
+const inp = {
+  width: "100%",
+  padding: 12,
+  marginTop: 10,
+  border: "1px solid #ddd",
+  borderRadius: 8,
+};
+
+const btn = {
+  width: "100%",
+  padding: 12,
+  marginTop: 15,
+  background: "#4f46e5",
+  color: "white",
+  border: "none",
+  borderRadius: 8,
+  fontSize: 16,
+  cursor: "pointer",
+};
+
+/* GOOGLE BUTTON */
+const googleBtn = {
+  width: "100%",
+  padding: 12,
+  marginTop: 15,
+  background: "#fff",
+  color: "#444",
+  border: "1px solid #ddd",
+  borderRadius: 10,
+  fontSize: 16,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 500,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+};
+
+/* DIVIDER */
+const dividerWrap = {
+  display: "flex",
+  alignItems: "center",
+  marginTop: 18,
+};
+
+const line = {
+  flex: 1,
+  height: 1,
+  background: "#e5e7eb",
+};
