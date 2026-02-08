@@ -103,7 +103,7 @@ const sidebar = {
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    width: 240,
+    width: 260,
     background: "#0f172a",
     color: "white",
     height: "100vh",

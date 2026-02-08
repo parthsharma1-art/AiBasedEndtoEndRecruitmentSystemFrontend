@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "./config/config";
+import Sidebar from "./Sidebar";
 
-const API_BASE = CONFIG.BACKEND_URL+"/profile";
+const API_BASE = CONFIG.BACKEND_URL + "/profile";
 
 // axios.get(`${API_BASE}/jobs`)
 
@@ -21,8 +22,11 @@ export default function AllJobs() {
         const token = localStorage.getItem("token");
         if (!token) {
             alert("Login again");
+            setLoading(false);   // IMPORTANT
+            navigate("/login");  // optional redirect
             return;
         }
+
 
         try {
             const res = await axios.get(`${API_BASE}/jobs`, {
@@ -40,10 +44,12 @@ export default function AllJobs() {
         }
     };
 
-    if (loading) return <h3 style={{ padding: 20 }}>Loading jobs...</h3>;
+    // if (loading) return <h3 style={{ padding: 20 }}>Loading jobs...</h3>;
 
     return (
-        <div style={{ padding: 30 }}>
+        <div style={{ display: "flex" }}>
+            <Sidebar/>
+        <div style={{ padding: 30 ,width:"100%"}}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <h2>All Posted Jobs</h2>
 
@@ -55,7 +61,7 @@ export default function AllJobs() {
                 </button>
             </div>
 
-            {jobs.length === 0 && <p>No jobs posted yet</p>}
+            {jobs.length === 0 && <p>Jobs Loading...</p>}
 
             {jobs.map((job) => (
                 <div key={job.id} style={card}>
@@ -79,6 +85,7 @@ export default function AllJobs() {
                     </p>
                 </div>
             ))}
+        </div>
         </div>
     );
 }

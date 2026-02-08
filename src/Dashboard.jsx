@@ -11,16 +11,18 @@ import DashboardHome from "./DashboardHome";
 export default function Dashboard() {
     return (
         <div style={{ display: "flex" }}>
-            {/* FIXED SIDEBAR */}
+            {/* SIDEBAR */}
             <Sidebar />
 
-            {/* RIGHT CONTENT SCROLLABLE */}
+            {/* RIGHT CONTENT */}
             <div style={content}>
                 <Routes>
                     <Route path="/" element={<DashboardHome />} />
                     <Route path="overview" element={<Overview />} />
                     <Route path="candidates" element={<Candidates />} />
                     <Route path="company" element={<Company />} />
+
+                    {/* 🔥 FIXED */}
                     <Route path="jobs" element={<AllJobs />} />
                     <Route path="jobs/create" element={<Jobs />} />
                 </Routes>
@@ -29,9 +31,8 @@ export default function Dashboard() {
     );
 }
 
-/* Right content */
 const content = {
-    flex: 1,                  // takes remaining width
+    flex: 1,
     padding: 20,
     height: "100vh",
     overflowY: "auto",
