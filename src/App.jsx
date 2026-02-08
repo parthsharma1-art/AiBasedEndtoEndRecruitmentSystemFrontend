@@ -14,6 +14,7 @@ import CompanyPublicPage from "./CompanyPublicPage";
 import CompanyJobsPage from "./CompanyJobsPage";
 import CompanyProfile from "./CompanyProfile";
 import AllJobs from "./AllJobs";
+import GoogleSuccess from "./GoogleSuccess";
 
 export default function App() {
   return (
@@ -26,11 +27,12 @@ export default function App() {
       <Route path="/browse-jobs" element={<BrowseJobs />} />
       <Route path="/companies" element={<Companies />} />
       <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/google-success" element={<GoogleSuccess />} />
       <Route
         path="/dashboard/jobs"
         element={
           // <AuthCheck>
-            <AllJobs />
+          <AllJobs />
           // </AuthCheck>
         }
       />
@@ -40,7 +42,7 @@ export default function App() {
         path="/dashboard/*"
         element={
           // <AuthCheck>
-            <Dashboard />
+          <Dashboard />
           // </AuthCheck>
         }
       />
