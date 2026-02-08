@@ -13,7 +13,7 @@ export default function BrowseJobs() {
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
-
+    console.log(activeTab,"heren is rhe acive tab");
     // Fetch data whenever tab changes
     useEffect(() => {
         if (activeTab === "jobs") fetchJobs();
