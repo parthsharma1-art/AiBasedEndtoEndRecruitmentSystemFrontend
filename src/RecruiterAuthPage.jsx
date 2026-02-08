@@ -148,15 +148,19 @@ export default function RecruiterAuthPage() {
           <div style={{ textAlign: "center", marginTop: 15, color: "#999" }}>
             OR
           </div>
-
           <button onClick={googleLogin} style={googleBtn}>
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="google"
+              style={{ width: 22, marginRight: 10 }}
+            />
             Continue with Google
           </button>
 
           <p style={{ marginTop: 15 }}>
             {isLogin ? "No account? " : "Already have account? "}
             <span
-              style={{ color: "#4f46e5", cursor: "pointer" }}
+              style={{ color: "#4f46e5", cursor: "pointer" ,fontWeight: 600}}
               onClick={() => setIsLogin(!isLogin)}
             >
               {isLogin ? "Sign Up" : "Login"}
@@ -192,11 +196,17 @@ const googleBtn = {
   width: "100%",
   padding: 12,
   marginTop: 15,
-  background: "white",
-  color: "#333",
-  background: "#e5466e",
-  border: "1px solid #1b3f86",
-  borderRadius: 8,
+  background: "#fff",
+  color: "#444",
+  border: "1px solid #ddd",
+  borderRadius: 10,
   fontSize: 16,
   cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 500,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+  transition: "0.2s",
 };
+
