@@ -61,7 +61,7 @@ export default function AllJobs() {
                 </button>
             </div>
 
-            {jobs.length === 0 && <p>Jobs Loading...</p>}
+            {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
 
             {jobs.map((job) => (
                 <div key={job.id} style={card}>
