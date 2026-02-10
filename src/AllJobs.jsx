@@ -46,48 +46,94 @@ export default function AllJobs() {
 
     // if (loading) return <h3 style={{ padding: 20 }}>Loading jobs...</h3>;
 
+    // return (
+    //     <div style={{ display: "flex" }}>
+    //         <Sidebar/>
+    //     <div style={{ padding: 30 ,width:"100%"}}>
+    //         <div style={{ display: "flex", justifyContent: "space-between" }}>
+    //             <h2>All Posted Jobs</h2>
+
+    //             <button
+    //                 style={createBtn}
+    //                 onClick={() => navigate("/dashboard/jobs/create")}
+    //             >
+    //                 + Create Job
+    //             </button>
+    //         </div>
+
+    //         {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
+
+    //         {jobs.map((job) => (
+    //             <div key={job.id} style={card}>
+    //                 <h3>{job.title}</h3>
+    //                 <p>{job.description}</p>
+
+    //                 <p>
+    //                     <b>Skills:</b>{" "}
+    //                     {job.skillsRequired?.length
+    //                         ? job.skillsRequired.join(", ")
+    //                         : "N/A"}
+    //                 </p>
+
+    //                 <p><b>Salary:</b> {job.salaryRange}</p>
+    //                 <p><b>Type:</b> {job.jobType}</p>
+    //                 <p><b>Experience:</b> {job.experienceRequired} yrs</p>
+    //                 <p><b>Status:</b> {job.active ? "Active" : "Inactive"}</p>
+
+    //                 <p style={{ fontSize: 12, color: "gray" }}>
+    //                     Created: {new Date(job.createdAt).toLocaleString()}
+    //                 </p>
+    //             </div>
+    //         ))}
+    //     </div>
+    //     </div>
+    // );
     return (
-        <div style={{ display: "flex" }}>
-            <Sidebar/>
-        <div style={{ padding: 30 ,width:"100%"}}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h2>All Posted Jobs</h2>
+        <div style={layout}>
+            <Sidebar />
 
-                <button
-                    style={createBtn}
-                    onClick={() => navigate("/dashboard/jobs/create")}
-                >
-                    + Create Job
-                </button>
-            </div>
+            <div style={content}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h2>All Posted Jobs</h2>
 
-            {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
-
-            {jobs.map((job) => (
-                <div key={job.id} style={card}>
-                    <h3>{job.title}</h3>
-                    <p>{job.description}</p>
-
-                    <p>
-                        <b>Skills:</b>{" "}
-                        {job.skillsRequired?.length
-                            ? job.skillsRequired.join(", ")
-                            : "N/A"}
-                    </p>
-
-                    <p><b>Salary:</b> {job.salaryRange}</p>
-                    <p><b>Type:</b> {job.jobType}</p>
-                    <p><b>Experience:</b> {job.experienceRequired} yrs</p>
-                    <p><b>Status:</b> {job.active ? "Active" : "Inactive"}</p>
-
-                    <p style={{ fontSize: 12, color: "gray" }}>
-                        Created: {new Date(job.createdAt).toLocaleString()}
-                    </p>
+                    <button
+                        style={createBtn}
+                        onClick={() => navigate("/dashboard/jobs/create")}
+                    >
+                        + Create Job
+                    </button>
                 </div>
-            ))}
-        </div>
+
+                {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
+
+                <div style={jobsScroll}>
+                    {jobs.map((job) => (
+                        <div key={job.id} style={card}>
+                            <h3>{job.title}</h3>
+                            <p>{job.description}</p>
+
+                            <p>
+                                <b>Skills:</b>{" "}
+                                {job.skillsRequired?.length
+                                    ? job.skillsRequired.join(", ")
+                                    : "N/A"}
+                            </p>
+
+                            <p><b>Salary:</b> {job.salaryRange}</p>
+                            <p><b>Type:</b> {job.jobType}</p>
+                            <p><b>Experience:</b> {job.experienceRequired} yrs</p>
+                            <p><b>Status:</b> {job.active ? "Active" : "Inactive"}</p>
+
+                            <p style={{ fontSize: 12, color: "gray" }}>
+                                Created: {new Date(job.createdAt).toLocaleString()}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
+
 }
 
 /* styles */
@@ -108,4 +154,24 @@ const createBtn = {
     cursor: "pointer",
     fontSize: 15   // optional: slightly smaller text for thinner look
 };
+
+const layout = {
+    display: "flex",
+    height: "100vh",
+    overflow: "hidden", // prevents full page scroll
+};
+
+const content = {
+    padding: 30,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+};
+
+const jobsScroll = {
+    overflowY: "auto",
+    paddingRight: 10,
+};
+
 
