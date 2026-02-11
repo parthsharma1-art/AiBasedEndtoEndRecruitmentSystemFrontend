@@ -5,6 +5,7 @@ import Config from "./config/config";
 
 export default function CandidateAuthPage() {
   const [isLogin, setIsLogin] = React.useState(true);
+
   const [form, setForm] = React.useState({
     name: "",
     email: "",
@@ -16,10 +17,10 @@ export default function CandidateAuthPage() {
     experienceYears: "",
     highestQualification: "",
     currentJobRole: "",
-    resumeUrl: "",
-    profileImageUrl: "",
     expectedSalary: "",
     cityPreference: "",
+    resumeFile: null,
+    profileImageFile: null,
   });
 
   const nav = useNavigate();
@@ -44,6 +45,7 @@ export default function CandidateAuthPage() {
 
   const submit = async () => {
     try {
+      // ================= LOGIN =================
       if (isLogin) {
         const res = await axios.post(
           Config.BACKEND_URL + "/candidate/login",
@@ -60,28 +62,47 @@ export default function CandidateAuthPage() {
         localStorage.setItem("id", res.data.id);
         localStorage.setItem("name", res.data.name);
         nav("/candidate-landing");
-      } else {
-        const payload = {
-          name: form.name,
-          email: form.email,
-          mobileNumber: form.mobileNumber,
-          age: parseInt(form.age),
-          gender: form.gender,
-          location: form.location,
-          skills: form.skills,
-          experienceYears: parseInt(form.experienceYears),
-          highestQualification: form.highestQualification,
-          currentJobRole: form.currentJobRole,
-          resumeUrl: form.resumeUrl,
-          profileImageUrl: form.profileImageUrl,
-          expectedSalary: parseInt(form.expectedSalary),
-          cityPreference: form.cityPreference,
-        };
+      }
+
+      // ================= SIGNUP =================
+      else {
+        const formData = new FormData();
+
+        formData.append("name", form.name);
+        formData.append("email", form.email);
+        formData.append("mobileNumber", form.mobileNumber);
+        formData.append("age", form.age);
+        formData.append("gender", form.gender);
+
+        formData.append("location.city", form.location.city);
+        formData.append("location.state", form.location.state);
+        formData.append("location.country", form.location.country);
+
+        formData.append("skills", form.skills.join(","));
+        formData.append("experienceYears", form.experienceYears);
+        formData.append("highestQualification", form.highestQualification);
+        formData.append("currentJobRole", form.currentJobRole);
+        formData.append("expectedSalary", form.expectedSalary);
+        formData.append("cityPreference", form.cityPreference);
+
+        // ✅ Append files
+        if (form.resumeFile) {
+          formData.append("resume", form.resumeFile);
+        }
+
+        if (form.profileImageFile) {
+          formData.append("profileImage", form.profileImageFile);
+        }
 
         const res = await axios.post(
           Config.BACKEND_URL + "/candidate/create",
-          payload,
-          { headers: { subdomain } }
+          formData,
+          {
+            headers: {
+              subdomain,
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         localStorage.setItem("token", res.data.token.authKey);
@@ -95,7 +116,6 @@ export default function CandidateAuthPage() {
     }
   };
 
-  // GOOGLE CLICK (NO API NOW)
   const googleLogin = () => {
     alert("Google login UI only (API not connected yet)");
   };
@@ -141,6 +161,7 @@ export default function CandidateAuthPage() {
           {!isLogin && (
             <input name="name" placeholder="Full Name" onChange={handle} style={inp} />
           )}
+
           <input name="mobileNumber" placeholder="Mobile" onChange={handle} style={inp} />
           <input name="email" placeholder="Email" onChange={handle} style={inp} />
 
@@ -155,8 +176,26 @@ export default function CandidateAuthPage() {
               <input name="experienceYears" placeholder="Experience Years" onChange={handle} style={inp} />
               <input name="highestQualification" placeholder="Highest Qualification" onChange={handle} style={inp} />
               <input name="currentJobRole" placeholder="Current Job Role" onChange={handle} style={inp} />
-              <input name="resumeUrl" placeholder="Resume URL" onChange={handle} style={inp} />
-              <input name="profileImageUrl" placeholder="Profile Image URL" onChange={handle} style={inp} />
+
+              {/* ✅ FILE UPLOADS */}
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) =>
+                  setForm({ ...form, resumeFile: e.target.files[0] })
+                }
+                style={inp}
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setForm({ ...form, profileImageFile: e.target.files[0] })
+                }
+                style={inp}
+              />
+
               <input name="expectedSalary" placeholder="Expected Salary" onChange={handle} style={inp} />
               <input name="cityPreference" placeholder="Preferred City" onChange={handle} style={inp} />
             </>
@@ -166,14 +205,12 @@ export default function CandidateAuthPage() {
             {isLogin ? "Login" : "Create Account"}
           </button>
 
-          {/* OR DIVIDER */}
           <div style={dividerWrap}>
             <div style={line}></div>
             <span style={{ margin: "0 10px", color: "#999" }}>OR</span>
             <div style={line}></div>
           </div>
 
-          {/* GOOGLE BUTTON UI */}
           <button onClick={googleLogin} style={googleBtn}>
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
@@ -218,7 +255,6 @@ const btn = {
   cursor: "pointer",
 };
 
-/* GOOGLE BUTTON */
 const googleBtn = {
   width: "100%",
   padding: 12,
@@ -236,7 +272,6 @@ const googleBtn = {
   boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
 };
 
-/* DIVIDER */
 const dividerWrap = {
   display: "flex",
   alignItems: "center",

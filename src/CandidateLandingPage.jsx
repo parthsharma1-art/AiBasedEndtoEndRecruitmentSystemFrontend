@@ -1,90 +1,152 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Config from "./config/config";
 
-const API = Config.BACKEND_URL + "/candidate";
+const API = Config.BACKEND_URL;
 
 export default function CandidateLandingPage() {
-    const [company, setCompany] = useState(null);
+    const [candidate, setCandidate] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const getSubdomain = () => {
-        const host = window.location.hostname; // e.g., parth-company.localhost
-        const parts = host.split(".");
-        if (parts.length > 1) return parts[0];
-        return null;
-    };
-
     useEffect(() => {
-        const fetchCompany = async () => {
+        const fetchCandidate = async () => {
             try {
-                const subdomain = getSubdomain();
-                if (!subdomain) throw new Error("Subdomain not found");
+                const token = localStorage.getItem("token");
 
-                const res = await axios.get(`${API_BASE}/profile/${subdomain}`);
-                setCompany(res.data);
+                if (!token) {
+                    navigate("/candidate-auth");
+                    return;
+                }
+
+                const res = await axios.get(`${API}/candidate/get`, {
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
+                });
+
+                setCandidate(res.data);
             } catch (err) {
-                console.error("Error fetching company:", err);
-                setCompany(null);
+                console.error("Error fetching candidate:", err);
+                navigate("/candidate-auth");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchCompany();
-    }, []);
+        fetchCandidate();
+    }, [navigate]);
 
-    if (loading) return <h2 style={{ textAlign: "center", marginTop: 100 }}>Loading company details...</h2>;
-    if (!company) return <h2 style={{ textAlign: "center", marginTop: 100 }}>Company not found</h2>;
+    if (loading)
+        return (
+            <h2 style={{ textAlign: "center", marginTop: 100 }}>
+                Loading Dashboard...
+            </h2>
+        );
+
+    if (!candidate)
+        return (
+            <h2 style={{ textAlign: "center", marginTop: 100 }}>
+                Candidate not found
+            </h2>
+        );
 
     return (
         <div style={container}>
-            <header style={header}>
-                <h1>{company.basicSetting?.companyName || "Company"}</h1>
-                <p>{company.basicSetting?.companyDomain}</p>
-            </header>
+            <div style={card}>
+                {/* PROFILE IMAGE */}
+                {candidate.profileImageId && (
+                    <img
+                        src={`${API}/file/${candidate.profileImageId}`}
+                        alt="Profile"
+                        style={profileImg}
+                    />
+                )}
 
-            <section style={section}>
-                <h2>Contact Us</h2>
-                <p>{company.contactDetails?.companyAddress}</p>
-                <p>Email: {company.contactDetails?.companyEmail}</p>
-                <p>Phone: {company.contactDetails?.companyMobileNumber}</p>
-            </section>
+                <h2>{candidate.name}</h2>
+                <p><strong>Email:</strong> {candidate.email}</p>
+                <p><strong>Mobile:</strong> {candidate.mobileNumber}</p>
 
-            {company.socialLinks && (
-                <section style={section}>
-                    <h2>Follow Us</h2>
-                    <div style={socialContainer}>
-                        {company.socialLinks.facebook && <a href={company.socialLinks.facebook} target="_blank" rel="noreferrer">Facebook</a>}
-                        {company.socialLinks.instagram && <a href={company.socialLinks.instagram} target="_blank" rel="noreferrer">Instagram</a>}
-                        {company.socialLinks.google && <a href={company.socialLinks.google} target="_blank" rel="noreferrer">Google</a>}
-                        {company.socialLinks.twitter && <a href={company.socialLinks.twitter} target="_blank" rel="noreferrer">Twitter</a>}
-                    </div>
-                </section>
-            )}
+                {/* BUTTON SECTION */}
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: "30px", // Increased space between buttons
+                        marginTop: "25px",
+                    }}
+                >
+                    {candidate.resumeId && (
+                        <a
+                            href={`${API}/file/${candidate.resumeId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={resumeBtn}
+                        >
+                            View / Download Resume
+                        </a>
+                    )}
 
-            <section style={section}>
-                <button style={btn} onClick={() => navigate("/candidate-auth")}>Candidate Login</button>
-                <button style={{ ...btn, marginLeft: 20 }} onClick={() => navigate("/candidate-auth")}>Candidate Signup</button>
-            </section>
-
-            <footer style={footer}>
-                <p>
-                    <a href="/terms" style={footerLink}>Terms & Services</a> |{" "}
-                    <a href="/privacy" style={footerLink}>Privacy Policy</a>
-                </p>
-                <p>&copy; {new Date().getFullYear()} {company.basicSetting?.companyName || "Company"}</p>
-            </footer>
+                    <button
+                        style={logoutBtn}
+                        onClick={() => {
+                            localStorage.clear();
+                            navigate("/candidate-auth");
+                        }}
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
 
-const container = { fontFamily: "Arial, sans-serif", padding: "50px 20px", textAlign: "center" };
-const header = { marginBottom: 40 };
-const section = { marginBottom: 40 };
-const socialContainer = { display: "flex", justifyContent: "center", gap: 20, marginTop: 10 };
-const btn = { padding: "12px 24px", fontSize: 16, borderRadius: 8, border: "none", background: "#4f46e5", color: "white", cursor: "pointer" };
-const footer = { borderTop: "1px solid #ddd", paddingTop: 20, marginTop: 60, fontSize: 14, color: "#555" };
-const footerLink = { color: "#4f46e5", textDecoration: "none" };
+/* ================= STYLES ================= */
+
+const container = {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    background: "#f3f4f6",
+};
+
+const card = {
+    background: "white",
+    padding: 40,
+    borderRadius: 15,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    textAlign: "center",
+    width: 400,
+};
+
+const profileImg = {
+    width: 120,
+    height: 120,
+    borderRadius: "50%",
+    objectFit: "cover",
+    marginBottom: 20,
+    border: "4px solid #4f46e5",
+};
+
+const resumeBtn = {
+    display: "inline-block",
+    padding: "10px 20px",
+    background: "#4f46e5",
+    color: "white",
+    borderRadius: 8,
+    textDecoration: "none",
+    fontWeight: 600,
+};
+
+const logoutBtn = {
+    padding: "10px 20px",
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+};
