@@ -102,6 +102,40 @@ export default function AllJobs() {
 
     return (
         <div className="dashboard-content">
+            {/* Back Button */}
+            <button
+                onClick={() => navigate("/dashboard")}
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    marginBottom: "20px",
+                    background: "#fff",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    color: "#475569",
+                    fontSize: "0.9rem",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#f8fafc";
+                    e.currentTarget.style.borderColor = "#cbd5e1";
+                    e.currentTarget.style.color = "#1e293b";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#fff";
+                    e.currentTarget.style.borderColor = "#e2e8f0";
+                    e.currentTarget.style.color = "#475569";
+                }}
+            >
+                <span style={{ fontSize: "1.2rem" }}>←</span>
+                <span>Back to Dashboard</span>
+            </button>
+
             {/* Header Section */}
             <div style={{ 
                 display: "flex", 
