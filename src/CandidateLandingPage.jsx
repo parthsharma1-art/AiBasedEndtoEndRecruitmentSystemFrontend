@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Config from "./config/config";
+import "./styles/dashboard.css";
 
 const API = Config.BACKEND_URL;
 
@@ -10,6 +11,8 @@ export default function CandidateLandingPage() {
     const [candidate, setCandidate] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
+    const isInDashboard = location.pathname.includes('/candidate-dashboard');
 
     useEffect(() => {
         const fetchCandidate = async () => {
@@ -41,21 +44,21 @@ export default function CandidateLandingPage() {
 
     if (loading)
         return (
-            <h2 style={{ textAlign: "center", marginTop: 100 }}>
-                Loading Dashboard...
-            </h2>
+            <div className={isInDashboard ? "dashboard-content" : ""} style={isInDashboard ? {} : { textAlign: "center", marginTop: 100 }}>
+                <h2>Loading Dashboard...</h2>
+            </div>
         );
 
     if (!candidate)
         return (
-            <h2 style={{ textAlign: "center", marginTop: 100 }}>
-                Candidate not found
-            </h2>
+            <div className={isInDashboard ? "dashboard-content" : ""} style={isInDashboard ? {} : { textAlign: "center", marginTop: 100 }}>
+                <h2>Candidate not found</h2>
+            </div>
         );
-
+    
     return (
-        <div style={container}>
-            <div style={card}>
+        <div className={isInDashboard ? "dashboard-content" : ""} style={isInDashboard ? {} : container}>
+            <div style={isInDashboard ? dashboardCard : card}>
                 {/* PROFILE IMAGE */}
                 {candidate.profileImageId && (
                     <img
@@ -93,7 +96,7 @@ export default function CandidateLandingPage() {
                         style={logoutBtn}
                         onClick={() => {
                             localStorage.clear();
-                            navigate("/candidate-auth");
+                            navigate("/");
                         }}
                     >
                         Logout
@@ -149,4 +152,16 @@ const logoutBtn = {
     border: "none",
     borderRadius: 8,
     cursor: "pointer",
+};
+
+// Dashboard-compatible styles
+const dashboardCard = {
+    background: "white",
+    padding: 40,
+    borderRadius: 15,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+    textAlign: "center",
+    width: "100%",
+    maxWidth: 500,
+    margin: "0 auto",
 };

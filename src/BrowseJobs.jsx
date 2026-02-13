@@ -37,7 +37,19 @@ export default function BrowseJobs() {
         setLoading(true);
         try {
             const res = await axios.get(COMPANIES_API);
-            setCompanies(Array.isArray(res.data) ? res.data : []);
+            const data = Array.isArray(res.data) ? res.data : [];
+            
+            // Filter companies that have a valid company name
+            const validCompanies = data.filter((c) => {
+                return (
+                    c &&
+                    c.basicSetting &&
+                    typeof c.basicSetting.companyName === "string" &&
+                    c.basicSetting.companyName.trim() !== ""
+                );
+            });
+            
+            setCompanies(validCompanies);
         } catch (err) {
             console.error(err);
             alert("Failed to load companies");
@@ -47,6 +59,7 @@ export default function BrowseJobs() {
     };
 
     const handleViewCompany = (domain) => {
+        if (!domain || typeof domain !== "string") return;
         const subdomain = domain.split(".")[0]; // extract subdomain
         navigate(`/companies/${subdomain}`);     // navigate to company profile
     };
@@ -64,7 +77,7 @@ export default function BrowseJobs() {
             {/* NAVBAR */}
            
             <div style={navbar}>
-                <div style={logo}>🔥 HirePath</div>
+                <div style={logo}>AI-Based Recruitment System</div>
 
                 <div style={navLinks}>
                     <span
@@ -148,23 +161,35 @@ export default function BrowseJobs() {
                     {activeTab === "companies" && (
                         <>
                             <h2>Companies ({companies.length})</h2>
-                            <div style={companyGrid}>
-                                {companies.map((c, i) => (
-                                    <div key={i} style={companyCard}>
-                                        <h3>{c.basicSetting?.companyName}</h3>
-                                        <p>Domain: {c.basicSetting?.companyDomain}</p>
-                                        <p>Email: {c.contactDetails?.companyEmail}</p>
-                                        <p>Phone: {c.contactDetails?.companyMobileNumber}</p>
-                                        <p>Address: {c.contactDetails?.companyAddress}</p>
-                                        <button
-                                            style={applyBtn}
-                                            onClick={() => handleViewCompany(c.basicSetting?.companyDomain)}
-                                        >
-                                            View Company
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+                            {companies.length === 0 ? (
+                                <p style={{ color: "#64748b", padding: 20 }}>No companies with valid company names found.</p>
+                            ) : (
+                                <div style={companyGrid}>
+                                    {companies.map((c, i) => {
+                                        // Additional safety check - should already be filtered but just in case
+                                        if (!c?.basicSetting?.companyName || c.basicSetting.companyName.trim() === "") {
+                                            return null;
+                                        }
+                                        return (
+                                            <div key={i} style={companyCard}>
+                                                <h3>{c.basicSetting.companyName}</h3>
+                                                <p>Domain: {c.basicSetting?.companyDomain || "—"}</p>
+                                                <p>Email: {c.contactDetails?.companyEmail || "—"}</p>
+                                                <p>Phone: {c.contactDetails?.companyMobileNumber || "—"}</p>
+                                                <p>Address: {c.contactDetails?.companyAddress || "—"}</p>
+                                                {c.basicSetting?.companyDomain && (
+                                                    <button
+                                                        style={applyBtn}
+                                                        onClick={() => handleViewCompany(c.basicSetting.companyDomain)}
+                                                    >
+                                                        View Company
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </>
                     )}
 

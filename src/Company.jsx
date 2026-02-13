@@ -124,9 +124,9 @@ export default function Company() {
     };
 
     return (
-        <div style={{ flex: 1, background: "#f3f4f6", height: "100vh", padding: 30 }}>
+        <div className="dashboard-content">
             <div style={card}>
-                <h2 style={{ marginBottom: 20 }}>Company Profile</h2>
+                <h2 style={{ marginBottom: 20, fontSize: "1.5rem", color: "#1e293b" }}>Company Profile</h2>
 
                 <Section title="Basic Settings">
                     <input name="companyName" placeholder="Company Name" style={inp} value={form.companyName} onChange={handle} />
@@ -166,13 +166,39 @@ export default function Company() {
 
 function Section({ title, children }) {
     return (
-        <div style={{ marginBottom: 30 }}>
-            <h3 style={{ marginBottom: 10, color: "#4f46e5" }}>{title}</h3>
-            {children}
+        <div style={{ marginBottom: 24 }}>
+            <h3 style={{ marginBottom: 12, color: "#4f46e5", fontSize: "1.05rem" }}>{title}</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
         </div>
     );
 }
 
-const card = { background: "white", borderRadius: 12, padding: 30, boxShadow: "0 10px 25px rgba(0,0,0,.1)", maxWidth: 700 };
-const inp = { width: "100%", padding: 12, marginTop: 10, border: "1px solid #ddd", borderRadius: 8 };
-const btn = { marginTop: 20, padding: 14, width: "100%", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" };
+const card = {
+    background: "white",
+    borderRadius: 12,
+    padding: 32,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+    maxWidth: 820,
+    width: "100%",
+    boxSizing: "border-box",
+};
+const inp = {
+    width: "100%",
+    padding: "14px 16px",
+    marginTop: 0,
+    border: "1px solid #d1d5db",
+    borderRadius: 8,
+    fontSize: 16,
+    boxSizing: "border-box",
+};
+const btn = {
+    marginTop: 24,
+    padding: 14,
+    width: "100%",
+    background: "#4f46e5",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    fontSize: 16,
+    cursor: "pointer",
+};
