@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 import "./styles/dashboard.css";
@@ -16,8 +16,27 @@ import HRReports from "./components/hr/HRReports";
 import DashboardHome from "./DashboardHome";
 import AllJobs from "./AllJobs";
 
+// Hook for responsive design
+function useMediaQuery(query) {
+    const [matches, setMatches] = useState(false);
+
+    useEffect(() => {
+        const media = window.matchMedia(query);
+        if (media.matches !== matches) {
+            setMatches(media.matches);
+        }
+        const listener = () => setMatches(media.matches);
+        media.addEventListener('change', listener);
+        return () => media.removeEventListener('change', listener);
+    }, [matches, query]);
+
+    return matches;
+}
+
 export default function Dashboard() {
     const nav = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -26,10 +45,33 @@ export default function Dashboard() {
 
     return (
         <div className="dashboard-layout" style={{ flexDirection: "column" }}>
-            <HRTopNav />
-            <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-                <HRSidebar />
-                <div style={{ flex: 1, overflow: "auto" }}>
+            <HRTopNav onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+            <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
+                <div style={{
+                    position: isMobile ? "fixed" : "relative",
+                    zIndex: isMobile ? 1000 : 1,
+                    transform: isMobile && !sidebarOpen ? "translateX(-100%)" : "translateX(0)",
+                    transition: "transform 0.3s ease-in-out",
+                    height: isMobile ? "100vh" : "auto"
+                }}>
+                    <HRSidebar onClose={() => setSidebarOpen(false)} />
+                </div>
+                {isMobile && sidebarOpen && (
+                    <div 
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0,0,0,0.5)",
+                            zIndex: 999,
+                            cursor: "pointer"
+                        }}
+                        onClick={() => setSidebarOpen(false)}
+                    />
+                )}
+                <div style={{ flex: 1, overflow: "auto", width: isMobile && sidebarOpen ? 0 : "auto" }}>
                     <Routes>
                         <Route path="/" element={<HRDashboardHome />} />
                         <Route path="profile" element={<DashboardHome />} />

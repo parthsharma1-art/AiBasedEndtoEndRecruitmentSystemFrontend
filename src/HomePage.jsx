@@ -152,23 +152,95 @@
 // };
 
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Utility function to check if user is logged in and logged in within last 4 hours
+function isUserLoggedIn() {
+    const token = localStorage.getItem("token");
+    if (!token) return false;
+    
+    // Check if login timestamp exists
+    const loginTimestamp = localStorage.getItem("loginTimestamp");
+    if (!loginTimestamp) {
+        // If no timestamp, assume logged in (for backward compatibility)
+        // Set current timestamp for future checks
+        localStorage.setItem("loginTimestamp", Date.now().toString());
+        return true;
+    }
+    
+    // Check if login was within last 4 hours (4 * 60 * 60 * 1000 milliseconds)
+    const fourHoursInMs = 4 * 60 * 60 * 1000;
+    const currentTime = Date.now();
+    const loginTime = parseInt(loginTimestamp, 10);
+    
+    if (currentTime - loginTime > fourHoursInMs) {
+        // Token expired (more than 4 hours), clear it
+        localStorage.removeItem("token");
+        localStorage.removeItem("loginTimestamp");
+        return false;
+    }
+    
+    return true;
+}
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    
+    // Check login status on mount and periodically
+    useEffect(() => {
+        setIsLoggedIn(isUserLoggedIn());
+        
+        // Check every minute to update login status
+        const interval = setInterval(() => {
+            setIsLoggedIn(isUserLoggedIn());
+        }, 60000); // Check every minute
+        
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div style={{ fontFamily: "Arial" }}>
 
             {/* HEADER */}
             <header style={header}>
-                <h1 style={logo}>AI Recruitment</h1>
+                <h1 
+                    style={{
+                        ...logo,
+                        cursor: "pointer",
+                        userSelect: "none",
+                        transition: "opacity 0.2s"
+                    }}
+                    onClick={() => navigate("/")}
+                    onMouseEnter={(e) => e.target.style.opacity = "0.8"}
+                    onMouseLeave={(e) => e.target.style.opacity = "1"}
+                >
+                    AI Recruitment
+                </h1>
 
                 <nav style={nav}>
-                    <button onClick={() => navigate("/recruiter-auth")} style={linkStyle}>For Recruiters</button>
-                    <button onClick={() => navigate("/candidate-auth")} style={linkStyle}>For Candidates</button>
-                    <button onClick={() => navigate("/pricing")} style={linkStyle}>Pricing</button>
+                    {isLoggedIn ? (
+                        <button 
+                            onClick={() => navigate("/dashboard")} 
+                            style={{
+                                ...linkStyle,
+                                background: "#10b981",
+                                color: "white",
+                                padding: "8px 16px",
+                                borderRadius: "6px",
+                                fontWeight: 600
+                            }}
+                        >
+                            Dashboard
+                        </button>
+                    ) : (
+                        <>
+                            <button onClick={() => navigate("/recruiter-auth")} style={linkStyle}>For Recruiters</button>
+                            <button onClick={() => navigate("/candidate-auth")} style={linkStyle}>For Candidates</button>
+                            <button onClick={() => navigate("/pricing")} style={linkStyle}>Pricing</button>
+                        </>
+                    )}
                 </nav>
             </header>
 
@@ -183,13 +255,30 @@ export default function HomePage() {
                 </p>
 
                 <div style={heroBtnWrap}>
-                    <button onClick={() => navigate("/recruiter-auth")} style={btnStyleBlue}>
-                        Become a Recruiter
-                    </button>
+                    {isLoggedIn ? (
+                        <button 
+                            onClick={() => navigate("/dashboard")} 
+                            style={{
+                                ...btnStyleGreen,
+                                background: "#10b981",
+                                fontSize: "18px",
+                                padding: "14px 30px",
+                                minWidth: 200
+                            }}
+                        >
+                            Go to Dashboard
+                        </button>
+                    ) : (
+                        <>
+                            <button onClick={() => navigate("/recruiter-auth")} style={btnStyleBlue}>
+                                Become a Recruiter
+                            </button>
 
-                    <button onClick={() => navigate("/candidate-auth")} style={btnStyleGreen}>
-                        Become a Candidate
-                    </button>
+                            <button onClick={() => navigate("/candidate-auth")} style={btnStyleGreen}>
+                                Become a Candidate
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 <button onClick={() => navigate("/browse-jobs")} style={{ ...btnStyleBlue, marginTop: 20 }}>
@@ -202,21 +291,37 @@ export default function HomePage() {
 
                 {/* FOOTER BUTTONS */}
                 <div style={footerBtnContainer}>
-                    <button onClick={() => navigate("/recruiter-auth")} style={footerBtn}>
-                        Become Recruiter
-                    </button>
+                    {isLoggedIn ? (
+                        <button 
+                            onClick={() => navigate("/dashboard")} 
+                            style={{
+                                ...footerBtn,
+                                background: "#10b981"
+                            }}
+                        >
+                            Dashboard
+                        </button>
+                    ) : (
+                        <>
+                            <button onClick={() => navigate("/recruiter-auth")} style={footerBtn}>
+                                Become Recruiter
+                            </button>
 
-                    <button onClick={() => navigate("/candidate-auth")} style={footerBtn}>
-                        Become Candidate
-                    </button>
+                            <button onClick={() => navigate("/candidate-auth")} style={footerBtn}>
+                                Become Candidate
+                            </button>
+                        </>
+                    )}
 
                     <button onClick={() => navigate("/browse-jobs")} style={footerBtn}>
                         Browse Jobs
                     </button>
 
-                    <button onClick={() => navigate("/pricing")} style={footerBtn}>
-                        Pricing
-                    </button>
+                    {!isLoggedIn && (
+                        <button onClick={() => navigate("/pricing")} style={footerBtn}>
+                            Pricing
+                        </button>
+                    )}
                 </div>
 
                 {/* COMPANY NAME */}

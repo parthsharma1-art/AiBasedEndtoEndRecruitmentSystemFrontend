@@ -4,11 +4,30 @@ import { useNavigate } from "react-router-dom";
 import CONFIG from "./config/config";
 import "./styles/dashboard.css";
 
+// Hook for responsive design
+function useMediaQuery(query) {
+    const [matches, setMatches] = useState(false);
+
+    useEffect(() => {
+        const media = window.matchMedia(query);
+        if (media.matches !== matches) {
+            setMatches(media.matches);
+        }
+        const listener = () => setMatches(media.matches);
+        media.addEventListener('change', listener);
+        return () => media.removeEventListener('change', listener);
+    }, [matches, query]);
+
+    return matches;
+}
+
 export default function AllJobs() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isTablet = useMediaQuery('(max-width: 1024px)');
 
     useEffect(() => {
         console.log("AllJobs component mounted - fetching jobs");
@@ -139,16 +158,18 @@ export default function AllJobs() {
             {/* Header Section */}
             <div style={{ 
                 display: "flex", 
+                flexDirection: isMobile ? "column" : "row",
                 justifyContent: "space-between", 
-                alignItems: "center", 
-                marginBottom: 32,
+                alignItems: isMobile ? "flex-start" : "center", 
+                marginBottom: isMobile ? 24 : 32,
                 paddingBottom: 20,
-                borderBottom: "2px solid #e2e8f0"
+                borderBottom: "2px solid #e2e8f0",
+                gap: isMobile ? "16px" : "0"
             }}>
                 <div>
                     <h1 style={{ 
                         margin: 0, 
-                        fontSize: "1.875rem", 
+                        fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem", 
                         color: "#1e293b",
                         fontWeight: 700,
                         letterSpacing: "-0.025em"
@@ -158,7 +179,7 @@ export default function AllJobs() {
                     <p style={{ 
                         margin: "8px 0 0", 
                         color: "#64748b", 
-                        fontSize: "0.95rem" 
+                        fontSize: isMobile ? "0.85rem" : "0.95rem" 
                     }}>
                         Manage and view all your job postings
                     </p>
@@ -167,13 +188,14 @@ export default function AllJobs() {
                     type="button"
                     className="btn-sm btn-view"
                     style={{ 
-                        padding: "12px 24px",
-                        fontSize: "0.95rem",
+                        padding: isMobile ? "10px 20px" : "12px 24px",
+                        fontSize: isMobile ? "0.85rem" : "0.95rem",
                         fontWeight: 600,
                         borderRadius: "8px",
                         boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
                         transition: "all 0.2s",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        width: isMobile ? "100%" : "auto"
                     }}
                     onMouseEnter={(e) => {
                         e.target.style.transform = "translateY(-2px)";
@@ -302,15 +324,19 @@ export default function AllJobs() {
                     </div>
                     <div style={{ 
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
-                        gap: 20
+                        gridTemplateColumns: isMobile 
+                            ? "1fr" 
+                            : isTablet 
+                                ? "repeat(auto-fill, minmax(300px, 1fr))" 
+                                : "repeat(auto-fill, minmax(400px, 1fr))",
+                        gap: isMobile ? "15px" : "20px"
                     }}>
                         {jobs.map((job) => (
                             <div
                                 key={job.id || job.jobId}
                                 style={{
                                     background: "#fff",
-                                    padding: "24px",
+                                    padding: isMobile ? "16px" : "24px",
                                     borderRadius: "12px",
                                     boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
                                     border: "1px solid #e2e8f0",
@@ -348,10 +374,10 @@ export default function AllJobs() {
                                 {/* Job Title */}
                                 <h3 style={{ 
                                     margin: "0 0 12px", 
-                                    fontSize: "1.25rem", 
+                                    fontSize: isMobile ? "1.1rem" : "1.25rem", 
                                     color: "#1e293b",
                                     fontWeight: 700,
-                                    paddingRight: "100px",
+                                    paddingRight: isMobile ? "80px" : "100px",
                                     lineHeight: 1.3
                                 }}>
                                     {job.title || "Untitled Job"}
@@ -404,10 +430,10 @@ export default function AllJobs() {
                                 {/* Job Details Grid */}
                                 <div style={{
                                     display: "grid",
-                                    gridTemplateColumns: "1fr 1fr",
-                                    gap: "12px",
+                                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                                    gap: isMobile ? "10px" : "12px",
                                     marginBottom: "16px",
-                                    padding: "16px",
+                                    padding: isMobile ? "12px" : "16px",
                                     background: "#f8fafc",
                                     borderRadius: "8px"
                                 }}>
