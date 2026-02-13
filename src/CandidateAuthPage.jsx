@@ -513,6 +513,8 @@ axios.interceptors.request.use(function (config) {
 
 export default function CandidateAuthPage() {
   const [isLogin, setIsLogin] = React.useState(true);
+  const [showGoogleModal, setShowGoogleModal] = React.useState(false);
+  const [googleLoading, setGoogleLoading] = React.useState(false);
   const [form, setForm] = React.useState({});
   const [files, setFiles] = React.useState({
     profileImage: null,
@@ -583,20 +585,30 @@ export default function CandidateAuthPage() {
     localStorage.setItem("loginTimestamp", Date.now().toString());
   };
 
-  const googleLogin = async () => {
+  const googleLogin = () => {
+    // Show modal first
+    setShowGoogleModal(true);
+  };
+
+  const handleGoogleContinue = async () => {
     try {
+      setGoogleLoading(true);
+      setShowGoogleModal(false);
+      
       const res = await axios.get(
         API_BASE + "/candidate/google/login-url-candidate"
       );
-      const googleUrl = res.data.url;
+      const googleUrl = res.data?.url || res.data?.url;
       if (googleUrl) {
         window.location.href = googleUrl;
       } else {
         alert("Google URL not received");
+        setGoogleLoading(false);
       }
     } catch (err) {
       console.error("Google login error:", err);
       alert("Google login failed");
+      setGoogleLoading(false);
     }
   };
 
@@ -746,6 +758,137 @@ export default function CandidateAuthPage() {
           </p>
         </div>
       </div>
+
+      {/* Google Login Modal */}
+      {showGoogleModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            animation: "fadeIn 0.2s ease-in",
+          }}
+          onClick={() => !googleLoading && setShowGoogleModal(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              padding: "30px",
+              maxWidth: "400px",
+              width: "90%",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+              animation: "slideUp 0.3s ease-out",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ fontSize: "3rem", marginBottom: "10px" }}>🔐</div>
+              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#1e293b" }}>
+                Google Login
+              </h2>
+            </div>
+
+            <p
+              style={{
+                textAlign: "center",
+                color: "#64748b",
+                fontSize: "0.95rem",
+                lineHeight: "1.6",
+                marginBottom: "25px",
+              }}
+            >
+              If you are a new user, please sign up first. After signing up, you
+              can use Google login for future access.
+            </p>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={() => setShowGoogleModal(false)}
+                disabled={googleLoading}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  background: "#e2e8f0",
+                  color: "#475569",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  cursor: googleLoading ? "not-allowed" : "pointer",
+                  fontWeight: 500,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGoogleContinue}
+                disabled={googleLoading}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  background: googleLoading ? "#9ca3af" : "#4f46e5",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  cursor: googleLoading ? "not-allowed" : "pointer",
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  opacity: googleLoading ? 0.7 : 1,
+                }}
+              >
+                {googleLoading ? (
+                  <>
+                    <div
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid #fff",
+                        borderTopColor: "transparent",
+                        borderRadius: "50%",
+                        animation: "spin 0.6s linear infinite",
+                      }}
+                    ></div>
+                    Loading...
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
