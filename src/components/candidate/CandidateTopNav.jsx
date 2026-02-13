@@ -12,7 +12,19 @@ export default function CandidateTopNav() {
 
   return (
     <nav className="top-nav">
-      <div className="top-nav-logo">AI-Based Recruitment System</div>
+      <div 
+        className="top-nav-logo"
+        onClick={() => navigate("/")}
+        style={{
+          cursor: "pointer",
+          userSelect: "none",
+          transition: "opacity 0.2s"
+        }}
+        onMouseEnter={(e) => e.target.style.opacity = "0.8"}
+        onMouseLeave={(e) => e.target.style.opacity = "1"}
+      >
+        AI-Based Recruitment System
+      </div>
       <div className="top-nav-right">
         <div className="top-nav-notify" title="Notifications">
           <span>🔔</span>

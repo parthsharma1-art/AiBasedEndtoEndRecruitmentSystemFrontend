@@ -24,9 +24,10 @@ function useMediaQuery(query) {
 }
 
 // Utility function to check if user is logged in and logged in within last 4 hours
-function isUserLoggedIn() {
+// Returns: { loggedIn: boolean, userType: 'candidate' | 'recruiter' | null }
+function checkUserLoginStatus() {
     const token = localStorage.getItem("token");
-    if (!token) return false;
+    if (!token) return { loggedIn: false, userType: null };
     
     // Check if login timestamp exists
     const loginTimestamp = localStorage.getItem("loginTimestamp");
@@ -34,7 +35,9 @@ function isUserLoggedIn() {
         // If no timestamp, assume logged in (for backward compatibility)
         // Set current timestamp for future checks
         localStorage.setItem("loginTimestamp", Date.now().toString());
-        return true;
+        // Check user type: candidates have 'id', recruiters have 'hrId'
+        const userType = localStorage.getItem("id") ? "candidate" : "recruiter";
+        return { loggedIn: true, userType };
     }
     
     // Check if login was within last 4 hours (4 * 60 * 60 * 1000 milliseconds)
@@ -46,10 +49,16 @@ function isUserLoggedIn() {
         // Token expired (more than 4 hours), clear it
         localStorage.removeItem("token");
         localStorage.removeItem("loginTimestamp");
-        return false;
+        localStorage.removeItem("id");
+        localStorage.removeItem("hrId");
+        localStorage.removeItem("name");
+        localStorage.removeItem("hrName");
+        return { loggedIn: false, userType: null };
     }
     
-    return true;
+    // Determine user type: candidates have 'id', recruiters have 'hrId'
+    const userType = localStorage.getItem("id") ? "candidate" : "recruiter";
+    return { loggedIn: true, userType };
 }
 
 export default function BrowseJobs() {
@@ -58,7 +67,7 @@ export default function BrowseJobs() {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false); // For mobile filter modal
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loginStatus, setLoginStatus] = useState({ loggedIn: false, userType: null });
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
 
@@ -66,11 +75,11 @@ export default function BrowseJobs() {
     
     // Check login status on mount and periodically
     useEffect(() => {
-        setIsLoggedIn(isUserLoggedIn());
+        setLoginStatus(checkUserLoginStatus());
         
         // Check every minute to update login status
         const interval = setInterval(() => {
-            setIsLoggedIn(isUserLoggedIn());
+            setLoginStatus(checkUserLoginStatus());
         }, 60000); // Check every minute
         
         return () => clearInterval(interval);
@@ -176,20 +185,24 @@ export default function BrowseJobs() {
                     </span>
                 </div>
 
-                {isLoggedIn ? (
+                {loginStatus.loggedIn ? (
                     <button 
                         style={{
                             ...loginBtn,
                             background: "#10b981"
                         }} 
-                        onClick={() => navigate("/dashboard")}
+                        onClick={() => navigate(
+                            loginStatus.userType === "candidate" 
+                                ? "/candidate-dashboard" 
+                                : "/dashboard"
+                        )}
                     >
                         Dashboard
                     </button>
                 ) : (
                     <button 
                         style={loginBtn} 
-                        onClick={() => navigate("/recruiter-auth")}
+                        onClick={() => navigate("/candidate-auth")}
                     >
                         Login
                     </button>
