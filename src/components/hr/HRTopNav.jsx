@@ -2,10 +2,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Config from "../../config/config";
 
-export default function HRTopNav() {
+export default function HRTopNav({ onMenuClick }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
+  
+  // Hook for responsive design
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   React.useEffect(() => {
     const token = localStorage.getItem("token");
@@ -37,8 +46,37 @@ export default function HRTopNav() {
   };
 
   return (
-    <nav className="top-nav">
-      <div className="top-nav-logo">AI-Based Recruitment System</div>
+    <nav className="top-nav" style={{ position: "relative" }}>
+      {isMobile && onMenuClick && (
+        <button
+          onClick={onMenuClick}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "24px",
+            cursor: "pointer",
+            padding: "8px",
+            marginRight: "10px",
+            color: "#1e293b"
+          }}
+        >
+          ☰
+        </button>
+      )}
+      <div 
+        className="top-nav-logo" 
+        onClick={() => navigate("/")}
+        style={{ 
+          fontSize: isMobile ? "16px" : "inherit",
+          cursor: "pointer",
+          userSelect: "none",
+          transition: "opacity 0.2s"
+        }}
+        onMouseEnter={(e) => e.target.style.opacity = "0.8"}
+        onMouseLeave={(e) => e.target.style.opacity = "1"}
+      >
+        {isMobile ? "AI Recruitment" : "AI-Based Recruitment System"}
+      </div>
       <div className="top-nav-right">
         <div className="top-nav-notify" title="Notifications">
           <span>🔔</span>

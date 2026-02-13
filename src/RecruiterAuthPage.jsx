@@ -84,6 +84,8 @@ export default function RecruiterAuthPage() {
     localStorage.setItem("hrName", data.name);
     localStorage.setItem("hrEmail", data.email);
     localStorage.setItem("hrPhone", data.mobileNumber);
+    // Store login timestamp for 4-hour session check
+    localStorage.setItem("loginTimestamp", Date.now().toString());
   };
 
   const googleLogin = async () => {

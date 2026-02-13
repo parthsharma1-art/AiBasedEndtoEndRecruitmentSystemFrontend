@@ -12,9 +12,10 @@ const menuItems = [
   { path: "/dashboard/settings", label: "Settings", icon: "⚙️" },
 ];
 
-export default function HRSidebar() {
+export default function HRSidebar({ onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = window.innerWidth <= 768;
 
   return (
     <div
@@ -22,16 +23,37 @@ export default function HRSidebar() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        width: 260,
+        width: isMobile ? 240 : 260,
         background: "#0f172a",
         color: "white",
         height: "100vh",
         padding: 20,
         boxSizing: "border-box",
+        overflowY: "auto"
       }}
     >
-      <div>
+      {isMobile && onClose && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h2 style={{ margin: 0 }}>HR Panel</h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              fontSize: "24px",
+              cursor: "pointer",
+              padding: "4px 8px"
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      {!isMobile && (
         <h2 style={{ marginBottom: 30 }}>HR Panel</h2>
+      )}
+      <div>
         {menuItems.map((item) => (
           <div
             key={item.path}

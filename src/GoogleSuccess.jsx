@@ -21,6 +21,8 @@ export default function GoogleSuccess() {
         if (tokenFromUrl) {
             localStorage.setItem("token", tokenFromUrl);
             localStorage.setItem("hrId", id);
+            // Store login timestamp for 4-hour session check
+            localStorage.setItem("loginTimestamp", Date.now().toString());
 
             // redirect to dashboard
             nav("/dashboard");
