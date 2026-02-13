@@ -17,7 +17,20 @@ export default function CandidateDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) navigate("/candidate-auth");
+    const hrId = localStorage.getItem("hrId");
+    const candidateId = localStorage.getItem("candidateId");
+    
+    // If no token, redirect to candidate auth
+    if (!token) {
+      navigate("/candidate-auth");
+      return;
+    }
+    
+    // If user is a recruiter (has hrId but no candidateId), redirect to recruiter dashboard
+    if (hrId && !candidateId) {
+      navigate("/dashboard");
+      return;
+    }
   }, [navigate]);
 
   return (

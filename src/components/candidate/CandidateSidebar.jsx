@@ -5,7 +5,7 @@ import "../../styles/dashboard.css";
 const menuItems = [
   { path: "/candidate-dashboard", label: "Dashboard", icon: "🏠" },
   { path: "/candidate-dashboard/resume", label: "Upload Resume", icon: "📄" },
-  { path: "/candidate-dashboard/jobs", label: "Job Matching", icon: "🔍" },
+  { path: "/candidate-dashboard/jobs", label: "Jobs", icon: "🔍" },
   { path: "/candidate-dashboard/assessment", label: "Assessment", icon: "📝" },
   { path: "/candidate-dashboard/interview", label: "AI Interview", icon: "🎤" },
   { path: "/candidate-dashboard/results", label: "Results", icon: "📊" },
@@ -39,28 +39,42 @@ export default function CandidateSidebar() {
     >
       <div>
         <h2 style={{ marginBottom: 30 }}>Candidate</h2>
-        {menuItems.map((item) => (
-          <div
-            key={item.path}
-            onClick={() => navigate(item.path)}
-            style={{
-              padding: "14px 0",
-              borderBottom: "1px solid #1f2937",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: location.pathname === item.path ? "rgba(79, 70, 229, 0.2)" : "transparent",
-              marginLeft: -20,
-              marginRight: -20,
-              paddingLeft: 20,
-              paddingRight: 20,
-            }}
-          >
-            <span>{item.icon}</span>
-            {item.label}
-          </div>
-        ))}
+        {menuItems.map((item) => {
+          const handleClick = () => {
+            if (item.path === "/candidate-dashboard/jobs") {
+              navigate("/browse-jobs");
+            } else {
+              navigate(item.path);
+            }
+          };
+          
+          const isActive = item.path === "/candidate-dashboard/jobs" 
+            ? location.pathname === "/browse-jobs"
+            : location.pathname === item.path;
+          
+          return (
+            <div
+              key={item.path}
+              onClick={handleClick}
+              style={{
+                padding: "14px 0",
+                borderBottom: "1px solid #1f2937",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                background: isActive ? "rgba(79, 70, 229, 0.2)" : "transparent",
+                marginLeft: -20,
+                marginRight: -20,
+                paddingLeft: 20,
+                paddingRight: 20,
+              }}
+            >
+              <span>{item.icon}</span>
+              {item.label}
+            </div>
+          );
+        })}
       </div>
       <button
         onClick={handleLogout}

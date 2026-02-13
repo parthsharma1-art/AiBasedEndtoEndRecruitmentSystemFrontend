@@ -25,6 +25,22 @@ export default function AllJobs() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null);
+    const [updateForm, setUpdateForm] = useState({
+        title: "",
+        description: "",
+        skillsRequired: "",
+        salaryRange: "",
+        jobType: "FULL_TIME",
+        experienceRequired: "",
+        profile: "",
+    });
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState({});
+    const [message, setMessage] = useState({ type: "", text: "" });
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState(null);
     const navigate = useNavigate();
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
@@ -86,6 +102,141 @@ export default function AllJobs() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchJobDetails = async (jobId) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Token not found. Please login again.");
+            return;
+        }
+
+        try {
+            setUpdateLoading(true);
+            const response = await axios.get(`${CONFIG.BACKEND_URL}/profile/job/get/${jobId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const job = response.data;
+            setUpdateForm({
+                title: job.title || "",
+                description: job.description || "",
+                skillsRequired: Array.isArray(job.skillsRequired) ? job.skillsRequired.join(", ") : job.skillsRequired || "",
+                salaryRange: job.salaryRange || "",
+                jobType: job.jobType || "FULL_TIME",
+                experienceRequired: job.experienceRequired?.toString() || "",
+                profile: job.profile || "",
+            });
+            setSelectedJobId(jobId);
+            setShowUpdateModal(true);
+        } catch (err) {
+            console.error("Error fetching job details:", err);
+            alert(err.response?.data?.message || "Error fetching job details. Please try again.");
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
+    const handleUpdate = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Token not found. Please login again.");
+            return;
+        }
+
+        if (!selectedJobId) return;
+
+        const skillsArray = updateForm.skillsRequired
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        const payload = {
+            title: updateForm.title,
+            description: updateForm.description,
+            skillsRequired: skillsArray,
+            salaryRange: updateForm.salaryRange,
+            jobType: updateForm.jobType,
+            experienceRequired: parseInt(updateForm.experienceRequired) || 0,
+        };
+
+        if (updateForm.profile && updateForm.profile.trim() !== "") {
+            payload.profile = updateForm.profile.trim();
+        }
+
+        try {
+            setUpdateLoading(true);
+            await axios.put(`${CONFIG.BACKEND_URL}/profile/job/update/${selectedJobId}`, payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            setMessage({ type: "success", text: "Job updated successfully!" });
+            setShowUpdateModal(false);
+            setSelectedJobId(null);
+            fetchJobs(); // Refresh the job list
+            setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+        } catch (err) {
+            console.error("Error updating job:", err);
+            setMessage({ type: "error", text: err.response?.data?.message || "Error updating job. Please try again." });
+            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
+    const handleDelete = (jobId) => {
+        // Find the job to show its title in confirmation dialog
+        const job = jobs.find(j => (j.id || j.jobId) === jobId);
+        setJobToDelete({ id: jobId, title: job?.title || "this job" });
+        setShowDeleteDialog(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!jobToDelete) return;
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Token not found. Please login again.");
+            setShowDeleteDialog(false);
+            setJobToDelete(null);
+            return;
+        }
+
+        try {
+            setDeleteLoading({ ...deleteLoading, [jobToDelete.id]: true });
+            const response = await axios.delete(`${CONFIG.BACKEND_URL}/profile/job/delete/${jobToDelete.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.data === true) {
+                setMessage({ type: "success", text: "Job deleted successfully!" });
+                setShowDeleteDialog(false);
+                setJobToDelete(null);
+                fetchJobs(); // Refresh the job list
+                setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+            } else {
+                setMessage({ type: "error", text: "Failed to delete job. Please try again." });
+                setShowDeleteDialog(false);
+                setJobToDelete(null);
+                setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+            }
+        } catch (err) {
+            console.error("Error deleting job:", err);
+            setMessage({ type: "error", text: err.response?.data?.message || "Error deleting job. Please try again." });
+            setShowDeleteDialog(false);
+            setJobToDelete(null);
+            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+        } finally {
+            setDeleteLoading({ ...deleteLoading, [jobToDelete.id]: false });
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteDialog(false);
+        setJobToDelete(null);
     };
 
     if (loading) {
@@ -210,6 +361,24 @@ export default function AllJobs() {
                     + Create New Job
                 </button>
             </div>
+
+            {/* Success/Error Message */}
+            {message.text && (
+                <div style={{ 
+                    padding: "16px 20px", 
+                    background: message.type === "success" ? "#dcfce7" : "#fef2f2", 
+                    border: `1px solid ${message.type === "success" ? "#86efac" : "#fecaca"}`, 
+                    borderRadius: "12px", 
+                    marginBottom: 24,
+                    color: message.type === "success" ? "#166534" : "#991b1b",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12
+                }}>
+                    <span style={{ fontSize: "1.5rem" }}>{message.type === "success" ? "✓" : "⚠️"}</span>
+                    <p style={{ margin: 0, fontWeight: 600, fontSize: "0.95rem" }}>{message.text}</p>
+                </div>
+            )}
 
             {error && (
                 <div style={{ 
@@ -521,7 +690,7 @@ export default function AllJobs() {
 
                                 {/* Skills */}
                                 {job.skillsRequired && job.skillsRequired.length > 0 && (
-                                    <div style={{ marginTop: "16px" }}>
+                                    <div style={{ marginTop: "16px", marginBottom: "16px" }}>
                                         <p style={{ 
                                             margin: "0 0 8px", 
                                             fontSize: "0.75rem", 
@@ -567,10 +736,530 @@ export default function AllJobs() {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Action Buttons */}
+                                <div style={{
+                                    display: "flex",
+                                    gap: "10px",
+                                    marginTop: "20px",
+                                    flexWrap: "wrap"
+                                }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            fetchJobDetails(job.id || job.jobId);
+                                        }}
+                                        disabled={updateLoading}
+                                        style={{
+                                            flex: 1,
+                                            minWidth: "120px",
+                                            padding: "10px 16px",
+                                            background: "#10b981",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: updateLoading ? "not-allowed" : "pointer",
+                                            fontSize: "0.9rem",
+                                            fontWeight: 600,
+                                            transition: "all 0.2s",
+                                            opacity: updateLoading ? 0.6 : 1
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!updateLoading) {
+                                                e.target.style.background = "#059669";
+                                                e.target.style.transform = "translateY(-2px)";
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!updateLoading) {
+                                                e.target.style.background = "#10b981";
+                                                e.target.style.transform = "translateY(0)";
+                                            }
+                                        }}
+                                    >
+                                        {updateLoading ? "Loading..." : "✏️ Update"}
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(job.id || job.jobId);
+                                        }}
+                                        disabled={deleteLoading[job.id || job.jobId]}
+                                        style={{
+                                            flex: 1,
+                                            minWidth: "120px",
+                                            padding: "10px 16px",
+                                            background: "#ef4444",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: deleteLoading[job.id || job.jobId] ? "not-allowed" : "pointer",
+                                            fontSize: "0.9rem",
+                                            fontWeight: 600,
+                                            transition: "all 0.2s",
+                                            opacity: deleteLoading[job.id || job.jobId] ? 0.6 : 1
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!deleteLoading[job.id || job.jobId]) {
+                                                e.target.style.background = "#dc2626";
+                                                e.target.style.transform = "translateY(-2px)";
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!deleteLoading[job.id || job.jobId]) {
+                                                e.target.style.background = "#ef4444";
+                                                e.target.style.transform = "translateY(0)";
+                                            }
+                                        }}
+                                    >
+                                        {deleteLoading[job.id || job.jobId] ? "Deleting..." : "🗑️ Delete"}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Update Job Modal */}
+            {showUpdateModal && (
+                <>
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 1000,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: isMobile ? "20px" : "0"
+                        }}
+                        onClick={() => {
+                            if (!updateLoading) {
+                                setShowUpdateModal(false);
+                                setSelectedJobId(null);
+                            }
+                        }}
+                    >
+                        <div
+                            style={{
+                                background: "#fff",
+                                borderRadius: "12px",
+                                padding: isMobile ? "20px" : "30px",
+                                maxWidth: "600px",
+                                width: "100%",
+                                maxHeight: "90vh",
+                                overflowY: "auto",
+                                boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+                                position: "relative"
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: "24px"
+                            }}>
+                                <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#1e293b", fontWeight: 700 }}>
+                                    Update Job Posting
+                                </h2>
+                                <button
+                                    onClick={() => {
+                                        if (!updateLoading) {
+                                            setShowUpdateModal(false);
+                                            setSelectedJobId(null);
+                                        }
+                                    }}
+                                    disabled={updateLoading}
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        fontSize: "24px",
+                                        cursor: updateLoading ? "not-allowed" : "pointer",
+                                        color: "#64748b",
+                                        padding: "4px 8px",
+                                        lineHeight: 1
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={updateForm.title}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, title: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Description
+                                </label>
+                                <textarea
+                                    value={updateForm.description}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, description: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        minHeight: "100px",
+                                        resize: "vertical",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Skills Required (comma separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={updateForm.skillsRequired}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, skillsRequired: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Salary Range
+                                </label>
+                                <input
+                                    type="text"
+                                    value={updateForm.salaryRange}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, salaryRange: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Job Type
+                                </label>
+                                <select
+                                    value={updateForm.jobType}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, jobType: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                >
+                                    <option value="FULL_TIME">Full-time</option>
+                                    <option value="INTERNSHIP">Internship</option>
+                                    <option value="REMOTE">Remote</option>
+                                    <option value="HYBRID">Hybrid</option>
+                                    <option value="ONSITE">Onsite</option>
+                                </select>
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Experience Required (years)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={updateForm.experienceRequired}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, experienceRequired: e.target.value })}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "24px" }}>
+                                <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, color: "#1e293b" }}>
+                                    Profile
+                                </label>
+                                <input
+                                    type="text"
+                                    value={updateForm.profile}
+                                    onChange={(e) => setUpdateForm({ ...updateForm, profile: e.target.value })}
+                                    placeholder="Enter profile information"
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "0.95rem",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{
+                                display: "flex",
+                                gap: "12px",
+                                justifyContent: "flex-end"
+                            }}>
+                                <button
+                                    onClick={() => {
+                                        if (!updateLoading) {
+                                            setShowUpdateModal(false);
+                                            setSelectedJobId(null);
+                                        }
+                                    }}
+                                    disabled={updateLoading}
+                                    style={{
+                                        padding: "12px 24px",
+                                        background: "#64748b",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        cursor: updateLoading ? "not-allowed" : "pointer",
+                                        fontSize: "0.95rem",
+                                        fontWeight: 600,
+                                        opacity: updateLoading ? 0.6 : 1
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleUpdate}
+                                    disabled={updateLoading || !updateForm.title.trim() || !updateForm.description.trim()}
+                                    style={{
+                                        padding: "12px 24px",
+                                        background: updateLoading || !updateForm.title.trim() || !updateForm.description.trim() ? "#9ca3af" : "#4f46e5",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        cursor: updateLoading || !updateForm.title.trim() || !updateForm.description.trim() ? "not-allowed" : "pointer",
+                                        fontSize: "0.95rem",
+                                        fontWeight: 600,
+                                        transition: "all 0.2s"
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!updateLoading && updateForm.title.trim() && updateForm.description.trim()) {
+                                            e.target.style.background = "#4338ca";
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!updateLoading && updateForm.title.trim() && updateForm.description.trim()) {
+                                            e.target.style.background = "#4f46e5";
+                                        }
+                                    }}
+                                >
+                                    {updateLoading ? "Updating..." : "Update Job"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            {showDeleteDialog && jobToDelete && (
+                <>
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 2000,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: isMobile ? "20px" : "0",
+                            animation: "fadeIn 0.2s ease"
+                        }}
+                        onClick={cancelDelete}
+                    >
+                        <div
+                            style={{
+                                background: "#fff",
+                                borderRadius: "12px",
+                                padding: isMobile ? "24px" : "32px",
+                                maxWidth: "500px",
+                                width: "100%",
+                                boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+                                position: "relative",
+                                animation: "slideUp 0.3s ease"
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{
+                                textAlign: "center",
+                                marginBottom: "24px"
+                            }}>
+                                <div style={{
+                                    width: "64px",
+                                    height: "64px",
+                                    margin: "0 auto 16px",
+                                    borderRadius: "50%",
+                                    background: "#fef2f2",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                }}>
+                                    <span style={{ fontSize: "2rem" }}>⚠️</span>
+                                </div>
+                                <h2 style={{
+                                    margin: "0 0 12px",
+                                    fontSize: isMobile ? "1.25rem" : "1.5rem",
+                                    color: "#1e293b",
+                                    fontWeight: 700
+                                }}>
+                                    Delete Job Posting?
+                                </h2>
+                                <p style={{
+                                    margin: 0,
+                                    fontSize: "0.95rem",
+                                    color: "#64748b",
+                                    lineHeight: 1.6
+                                }}>
+                                    Are you sure you want to delete <strong style={{ color: "#1e293b" }}>"{jobToDelete.title}"</strong>? This action cannot be undone.
+                                </p>
+                            </div>
+
+                            <div style={{
+                                display: "flex",
+                                gap: "12px",
+                                justifyContent: "flex-end",
+                                flexWrap: "wrap"
+                            }}>
+                                <button
+                                    onClick={cancelDelete}
+                                    disabled={deleteLoading[jobToDelete.id]}
+                                    style={{
+                                        padding: "12px 24px",
+                                        background: "#f1f5f9",
+                                        color: "#475569",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        cursor: deleteLoading[jobToDelete.id] ? "not-allowed" : "pointer",
+                                        fontSize: "0.95rem",
+                                        fontWeight: 600,
+                                        transition: "all 0.2s",
+                                        opacity: deleteLoading[jobToDelete.id] ? 0.6 : 1
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!deleteLoading[jobToDelete.id]) {
+                                            e.target.style.background = "#e2e8f0";
+                                            e.target.style.color = "#1e293b";
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!deleteLoading[jobToDelete.id]) {
+                                            e.target.style.background = "#f1f5f9";
+                                            e.target.style.color = "#475569";
+                                        }
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    disabled={deleteLoading[jobToDelete.id]}
+                                    style={{
+                                        padding: "12px 24px",
+                                        background: deleteLoading[jobToDelete.id] ? "#9ca3af" : "#ef4444",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        cursor: deleteLoading[jobToDelete.id] ? "not-allowed" : "pointer",
+                                        fontSize: "0.95rem",
+                                        fontWeight: 600,
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px"
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!deleteLoading[jobToDelete.id]) {
+                                            e.target.style.background = "#dc2626";
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!deleteLoading[jobToDelete.id]) {
+                                            e.target.style.background = "#ef4444";
+                                        }
+                                    }}
+                                >
+                                    {deleteLoading[jobToDelete.id] ? (
+                                        <>
+                                            <span style={{
+                                                width: "16px",
+                                                height: "16px",
+                                                border: "2px solid #fff",
+                                                borderTopColor: "transparent",
+                                                borderRadius: "50%",
+                                                animation: "spin 0.6s linear infinite"
+                                            }}></span>
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        "Yes, Delete Job"
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <style>{`
+                        @keyframes fadeIn {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+                        @keyframes slideUp {
+                            from { 
+                                transform: translateY(20px);
+                                opacity: 0;
+                            }
+                            to { 
+                                transform: translateY(0);
+                                opacity: 1;
+                            }
+                        }
+                        @keyframes spin {
+                            to { transform: rotate(360deg); }
+                        }
+                    `}</style>
+                </>
             )}
         </div>
     );

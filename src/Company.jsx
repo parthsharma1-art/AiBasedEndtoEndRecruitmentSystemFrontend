@@ -4,7 +4,7 @@ import Config from "./config/config";
 
 const API_BASE = Config.BACKEND_URL 
 const API_PROFILE = `${API_BASE}/profile`;
-const API_CREATE = `${API_BASE}/profile/update`;
+const API_UPDATE = `${API_BASE}/profile/update`;
 
 export default function Company() {
     const [form, setForm] = useState({
@@ -100,17 +100,22 @@ export default function Company() {
                 }
             };
 
+            // Both update and create use PUT method for /profile/update endpoint
+            const url = `${API_BASE}/profile/update`;
+            const requestPayload = dataLoaded 
+                ? payload 
+                : { recruiterId: localStorage.getItem("hrId"), ...payload };
+            
+            await axios.put(url, requestPayload, {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            
             if (dataLoaded) {
-                await axios.put(`${API_PROFILE}/update`, payload, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
                 alert("Company profile updated successfully 🚀");
             } else {
-                await axios.post(
-                    API_CREATE,
-                    { recruiterId: localStorage.getItem("hrId"), ...payload },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
                 alert("Company profile created successfully 🚀");
                 setDataLoaded(true);
             }

@@ -31,7 +31,19 @@ export default function PricingPage() {
 
             {/* HEADER */}
             <div style={header}>
-                <h2 style={{ color: "#6366f1" }}>AI Recruitment Pricing</h2>
+                <h2 
+                    style={{ 
+                        color: "#6366f1",
+                        cursor: "pointer",
+                        userSelect: "none",
+                        transition: "opacity 0.2s"
+                    }}
+                    onClick={() => navigate("/")}
+                    onMouseEnter={(e) => e.target.style.opacity = "0.8"}
+                    onMouseLeave={(e) => e.target.style.opacity = "1"}
+                >
+                    AI Recruitment Pricing
+                </h2>
                 <button onClick={() => navigate("/")} style={backBtn}>← Back Home</button>
             </div>
 

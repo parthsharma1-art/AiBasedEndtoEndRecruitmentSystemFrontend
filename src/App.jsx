@@ -13,6 +13,7 @@ import CompanyPublicPage from "./CompanyPublicPage";
 import CompanyJobsPage from "./CompanyJobsPage";
 import CompanyProfile from "./CompanyProfile";
 import GoogleSuccess from "./GoogleSuccess";
+import CandidateGoogleSuccess from "./CandidateGoogleSuccess";
 import CandidateDashboard from "./components/candidate/CandidateDashboard";
 import AllJobs from "./AllJobs";
 
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/companies" element={<Companies />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/google-success" element={<GoogleSuccess />} />
+      <Route path="/candidate/google-success" element={<CandidateGoogleSuccess />} />
       <Route path="/dashboard/jobs" element={<AllJobs />} />
 
       {/* DASHBOARD */}

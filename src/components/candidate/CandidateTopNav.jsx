@@ -10,9 +10,36 @@ export default function CandidateTopNav() {
     navigate("/");
   };
 
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate("/");
+  };
+
   return (
     <nav className="top-nav">
-      <div className="top-nav-logo">AI-Based Recruitment System</div>
+      <div
+        className="top-nav-logo"
+        onClick={handleLogoClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleLogoClick(e);
+          }
+        }}
+        style={{
+          cursor: "pointer",
+          userSelect: "none",
+          transition: "opacity 0.2s",
+          outline: "none"
+        }}
+        onMouseEnter={(e) => e.target.style.opacity = "0.8"}
+        onMouseLeave={(e) => e.target.style.opacity = "1"}
+      >
+        AI-Based Recruitment System
+      </div>
       <div className="top-nav-right">
         <div className="top-nav-notify" title="Notifications">
           <span>🔔</span>

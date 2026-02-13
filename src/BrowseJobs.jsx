@@ -59,6 +59,29 @@ export default function BrowseJobs() {
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false); // For mobile filter modal
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    
+    // Filter states
+    const [filters, setFilters] = useState({
+        jobType: {
+            FULL_TIME: false,
+            PART_TIME: false,
+            REMOTE: false,
+            INTERNSHIP: false,
+            HYBRID: false,
+            ONSITE: false
+        },
+        experience: {
+            "0-2": false,
+            "3-5": false,
+            "5+": false
+        },
+        salary: {
+            "3-6": false,
+            "6-10": false,
+            "10+": false
+        }
+    });
+    
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
 
@@ -75,7 +98,7 @@ export default function BrowseJobs() {
         
         return () => clearInterval(interval);
     }, []);
-    console.log(activeTab,"heren is rhe acive tab");
+    
     // Fetch data whenever tab changes
     useEffect(() => {
         if (activeTab === "jobs") fetchJobs();
@@ -126,10 +149,131 @@ export default function BrowseJobs() {
         navigate(`/companies/${subdomain}`);     // navigate to company profile
     };
 
+    // Filter handler functions
+    const handleFilterChange = (category, key) => {
+        setFilters(prev => ({
+            ...prev,
+            [category]: {
+                ...prev[category],
+                [key]: !prev[category][key]
+            }
+        }));
+    };
+
+    // Helper function to extract salary range number from string (e.g., "₹8 LPA – ₹12 LPA" -> 8)
+    const extractSalaryNumber = (salaryStr) => {
+        if (!salaryStr) return 0;
+        const match = salaryStr.match(/₹?\s*(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+    };
+
+    // Filter jobs based on selected filters
+    const getFilteredJobs = () => {
+        return jobs.filter((job) => {
+            const j = job?.jobPostingsResponse;
+            if (!j) return false;
+
+            // Job Type filter
+            const jobTypeFilters = Object.entries(filters.jobType).filter(([_, checked]) => checked);
+            if (jobTypeFilters.length > 0) {
+                const selectedTypes = jobTypeFilters.map(([type]) => type);
+                if (!selectedTypes.includes(j.jobType)) {
+                    return false;
+                }
+            }
+
+            // Experience filter
+            const experienceFilters = Object.entries(filters.experience).filter(([_, checked]) => checked);
+            if (experienceFilters.length > 0) {
+                const exp = j.experienceRequired || 0;
+                let matchesExperience = false;
+                
+                experienceFilters.forEach(([range]) => {
+                    if (range === "0-2" && exp >= 0 && exp <= 2) matchesExperience = true;
+                    if (range === "3-5" && exp >= 3 && exp <= 5) matchesExperience = true;
+                    if (range === "5+" && exp >= 5) matchesExperience = true;
+                });
+                
+                if (!matchesExperience) return false;
+            }
+
+            // Salary filter
+            const salaryFilters = Object.entries(filters.salary).filter(([_, checked]) => checked);
+            if (salaryFilters.length > 0) {
+                const salaryNum = extractSalaryNumber(j.salaryRange);
+                let matchesSalary = false;
+                
+                salaryFilters.forEach(([range]) => {
+                    if (range === "3-6" && salaryNum >= 3 && salaryNum <= 6) matchesSalary = true;
+                    if (range === "6-10" && salaryNum >= 6 && salaryNum <= 10) matchesSalary = true;
+                    if (range === "10+" && salaryNum >= 10) matchesSalary = true;
+                });
+                
+                if (!matchesSalary) return false;
+            }
+
+            return true;
+        });
+    };
+
+    const filteredJobs = getFilteredJobs();
+    
+    // Check if any filters are active
+    const hasActiveFilters = () => {
+        return Object.values(filters.jobType).some(v => v) ||
+               Object.values(filters.experience).some(v => v) ||
+               Object.values(filters.salary).some(v => v);
+    };
+
+    // Clear all filters
+    const clearFilters = () => {
+        setFilters({
+            jobType: {
+                FULL_TIME: false,
+                PART_TIME: false,
+                REMOTE: false,
+                INTERNSHIP: false,
+                HYBRID: false,
+                ONSITE: false
+            },
+            experience: {
+                "0-2": false,
+                "3-5": false,
+                "5+": false
+            },
+            salary: {
+                "3-6": false,
+                "6-10": false,
+                "10+": false
+            }
+        });
+    };
+
     if (loading) {
         return (
-            <div style={center}>
-                <h2>Loading...</h2>
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "400px",
+                gap: 16
+            }}>
+                <div style={{
+                    width: "48px",
+                    height: "48px",
+                    border: "4px solid #e2e8f0",
+                    borderTopColor: "#4f46e5",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite"
+                }}></div>
+                <h2 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: 600 }}>Loading jobs...</h2>
+                <p style={{ margin: 0, color: "#64748b", fontSize: "0.95rem" }}>Please wait while we fetch jobs from the server...</p>
+                <style>{`
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                `}</style>
             </div>
         );
     }
@@ -212,11 +356,38 @@ export default function BrowseJobs() {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                marginBottom: "20px",
+                                marginBottom: isMobile ? "20px" : "24px",
                                 flexWrap: "wrap",
                                 gap: "15px"
                             }}>
-                                <h2 style={{ margin: 0 }}>Available Jobs ({jobs.length})</h2>
+                                <div>
+                                    <h2 style={{ 
+                                        margin: 0, 
+                                        fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem",
+                                        color: "#1e293b",
+                                        fontWeight: 700,
+                                        letterSpacing: "-0.025em"
+                                    }}>
+                                        Available Jobs ({hasActiveFilters() ? filteredJobs.length : jobs.length})
+                                        {hasActiveFilters() && (
+                                            <span style={{ 
+                                                fontSize: "0.8rem", 
+                                                color: "#64748b", 
+                                                fontWeight: 400,
+                                                marginLeft: "8px"
+                                            }}>
+                                                (filtered from {jobs.length})
+                                            </span>
+                                        )}
+                                    </h2>
+                                    <p style={{ 
+                                        margin: "8px 0 0", 
+                                        color: "#64748b", 
+                                        fontSize: isMobile ? "0.85rem" : "0.95rem" 
+                                    }}>
+                                        Browse and apply to exciting opportunities
+                                    </p>
+                                </div>
                                 {/* Mobile Filter Button */}
                                 {isMobile && (
                                     <button
@@ -233,7 +404,16 @@ export default function BrowseJobs() {
                                             display: "flex",
                                             alignItems: "center",
                                             gap: "8px",
-                                            boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)"
+                                            boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
+                                            transition: "all 0.2s"
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.transform = "translateY(-2px)";
+                                            e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.transform = "translateY(0)";
+                                            e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
                                         }}
                                     >
                                         <span>🔍</span>
@@ -241,18 +421,364 @@ export default function BrowseJobs() {
                                     </button>
                                 )}
                             </div>
-                            {jobs.map((job, index) => {
-                                const j = job?.jobPostingsResponse;
-                                if (!j) return null;
-                                return (
-                                    <div key={index} style={jobCard}>
-                                        <h3>{job.companyName}</h3>
-                                        <h4>{j.title}</h4>
-                                        <p>{j.description}</p>
-                                        <button style={applyBtn}>Apply Now</button>
-                                    </div>
-                                );
-                            })}
+                            
+                            {filteredJobs.length === 0 ? (
+                                <div style={{ 
+                                    padding: "60px 40px", 
+                                    textAlign: "center", 
+                                    background: "#fff", 
+                                    borderRadius: "12px",
+                                    border: "2px dashed #e2e8f0",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+                                }}>
+                                    <div style={{ fontSize: "4rem", marginBottom: 16 }}>📋</div>
+                                    <h3 style={{ 
+                                        margin: "0 0 12px", 
+                                        fontSize: "1.25rem", 
+                                        color: "#1e293b",
+                                        fontWeight: 600
+                                    }}>
+                                        {hasActiveFilters() ? "No Jobs Match Your Filters" : "No Jobs Available"}
+                                    </h3>
+                                    <p style={{ 
+                                        color: "#64748b", 
+                                        margin: "0 auto 16px",
+                                        fontSize: "0.95rem",
+                                        maxWidth: "400px"
+                                    }}>
+                                        {hasActiveFilters() 
+                                            ? "Try adjusting your filters to see more results." 
+                                            : "Check back later for new job opportunities!"}
+                                    </p>
+                                    {hasActiveFilters() && (
+                                        <button
+                                            onClick={clearFilters}
+                                            style={{
+                                                padding: "10px 20px",
+                                                background: "#4f46e5",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: "8px",
+                                                cursor: "pointer",
+                                                fontSize: "0.9rem",
+                                                fontWeight: 600,
+                                                transition: "all 0.2s"
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.target.style.background = "#4338ca";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.style.background = "#4f46e5";
+                                            }}
+                                        >
+                                            Clear All Filters
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div style={{ 
+                                    display: "grid",
+                                    gridTemplateColumns: isMobile 
+                                        ? "1fr" 
+                                        : isTablet 
+                                            ? "repeat(auto-fill, minmax(300px, 1fr))" 
+                                            : "repeat(auto-fill, minmax(400px, 1fr))",
+                                    gap: isMobile ? "15px" : "20px"
+                                }}>
+                                    {filteredJobs.map((job, index) => {
+                                        const j = job?.jobPostingsResponse;
+                                        if (!j) return null;
+                                        
+                                        return (
+                                            <div
+                                                key={job.id || index}
+                                                style={{
+                                                    background: "#fff",
+                                                    padding: isMobile ? "16px" : "24px",
+                                                    borderRadius: "12px",
+                                                    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                                                    border: "1px solid #e2e8f0",
+                                                    transition: "all 0.2s",
+                                                    position: "relative",
+                                                    overflow: "hidden"
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.transform = "translateY(-4px)";
+                                                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)";
+                                                    e.currentTarget.style.borderColor = "#4f46e5";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.transform = "translateY(0)";
+                                                    e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.08)";
+                                                    e.currentTarget.style.borderColor = "#e2e8f0";
+                                                }}
+                                            >
+                                                {/* Status Badge */}
+                                                {j.active !== undefined && (
+                                                    <div style={{
+                                                        position: "absolute",
+                                                        top: 16,
+                                                        right: 16,
+                                                        padding: "4px 12px",
+                                                        borderRadius: "20px",
+                                                        fontSize: "0.75rem",
+                                                        fontWeight: 600,
+                                                        background: j.active ? "#dcfce7" : "#fee2e2",
+                                                        color: j.active ? "#166534" : "#991b1b"
+                                                    }}>
+                                                        {j.active ? "✓ Active" : "✗ Inactive"}
+                                                    </div>
+                                                )}
+
+                                                {/* Company Name */}
+                                                {job.companyName && (
+                                                    <p style={{
+                                                        margin: "0 0 8px",
+                                                        fontSize: "0.85rem",
+                                                        color: "#4f46e5",
+                                                        fontWeight: 600,
+                                                        textTransform: "uppercase",
+                                                        letterSpacing: "0.5px"
+                                                    }}>
+                                                        🏢 {job.companyName}
+                                                    </p>
+                                                )}
+
+                                                {/* Job Title */}
+                                                <h3 style={{ 
+                                                    margin: "0 0 12px", 
+                                                    fontSize: isMobile ? "1.1rem" : "1.25rem", 
+                                                    color: "#1e293b",
+                                                    fontWeight: 700,
+                                                    paddingRight: isMobile ? "80px" : "100px",
+                                                    lineHeight: 1.3
+                                                }}>
+                                                    {j.title || "Untitled Job"}
+                                                </h3>
+
+                                                {/* Description */}
+                                                <p style={{ 
+                                                    margin: "0 0 20px", 
+                                                    fontSize: "0.9rem", 
+                                                    color: "#64748b", 
+                                                    lineHeight: 1.6,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 3,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden"
+                                                }}>
+                                                    {j.description || "No description available"}
+                                                </p>
+
+                                                {/* Profile Section - Prominent Display */}
+                                                {j.profile && (
+                                                    <div style={{
+                                                        marginBottom: "16px",
+                                                        padding: "12px 16px",
+                                                        background: "linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%)",
+                                                        borderRadius: "8px",
+                                                        border: "1px solid #c7d2fe"
+                                                    }}>
+                                                        <p style={{ 
+                                                            margin: "0 0 6px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#4f46e5",
+                                                            fontWeight: 600,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            👤 Profile
+                                                        </p>
+                                                        <p style={{ 
+                                                            margin: 0, 
+                                                            fontSize: "0.95rem", 
+                                                            color: "#1e293b",
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {j.profile}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {/* Job Details Grid */}
+                                                <div style={{
+                                                    display: "grid",
+                                                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                                                    gap: isMobile ? "10px" : "12px",
+                                                    marginBottom: "16px",
+                                                    padding: isMobile ? "12px" : "16px",
+                                                    background: "#f8fafc",
+                                                    borderRadius: "8px"
+                                                }}>
+                                                    <div>
+                                                        <p style={{ 
+                                                            margin: "0 0 4px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#64748b",
+                                                            fontWeight: 500,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            💰 Salary
+                                                        </p>
+                                                        <p style={{ 
+                                                            margin: 0, 
+                                                            fontSize: "0.95rem", 
+                                                            color: "#1e293b",
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {j.salaryRange || "Not specified"}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p style={{ 
+                                                            margin: "0 0 4px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#64748b",
+                                                            fontWeight: 500,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            🏢 Type
+                                                        </p>
+                                                        <p style={{ 
+                                                            margin: 0, 
+                                                            fontSize: "0.95rem", 
+                                                            color: "#1e293b",
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {j.jobType || "N/A"}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p style={{ 
+                                                            margin: "0 0 4px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#64748b",
+                                                            fontWeight: 500,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            ⭐ Experience
+                                                        </p>
+                                                        <p style={{ 
+                                                            margin: 0, 
+                                                            fontSize: "0.95rem", 
+                                                            color: "#1e293b",
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {j.experienceRequired !== undefined ? `${j.experienceRequired} yrs` : "N/A"}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p style={{ 
+                                                            margin: "0 0 4px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#64748b",
+                                                            fontWeight: 500,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            📅 Posted
+                                                        </p>
+                                                        <p style={{ 
+                                                            margin: 0, 
+                                                            fontSize: "0.95rem", 
+                                                            color: "#1e293b",
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {j.createdAt ? new Date(j.createdAt).toLocaleDateString() : "—"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Skills */}
+                                                {j.skillsRequired && j.skillsRequired.length > 0 && (
+                                                    <div style={{ marginBottom: "16px" }}>
+                                                        <p style={{ 
+                                                            margin: "0 0 8px", 
+                                                            fontSize: "0.75rem", 
+                                                            color: "#64748b",
+                                                            fontWeight: 500,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.5px"
+                                                        }}>
+                                                            🛠️ Skills Required
+                                                        </p>
+                                                        <div style={{
+                                                            display: "flex",
+                                                            flexWrap: "wrap",
+                                                            gap: "6px"
+                                                        }}>
+                                                            {j.skillsRequired.slice(0, 5).map((skill, idx) => (
+                                                                <span
+                                                                    key={idx}
+                                                                    style={{
+                                                                        padding: "4px 10px",
+                                                                        background: "#e0e7ff",
+                                                                        color: "#4f46e5",
+                                                                        borderRadius: "6px",
+                                                                        fontSize: "0.8rem",
+                                                                        fontWeight: 500
+                                                                    }}
+                                                                >
+                                                                    {skill}
+                                                                </span>
+                                                            ))}
+                                                            {j.skillsRequired.length > 5 && (
+                                                                <span style={{
+                                                                    padding: "4px 10px",
+                                                                    background: "#f1f5f9",
+                                                                    color: "#64748b",
+                                                                    borderRadius: "6px",
+                                                                    fontSize: "0.8rem",
+                                                                    fontWeight: 500
+                                                                }}>
+                                                                    +{j.skillsRequired.length - 5} more
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Apply Button */}
+                                                <button 
+                                                    style={{
+                                                        width: "100%",
+                                                        padding: "12px 24px",
+                                                        background: "#4f46e5",
+                                                        color: "#fff",
+                                                        border: "none",
+                                                        borderRadius: "8px",
+                                                        cursor: "pointer",
+                                                        fontSize: "1rem",
+                                                        fontWeight: 600,
+                                                        boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
+                                                        transition: "all 0.2s",
+                                                        marginTop: "8px"
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.target.style.background = "#4338ca";
+                                                        e.target.style.transform = "translateY(-2px)";
+                                                        e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.target.style.background = "#4f46e5";
+                                                        e.target.style.transform = "translateY(0)";
+                                                        e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
+                                                    }}
+                                                    onClick={() => {
+                                                        // TODO: Implement apply functionality
+                                                        alert("Apply functionality coming soon!");
+                                                    }}
+                                                >
+                                                    Apply Now
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </>
                     )}
 
@@ -311,26 +837,130 @@ export default function BrowseJobs() {
                         maxHeight: "calc(100vh - 95px)"
                     }}>
                         <div style={sidebarContent}>
-                            <h3 style={sidebarTitle}>Filters</h3>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                                <h3 style={{ ...sidebarTitle, margin: 0 }}>Filters</h3>
+                                {hasActiveFilters() && (
+                                    <button
+                                        onClick={clearFilters}
+                                        style={{
+                                            padding: "4px 12px",
+                                            background: "transparent",
+                                            color: "#ef4444",
+                                            border: "1px solid #ef4444",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                            fontSize: "0.75rem",
+                                            fontWeight: 600
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.background = "#fee2e2";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.background = "transparent";
+                                        }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Job Type</strong>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Full-time</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Part-time</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Remote</label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.jobType.FULL_TIME}
+                                        onChange={() => handleFilterChange("jobType", "FULL_TIME")}
+                                    /> Full-time
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.jobType.PART_TIME}
+                                        onChange={() => handleFilterChange("jobType", "PART_TIME")}
+                                    /> Part-time
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.jobType.REMOTE}
+                                        onChange={() => handleFilterChange("jobType", "REMOTE")}
+                                    /> Remote
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.jobType.INTERNSHIP}
+                                        onChange={() => handleFilterChange("jobType", "INTERNSHIP")}
+                                    /> Internship
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.jobType.HYBRID}
+                                        onChange={() => handleFilterChange("jobType", "HYBRID")}
+                                    /> Hybrid
+                                </label>
                             </div>
 
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Experience</strong>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 0–2 years</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 3–5 years</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 5+ years</label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.experience["0-2"]}
+                                        onChange={() => handleFilterChange("experience", "0-2")}
+                                    /> 0–2 years
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.experience["3-5"]}
+                                        onChange={() => handleFilterChange("experience", "3-5")}
+                                    /> 3–5 years
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.experience["5+"]}
+                                        onChange={() => handleFilterChange("experience", "5+")}
+                                    /> 5+ years
+                                </label>
                             </div>
 
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Salary</strong>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 3–6 LPA</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 6–10 LPA</label>
-                                <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 10+ LPA</label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.salary["3-6"]}
+                                        onChange={() => handleFilterChange("salary", "3-6")}
+                                    /> 3–6 LPA
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.salary["6-10"]}
+                                        onChange={() => handleFilterChange("salary", "6-10")}
+                                    /> 6–10 LPA
+                                </label>
+                                <label style={filterLabel}>
+                                    <input 
+                                        type="checkbox" 
+                                        style={checkboxStyle}
+                                        checked={filters.salary["10+"]}
+                                        onChange={() => handleFilterChange("salary", "10+")}
+                                    /> 10+ LPA
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -404,25 +1034,125 @@ export default function BrowseJobs() {
                                 </button>
                             </div>
                             <div style={{ padding: "20px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                    <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 600 }}>Filters</h4>
+                                    {hasActiveFilters() && (
+                                        <button
+                                            onClick={clearFilters}
+                                            style={{
+                                                padding: "4px 12px",
+                                                background: "transparent",
+                                                color: "#ef4444",
+                                                border: "1px solid #ef4444",
+                                                borderRadius: "6px",
+                                                cursor: "pointer",
+                                                fontSize: "0.75rem",
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                                
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Job Type</strong>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Full-time</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Part-time</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> Remote</label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.jobType.FULL_TIME}
+                                            onChange={() => handleFilterChange("jobType", "FULL_TIME")}
+                                        /> Full-time
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.jobType.PART_TIME}
+                                            onChange={() => handleFilterChange("jobType", "PART_TIME")}
+                                        /> Part-time
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.jobType.REMOTE}
+                                            onChange={() => handleFilterChange("jobType", "REMOTE")}
+                                        /> Remote
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.jobType.INTERNSHIP}
+                                            onChange={() => handleFilterChange("jobType", "INTERNSHIP")}
+                                        /> Internship
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.jobType.HYBRID}
+                                            onChange={() => handleFilterChange("jobType", "HYBRID")}
+                                        /> Hybrid
+                                    </label>
                                 </div>
 
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Experience</strong>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 0–2 years</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 3–5 years</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 5+ years</label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.experience["0-2"]}
+                                            onChange={() => handleFilterChange("experience", "0-2")}
+                                        /> 0–2 years
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.experience["3-5"]}
+                                            onChange={() => handleFilterChange("experience", "3-5")}
+                                        /> 3–5 years
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.experience["5+"]}
+                                            onChange={() => handleFilterChange("experience", "5+")}
+                                        /> 5+ years
+                                    </label>
                                 </div>
 
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Salary</strong>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 3–6 LPA</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 6–10 LPA</label>
-                                    <label style={filterLabel}><input type="checkbox" style={checkboxStyle} /> 10+ LPA</label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.salary["3-6"]}
+                                            onChange={() => handleFilterChange("salary", "3-6")}
+                                        /> 3–6 LPA
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.salary["6-10"]}
+                                            onChange={() => handleFilterChange("salary", "6-10")}
+                                        /> 6–10 LPA
+                                    </label>
+                                    <label style={filterLabel}>
+                                        <input 
+                                            type="checkbox" 
+                                            style={checkboxStyle}
+                                            checked={filters.salary["10+"]}
+                                            onChange={() => handleFilterChange("salary", "10+")}
+                                        /> 10+ LPA
+                                    </label>
                                 </div>
                                 
                                 {/* Apply Button */}
@@ -439,7 +1169,14 @@ export default function BrowseJobs() {
                                         cursor: "pointer",
                                         fontSize: "1rem",
                                         fontWeight: 600,
-                                        boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)"
+                                        boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
+                                        transition: "all 0.2s"
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.background = "#4338ca";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.background = "#4f46e5";
                                     }}
                                 >
                                     Apply Filters

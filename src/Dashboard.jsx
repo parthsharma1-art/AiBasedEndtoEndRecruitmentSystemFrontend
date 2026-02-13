@@ -40,7 +40,20 @@ export default function Dashboard() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (!token) nav("/");
+        const hrId = localStorage.getItem("hrId");
+        const candidateId = localStorage.getItem("candidateId");
+        
+        // If no token, redirect to home
+        if (!token) {
+            nav("/");
+            return;
+        }
+        
+        // If user is a candidate (has candidateId but no hrId), redirect to candidate dashboard
+        if (candidateId && !hrId) {
+            nav("/candidate-dashboard");
+            return;
+        }
     }, [nav]);
 
     return (
