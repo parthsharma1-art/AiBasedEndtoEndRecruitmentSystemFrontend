@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
 
 const API = Config.BACKEND_URL + "/recruiter";
 
 export default function Candidates() {
+    const navigate = useNavigate();
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -35,7 +37,7 @@ export default function Candidates() {
                 {!loading && list.length === 0 && <p>No candidates found</p>}
 
                 {!loading && list.map((c, index) => (
-                    <div key={index} style={row}>
+                    <div key={c.id || index} style={row}>
                         <div style={{ flex: 2 }}>
                             <b>{c.name}</b>
                             <p style={sub}>{c.email}</p>
@@ -45,6 +47,9 @@ export default function Candidates() {
                         </div>
                         <div style={{ flex: 1 }}>
                             <a href={c.resumeUrl} target="_blank" rel="noreferrer">View Resume</a>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <button type="button" onClick={() => navigate("/dashboard/candidates/evaluate/" + (c.id || c.candidateId || index))} style={{ background: "none", border: "none", color: "#4f46e5", fontWeight: 600, cursor: "pointer", padding: 0 }}>Evaluate</button>
                         </div>
                     </div>
                 ))}

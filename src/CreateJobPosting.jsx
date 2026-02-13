@@ -11,8 +11,12 @@ export default function CreateJobPosting() {
         description: "",
         skillsRequired: "",
         salaryRange: "",
-        jobType: "REMOTE",
+        jobType: "FULL_TIME",
         experienceRequired: "",
+        location: "",
+        assessmentRequired: false,
+        assessmentType: "MCQ",
+        interviewRequired: false,
     });
 
     const [loading, setLoading] = useState(false);
@@ -49,6 +53,10 @@ export default function CreateJobPosting() {
             salaryRange: form.salaryRange,
             jobType: form.jobType,
             experienceRequired: parseInt(form.experienceRequired) || 0,
+            location: form.location || undefined,
+            assessmentRequired: form.assessmentRequired,
+            assessmentType: form.assessmentType,
+            interviewRequired: form.interviewRequired,
         };
 
         try {
@@ -92,14 +100,38 @@ export default function CreateJobPosting() {
             <div style={formGroup}>
                 <label>Job Type</label>
                 <select name="jobType" value={form.jobType} onChange={handleChange} style={inp}>
+                    <option value="FULL_TIME">Full-time</option>
+                    <option value="INTERNSHIP">Internship</option>
                     <option value="REMOTE">Remote</option>
                     <option value="HYBRID">Hybrid</option>
                     <option value="ONSITE">Onsite</option>
                 </select>
             </div>
             <div style={formGroup}>
+                <label>Location</label>
+                <input type="text" name="location" value={form.location} onChange={handleChange} style={inp} placeholder="e.g. Remote, Mumbai" />
+            </div>
+            <div style={formGroup}>
                 <label>Experience Required (years)</label>
                 <input type="number" name="experienceRequired" value={form.experienceRequired} onChange={handleChange} style={inp} />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                    <input type="checkbox" id="assessmentRequired" checked={form.assessmentRequired} onChange={(e) => setForm({ ...form, assessmentRequired: e.target.checked })} />
+                    <label htmlFor="assessmentRequired">Assessment Required (MCQ / Coding)</label>
+                </div>
+                {form.assessmentRequired && (
+                    <select name="assessmentType" value={form.assessmentType} onChange={handleChange} style={{ ...inp, maxWidth: 200 }}>
+                        <option value="MCQ">MCQ</option>
+                        <option value="CODING">Coding</option>
+                    </select>
+                )}
+            </div>
+            <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <input type="checkbox" id="interviewRequired" checked={form.interviewRequired} onChange={(e) => setForm({ ...form, interviewRequired: e.target.checked })} />
+                    <label htmlFor="interviewRequired">AI Interview Required</label>
+                </div>
             </div>
             {/* <button onClick={handleSubmit} style={btn} disabled={loading}>
                 {loading ? "Posting..." : "Create Job"}

@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "./config/config";
-import Sidebar from "./Sidebar";
+import "./styles/dashboard.css";
 
 const API_BASE = CONFIG.BACKEND_URL + "/profile";
-
-// axios.get(`${API_BASE}/jobs`)
-
 
 export default function AllJobs() {
     const [jobs, setJobs] = useState([]);
@@ -21,20 +18,14 @@ export default function AllJobs() {
     const fetchJobs = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Login again");
-            setLoading(false);   // IMPORTANT
-            navigate("/login");  // optional redirect
+            setLoading(false);
+            navigate("/");
             return;
         }
-
-
         try {
             const res = await axios.get(`${API_BASE}/jobs`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
-
             setJobs(res.data || []);
         } catch (err) {
             console.error(err);
@@ -44,134 +35,61 @@ export default function AllJobs() {
         }
     };
 
-    // if (loading) return <h3 style={{ padding: 20 }}>Loading jobs...</h3>;
+    if (loading) {
+        return (
+            <div className="dashboard-content">
+                <h2>Loading jobs...</h2>
+            </div>
+        );
+    }
 
-    // return (
-    //     <div style={{ display: "flex" }}>
-    //         <Sidebar/>
-    //     <div style={{ padding: 30 ,width:"100%"}}>
-    //         <div style={{ display: "flex", justifyContent: "space-between" }}>
-    //             <h2>All Posted Jobs</h2>
-
-    //             <button
-    //                 style={createBtn}
-    //                 onClick={() => navigate("/dashboard/jobs/create")}
-    //             >
-    //                 + Create Job
-    //             </button>
-    //         </div>
-
-    //         {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
-
-    //         {jobs.map((job) => (
-    //             <div key={job.id} style={card}>
-    //                 <h3>{job.title}</h3>
-    //                 <p>{job.description}</p>
-
-    //                 <p>
-    //                     <b>Skills:</b>{" "}
-    //                     {job.skillsRequired?.length
-    //                         ? job.skillsRequired.join(", ")
-    //                         : "N/A"}
-    //                 </p>
-
-    //                 <p><b>Salary:</b> {job.salaryRange}</p>
-    //                 <p><b>Type:</b> {job.jobType}</p>
-    //                 <p><b>Experience:</b> {job.experienceRequired} yrs</p>
-    //                 <p><b>Status:</b> {job.active ? "Active" : "Inactive"}</p>
-
-    //                 <p style={{ fontSize: 12, color: "gray" }}>
-    //                     Created: {new Date(job.createdAt).toLocaleString()}
-    //                 </p>
-    //             </div>
-    //         ))}
-    //     </div>
-    //     </div>
-    // );
     return (
-        <div style={layout}>
-            <Sidebar />
+        <div className="dashboard-content">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#1e293b" }}>All Posted Jobs</h1>
+                <button
+                    type="button"
+                    className="btn-sm btn-view"
+                    style={{ padding: "10px 20px" }}
+                    onClick={() => navigate("/dashboard/jobs/create")}
+                >
+                    + Create Job
+                </button>
+            </div>
 
-            <div style={content}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <h2>All Posted Jobs</h2>
+            {jobs.length === 0 && (
+                <p style={{ color: "#64748b", padding: 24 }}>No jobs found. Create a job from Post New Job or Manage Jobs.</p>
+            )}
 
-                    <button
-                        style={createBtn}
-                        onClick={() => navigate("/dashboard/jobs/create")}
+            <div style={{ overflowY: "auto", paddingRight: 10 }}>
+                {jobs.map((job) => (
+                    <div
+                        key={job.id}
+                        style={{
+                            background: "#fff",
+                            padding: 20,
+                            borderRadius: 12,
+                            marginBottom: 16,
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                        }}
                     >
-                        + Create Job
-                    </button>
-                </div>
-
-                {jobs.length === 0 && <p>No Jobs Found. Please add</p>}
-
-                <div style={jobsScroll}>
-                    {jobs.map((job) => (
-                        <div key={job.id} style={card}>
-                            <h3>{job.title}</h3>
-                            <p>{job.description}</p>
-
-                            <p>
-                                <b>Skills:</b>{" "}
-                                {job.skillsRequired?.length
-                                    ? job.skillsRequired.join(", ")
-                                    : "N/A"}
-                            </p>
-
-                            <p><b>Salary:</b> {job.salaryRange}</p>
-                            <p><b>Type:</b> {job.jobType}</p>
-                            <p><b>Experience:</b> {job.experienceRequired} yrs</p>
-                            <p><b>Status:</b> {job.active ? "Active" : "Inactive"}</p>
-
-                            <p style={{ fontSize: 12, color: "gray" }}>
-                                Created: {new Date(job.createdAt).toLocaleString()}
-                            </p>
-                        </div>
-                    ))}
-                </div>
+                        <h3 style={{ margin: "0 0 12px", fontSize: "1.1rem", color: "#1e293b" }}>{job.title}</h3>
+                        <p style={{ margin: "0 0 12px", fontSize: "0.9rem", color: "#475569", lineHeight: 1.5 }}>{job.description}</p>
+                        <p style={{ margin: "0 0 8px", fontSize: "0.9rem" }}>
+                            <strong>Skills:</strong> {job.skillsRequired?.length ? job.skillsRequired.join(", ") : "N/A"}
+                        </p>
+                        <p style={{ margin: "0 0 8px", fontSize: "0.9rem" }}><strong>Salary:</strong> {job.salaryRange}</p>
+                        <p style={{ margin: "0 0 8px", fontSize: "0.9rem" }}><strong>Type:</strong> {job.jobType}</p>
+                        <p style={{ margin: "0 0 8px", fontSize: "0.9rem" }}><strong>Experience:</strong> {job.experienceRequired} yrs</p>
+                        <p style={{ margin: "0 0 8px", fontSize: "0.9rem" }}><strong>Status:</strong> {job.active ? "Active" : "Inactive"}</p>
+                        <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>
+                            Created: {job.createdAt ? new Date(job.createdAt).toLocaleString() : "—"}
+                        </p>
+                    </div>
+                ))}
             </div>
         </div>
     );
-
 }
-
-/* styles */
-const card = {
-    background: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    marginTop: 15,
-    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-};
-
-const createBtn = {
-    padding: "6px 13px",   // reduced vertical padding from 10px → 6px
-    background: "#4f46e5",
-    color: "#fff",
-    border: "none",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontSize: 15   // optional: slightly smaller text for thinner look
-};
-
-const layout = {
-    display: "flex",
-    height: "100vh",
-    overflow: "hidden", // prevents full page scroll
-};
-
-const content = {
-    padding: 30,
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-};
-
-const jobsScroll = {
-    overflowY: "auto",
-    paddingRight: 10,
-};
 
 
