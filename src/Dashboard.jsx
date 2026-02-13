@@ -37,9 +37,9 @@ export default function Dashboard() {
                         <Route path="candidates" element={<Candidates />} />
                         <Route path="candidates/evaluate/:id" element={<CandidateEvaluation />} />
                         <Route path="company" element={<Company />} />
-                        <Route path="jobs" element={<AllJobs />} />
                         <Route path="jobs/create" element={<CreateJobPosting />} />
                         <Route path="jobs/:jobId/candidates" element={<JobCandidates />} />
+                        <Route path="jobs" element={<AllJobs />} />
                         <Route path="ai-analytics" element={<HRAnalytics />} />
                         <Route path="reports" element={<HRReports />} />
                         <Route path="settings" element={<Company />} />

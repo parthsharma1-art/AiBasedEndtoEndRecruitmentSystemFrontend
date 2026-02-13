@@ -17,6 +17,7 @@ export default function CreateJobPosting() {
         assessmentRequired: false,
         assessmentType: "MCQ",
         interviewRequired: false,
+        profile: "", // User-entered profile information
     });
 
     const [loading, setLoading] = useState(false);
@@ -53,23 +54,26 @@ export default function CreateJobPosting() {
             salaryRange: form.salaryRange,
             jobType: form.jobType,
             experienceRequired: parseInt(form.experienceRequired) || 0,
-            location: form.location || undefined,
-            assessmentRequired: form.assessmentRequired,
-            assessmentType: form.assessmentType,
-            interviewRequired: form.interviewRequired,
         };
+
+        // Add profile information entered by user
+        if (form.profile && form.profile.trim() !== "") {
+            payload.profile = form.profile.trim();
+        }
 
         try {
             setLoading(true);
-            await axios.post(`${API_BASE}/job/post`, payload, {
+            const response = await axios.post(`${API_BASE}/job/post`, payload, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            // Redirect to All Jobs page after creation
-            navigate("/dashboard/jobs");
+            // After successful backend response, redirect to Manage Jobs page
+            // The AllJobs component will automatically refresh and show the new job
+            alert("Job posted successfully! Redirecting to Manage Jobs...");
+            navigate("/dashboard/jobs", { replace: false }); // Use replace: false to allow refresh
         } catch (err) {
             console.error("Error creating job:", err.response || err);
             alert(err.response?.data?.message || "Error creating job. Please try again.");
@@ -114,6 +118,10 @@ export default function CreateJobPosting() {
             <div style={formGroup}>
                 <label>Experience Required (years)</label>
                 <input type="number" name="experienceRequired" value={form.experienceRequired} onChange={handleChange} style={inp} />
+            </div>
+            <div style={formGroup}>
+                <label>Profile</label>
+                <input type="text" name="profile" value={form.profile} onChange={handleChange} style={inp} placeholder="Enter profile information" />
             </div>
             <div style={{ marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>

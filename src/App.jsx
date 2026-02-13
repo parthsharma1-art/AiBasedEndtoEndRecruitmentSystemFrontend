@@ -14,6 +14,7 @@ import CompanyJobsPage from "./CompanyJobsPage";
 import CompanyProfile from "./CompanyProfile";
 import GoogleSuccess from "./GoogleSuccess";
 import CandidateDashboard from "./components/candidate/CandidateDashboard";
+import AllJobs from "./AllJobs";
 
 export default function App() {
   return (
@@ -28,6 +29,8 @@ export default function App() {
       <Route path="/companies" element={<Companies />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/google-success" element={<GoogleSuccess />} />
+      <Route path="/dashboard/jobs" element={<AllJobs />} />
+
       {/* DASHBOARD */}
       <Route
         path="/dashboard/*"
