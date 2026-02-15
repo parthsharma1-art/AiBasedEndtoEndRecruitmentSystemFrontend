@@ -62,23 +62,58 @@ export default function CandidateEvaluation() {
   if (!candidate) return <div className="dashboard-content"><h2>Candidate not found.</h2></div>;
 
   const resumeUrl = candidate.resumeUrl || (candidate.resumeId ? `${CONFIG.BACKEND_URL}/file/${candidate.resumeId}` : null);
+  const profileImageUrl = candidate.profileImageId ? `${CONFIG.BACKEND_URL}/file/${candidate.profileImageId}` : null;
+  const skillsList = Array.isArray(candidate.skills) ? candidate.skills : candidate.skills ? [candidate.skills] : [];
 
   return (
     <div className="dashboard-content">
-      <button type="button" onClick={() => navigate("/dashboard/candidates")} style={{ marginBottom: 16, padding: "8px 16px", cursor: "pointer" }}>← Back to Candidates</button>
-      <h1 style={{ marginBottom: 24, fontSize: "1.5rem", color: "#1e293b" }}>Candidate Evaluation</h1>
+      <button type="button" className="btn-back-to-candidates" onClick={() => navigate("/dashboard/candidates")}>← Back to Candidates</button>
+      <h1 style={{ marginBottom: 24, fontSize: "1.5rem", color: "#1e293b" }}>Candidate Details</h1>
 
       <div className="eval-section">
         <h3>Candidate Profile</h3>
-        <p><strong>Name:</strong> {candidate.name}</p>
-        <p><strong>Email:</strong> {candidate.email}</p>
-        <p><strong>Experience:</strong> {candidate.experience ?? 0} yrs</p>
-        <p><strong>Parsed skills:</strong> {Array.isArray(candidate.skills) ? candidate.skills.join(", ") : candidate.skills || "—"}</p>
-        <p><strong>Education:</strong> {candidate.education || "—"}</p>
-        {resumeUrl && (
-          <a href={resumeUrl} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 8, color: "#4f46e5" }}>Download Resume</a>
-        )}
+        <div className="eval-profile-header">
+          {profileImageUrl ? (
+            <img src={profileImageUrl} alt={candidate.name} className="eval-profile-avatar" onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
+          ) : null}
+          <div className="eval-profile-avatar-placeholder" style={{ display: profileImageUrl ? "none" : "flex" }}>
+            {(candidate.name || "?")[0].toUpperCase()}
+          </div>
+          <div>
+            <p style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 600 }}>{candidate.name || "—"}</p>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "0.9rem" }}>{candidate.email || "—"}</p>
+          </div>
+        </div>
+        <dl className="candidate-details-dl">
+          <dt>ID</dt><dd>{candidate.id || "—"}</dd>
+          <dt>Name</dt><dd>{candidate.name || "—"}</dd>
+          <dt>Email</dt><dd>{candidate.email || "—"}</dd>
+          <dt>Mobile</dt><dd>{candidate.mobileNumber || "—"}</dd>
+          <dt>Age</dt><dd>{candidate.age != null ? candidate.age : "—"}</dd>
+          <dt>Gender</dt><dd>{candidate.gender || "—"}</dd>
+          <dt>Location</dt><dd>{candidate.location || "—"}</dd>
+          <dt>Highest qualification</dt><dd>{candidate.highestQualification || "—"}</dd>
+          <dt>Skills</dt>
+          <dd>
+            {skillsList.length > 0 ? (
+              <ul className="candidate-skills-list">
+                {skillsList.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            ) : (
+              "—"
+            )}
+          </dd>
+        </dl>
       </div>
+
+      {resumeUrl && (
+        <div className="eval-section">
+          <h3>Resume</h3>
+          <a href={resumeUrl} target="_blank" rel="noreferrer" className="btn-open-resume">Open Resume</a>
+        </div>
+      )}
 
       <div className="eval-section">
         <h3>AI Scores</h3>

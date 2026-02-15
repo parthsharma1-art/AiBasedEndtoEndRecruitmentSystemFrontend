@@ -46,9 +46,105 @@
 .dashboard-table .btn-edit { background: #e2e8f0; color: #334155; }
 .dashboard-table .btn-close { background: #fecaca; color: #b91c1c; }
 
+/* ========== Candidates listing page (list/table style) ========== */
+.candidates-page-wrap { flex: 1; background: #f3f4f6; min-height: 100vh; padding: 24px; box-sizing: border-box; }
+.candidates-card { background: #fff; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); max-width: 1200px; margin: 0 auto; }
+.candidates-title { margin: 0 0 24px; font-size: 1.35rem; color: #1e293b; font-weight: 600; }
+.candidates-loading, .candidates-empty { margin: 24px 0; color: #64748b; }
+
+.candidates-list { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+.candidates-list-header {
+  display: grid; grid-template-columns: 1fr 1fr auto auto;
+  gap: 16px; padding: 14px 20px; background: #f8fafc;
+  font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.03em;
+  border-bottom: 1px solid #e5e7eb;
+}
+.candidates-list-header-name { min-width: 0; }
+.candidates-list-header-contact { min-width: 0; }
+.candidates-list-header-id { text-align: right; min-width: 100px; }
+.candidates-list-header-details { text-align: right; min-width: 140px; }
+
+.candidate-row {
+  display: grid; grid-template-columns: 1fr 1fr auto auto;
+  gap: 20px; align-items: center; padding: 18px 20px;
+  border-bottom: 1px solid #e5e7eb; cursor: pointer; background: #fff;
+  transition: background 0.15s;
+}
+.candidate-row:last-child { border-bottom: none; }
+.candidate-row:hover { background: #f8fafc; }
+
+.candidate-row-name-cell { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.candidate-row-avatar-wrap { flex-shrink: 0; }
+.candidate-row-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.candidate-row-avatar-placeholder {
+  width: 44px; height: 44px; border-radius: 50%; background: #dbeafe; color: #2563eb;
+  display: flex; align-items: center; justify-content: center;
+}
+.candidate-row-name { font-weight: 600; font-size: 1rem; color: #1e293b; }
+
+.candidate-row-contact-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; font-size: 0.9rem; color: #475569; }
+.candidate-row-contact-item { display: flex; align-items: center; gap: 8px; }
+.candidate-row-contact-icon { color: #94a3b8; flex-shrink: 0; display: inline-flex; }
+.candidate-row-contact-empty { color: #94a3b8; }
+
+.candidate-row-id-cell { text-align: right; min-width: 100px; }
+.candidate-id-badge {
+  display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #475569;
+  font-size: 0.85rem; font-weight: 500; border-radius: 6px;
+}
+.candidate-row-actions-cell {
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-end; justify-content: center;
+  min-width: 140px;
+}
+.candidate-row-actions-cell .btn-candidate-resume,
+.candidate-row-actions-cell .btn-candidate-details {
+  width: 130px; min-width: 130px; max-width: 130px;
+  box-sizing: border-box;
+}
+.btn-candidate-resume, .btn-candidate-details {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 14px; font-size: 13px; font-weight: 600; border-radius: 6px;
+  cursor: pointer; transition: background 0.2s, color 0.2s; white-space: nowrap;
+  border: none; font-family: inherit; text-decoration: none;
+}
+.btn-candidate-resume {
+  background: #2563eb; color: #fff;
+}
+.btn-candidate-resume:hover { background: #1d4ed8; color: #fff; }
+.btn-candidate-details {
+  background: #eff6ff; color: #2563eb; border: 1px solid #93c5fd;
+}
+.btn-candidate-details:hover { background: #dbeafe; color: #1d4ed8; }
+
+/* Back to Candidates button (candidate details page) */
+.btn-back-to-candidates {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 20px; padding: 10px 20px;
+  font-size: 15px; font-weight: 500; color: #2563eb;
+  background: #fff; border: 1px solid #93c5fd; border-radius: 8px;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.btn-back-to-candidates:hover { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+
 /* Candidate evaluation */
 .eval-section { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; }
+.eval-profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+.eval-profile-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.eval-profile-avatar-placeholder { width: 80px; height: 80px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 600; }
+.btn-open-resume {
+  display: inline-block; padding: 10px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 14px;
+  border-radius: 8px; text-decoration: none; border: none; cursor: pointer; transition: background 0.2s;
+}
+.btn-open-resume:hover { background: #1d4ed8; color: #fff; }
+
+/* Candidate details (CandidateDetails DTO) */
+.candidate-details-dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 28px; margin: 0; align-items: baseline; }
+.candidate-details-dl dt { font-weight: 600; color: #475569; font-size: 0.9rem; }
+.candidate-details-dl dd { margin: 0; color: #1e293b; }
+.candidate-skills-list { margin: 0; padding-left: 20px; }
+.candidate-skills-list li { margin: 4px 0; }
 .eval-section h3 { margin: 0 0 16px; font-size: 1.1rem; color: #1e293b; }
+
 .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
 .score-box { padding: 16px; background: #f8fafc; border-radius: 8px; text-align: center; }
 .score-box .label { font-size: 0.8rem; color: #64748b; }
@@ -110,6 +206,13 @@
     .dashboard-table td {
         padding: 10px 12px;
     }
+    
+    .candidates-page-wrap { padding: 16px; }
+    .candidates-card { padding: 20px 24px; }
+    .candidates-list-header-id, .candidates-list-header-details { min-width: 0; }
+    .candidate-row-id-cell { min-width: 0; }
+    .candidate-row-actions-cell { min-width: 0; }
+    .candidate-details-dl { grid-template-columns: auto 1fr; gap: 8px 20px; }
 }
 
 @media (max-width: 768px) {
@@ -183,6 +286,30 @@
     .score-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
+    
+    .candidates-page-wrap { padding: 12px; }
+    .candidates-card { padding: 16px 20px; }
+    .candidates-title { margin-bottom: 20px; font-size: 1.2rem; }
+    /* Small devices: list of cards */
+    .candidates-list { border: none; border-radius: 0; display: flex; flex-direction: column; gap: 16px; }
+    .candidates-list-header { display: none; }
+    .candidate-row {
+        display: flex; flex-direction: column; gap: 14px; padding: 20px;
+        border: 1px solid #e5e7eb; border-radius: 12px; background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06); margin: 0;
+    }
+    .candidate-row-name-cell { order: 0; }
+    .candidate-row-contact-cell { order: 1; padding-left: 0; gap: 6px; }
+    .candidate-row-id-cell { order: 2; text-align: left; }
+    .candidate-row-actions-cell {
+        order: 3; flex-direction: column; align-items: stretch;
+        padding-top: 8px; border-top: 1px solid #f1f5f9;
+    }
+    .candidate-row-actions-cell .btn-candidate-resume, .candidate-row-actions-cell .btn-candidate-details { flex: 1; }
+    .eval-profile-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .candidate-details-dl { grid-template-columns: 1fr; gap: 4px 0; }
+    .candidate-details-dl dt { margin-top: 12px; }
+    .candidate-details-dl dt:first-of-type { margin-top: 0; }
 }
 
 @media (max-width: 480px) {
@@ -212,4 +339,15 @@
         width: 100%;
         padding: 8px !important;
     }
+    
+    .candidates-page-wrap { padding: 12px; }
+    .candidates-card { padding: 16px; }
+    .candidates-title { font-size: 1.15rem; margin-bottom: 18px; }
+    .candidates-list { gap: 12px; }
+    .candidate-row { padding: 16px; gap: 12px; }
+    .candidate-row-avatar, .candidate-row-avatar-placeholder { width: 40px; height: 40px; }
+    .candidate-row-name { font-size: 0.95rem; }
+    .candidate-row-contact-cell { font-size: 0.85rem; }
+    .btn-candidate-resume, .btn-candidate-details { padding: 10px 14px; font-size: 12px; }
+    .eval-profile-avatar, .eval-profile-avatar-placeholder { width: 64px; height: 64px; font-size: 1.5rem; }
 }

@@ -155,48 +155,54 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Utility function to check if user is logged in and logged in within last 4 hours
+// Utility: check if recruiter or candidate is logged in
 function isUserLoggedIn() {
     const token = localStorage.getItem("token");
-    if (!token) return false;
-    
-    // Check if login timestamp exists
-    const loginTimestamp = localStorage.getItem("loginTimestamp");
-    if (!loginTimestamp) {
-        // If no timestamp, assume logged in (for backward compatibility)
-        // Set current timestamp for future checks
-        localStorage.setItem("loginTimestamp", Date.now().toString());
-        return true;
-    }
-    
-    // Check if login was within last 4 hours (4 * 60 * 60 * 1000 milliseconds)
-    const fourHoursInMs = 4 * 60 * 60 * 1000;
-    const currentTime = Date.now();
-    const loginTime = parseInt(loginTimestamp, 10);
-    
-    if (currentTime - loginTime > fourHoursInMs) {
-        // Token expired (more than 4 hours), clear it
+    const candidateToken = localStorage.getItem("candidateToken");
+    const hrId = localStorage.getItem("hrId");
+    const candidateId = localStorage.getItem("candidateId");
+    if (token && (hrId || candidateId)) return true;
+    if (candidateToken) return true;
+    if (token) {
+        const loginTimestamp = localStorage.getItem("loginTimestamp");
+        if (!loginTimestamp) {
+            localStorage.setItem("loginTimestamp", Date.now().toString());
+            return true;
+        }
+        const fourHoursInMs = 4 * 60 * 60 * 1000;
+        if (Date.now() - parseInt(loginTimestamp, 10) <= fourHoursInMs) return true;
         localStorage.removeItem("token");
         localStorage.removeItem("loginTimestamp");
-        return false;
     }
-    
-    return true;
+    return false;
+}
+
+function clearAuthAndLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("candidateToken");
+    localStorage.removeItem("hrId");
+    localStorage.removeItem("candidateId");
+    localStorage.removeItem("loginTimestamp");
 }
 
 export default function HomePage() {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    
+
+    const handleLogout = () => {
+        clearAuthAndLogout();
+        setIsLoggedIn(false);
+        navigate("/");
+    };
+
     // Check login status on mount and periodically
     useEffect(() => {
         setIsLoggedIn(isUserLoggedIn());
-        
-        // Check every minute to update login status
+
         const interval = setInterval(() => {
             setIsLoggedIn(isUserLoggedIn());
-        }, 60000); // Check every minute
-        
+        }, 60000);
+
         return () => clearInterval(interval);
     }, []);
 
@@ -221,19 +227,24 @@ export default function HomePage() {
 
                 <nav style={nav}>
                     {isLoggedIn ? (
-                        <button 
-                            onClick={() => navigate("/dashboard")} 
-                            style={{
-                                ...linkStyle,
-                                background: "#10b981",
-                                color: "white",
-                                padding: "8px 16px",
-                                borderRadius: "6px",
-                                fontWeight: 600
-                            }}
-                        >
-                            Dashboard
-                        </button>
+                        <>
+                            <button 
+                                onClick={() => navigate("/dashboard")} 
+                                style={{
+                                    ...linkStyle,
+                                    background: "#10b981",
+                                    color: "white",
+                                    padding: "8px 16px",
+                                    borderRadius: "6px",
+                                    fontWeight: 600
+                                }}
+                            >
+                                Dashboard
+                            </button>
+                            <button onClick={handleLogout} style={logoutBtnStyle}>
+                                Logout
+                            </button>
+                        </>
                     ) : (
                         <>
                             <button onClick={() => navigate("/recruiter-auth")} style={linkStyle}>For Recruiters</button>
@@ -292,15 +303,20 @@ export default function HomePage() {
                 {/* FOOTER BUTTONS */}
                 <div style={footerBtnContainer}>
                     {isLoggedIn ? (
-                        <button 
-                            onClick={() => navigate("/dashboard")} 
-                            style={{
-                                ...footerBtn,
-                                background: "#10b981"
-                            }}
-                        >
-                            Dashboard
-                        </button>
+                        <>
+                            <button 
+                                onClick={() => navigate("/dashboard")} 
+                                style={{
+                                    ...footerBtn,
+                                    background: "#10b981"
+                                }}
+                            >
+                                Dashboard
+                            </button>
+                            <button onClick={handleLogout} style={{ ...footerBtn, background: "#ef4444" }}>
+                                Logout
+                            </button>
+                        </>
                     ) : (
                         <>
                             <button onClick={() => navigate("/recruiter-auth")} style={footerBtn}>
@@ -468,4 +484,15 @@ const footerLink = {
     cursor: "pointer",
     fontSize: 14,
     opacity: 0.9
+};
+
+const logoutBtnStyle = {
+    padding: "8px 16px",
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontSize: 16,
+    fontWeight: 600
 };
