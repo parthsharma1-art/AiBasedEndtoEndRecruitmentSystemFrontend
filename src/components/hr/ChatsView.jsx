@@ -32,8 +32,8 @@ export default function ChatsView() {
     // Poll chats every 3 seconds
     useEffect(() => {
         const interval = setInterval(() => {
-            fetchChats(false); // Polling refresh
-        }, 3000);
+            fetchChats(false); // Polling refresh every 30s
+        }, 30000);
 
         return () => clearInterval(interval);
     }, []);
