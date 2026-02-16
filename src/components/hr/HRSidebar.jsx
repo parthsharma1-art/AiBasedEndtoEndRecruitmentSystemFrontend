@@ -7,6 +7,7 @@ const menuItems = [
   { path: "/dashboard/jobs/create", label: "Post New Job", icon: "➕" },
   { path: "/dashboard/jobs", label: "Manage Jobs", icon: "📂" },
   { path: "/dashboard/candidates", label: "Candidates", icon: "👥" },
+  { path: "/dashboard/chats", label: "Chats", icon: "💬" },
   { path: "/dashboard/ai-analytics", label: "AI Analytics", icon: "🧠" },
   { path: "/dashboard/reports", label: "Reports", icon: "📄" },
   { path: "/dashboard/settings", label: "Settings", icon: "⚙️" },
