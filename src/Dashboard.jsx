@@ -15,6 +15,7 @@ import HRAnalytics from "./components/hr/HRAnalytics";
 import HRReports from "./components/hr/HRReports";
 import DashboardHome from "./DashboardHome";
 import AllJobs from "./AllJobs";
+import ChatsView from "./components/hr/ChatsView";
 
 // Hook for responsive design
 function useMediaQuery(query) {
@@ -95,6 +96,8 @@ export default function Dashboard() {
                         <Route path="jobs/create" element={<CreateJobPosting />} />
                         <Route path="jobs/:jobId/candidates" element={<JobCandidates />} />
                         <Route path="jobs" element={<AllJobs />} />
+                        <Route path="chats" element={<ChatsView />} />
+                        <Route path="chats/:chatId" element={<ChatsView />} />
                         <Route path="ai-analytics" element={<HRAnalytics />} />
                         <Route path="reports" element={<HRReports />} />
                         <Route path="settings" element={<Company />} />

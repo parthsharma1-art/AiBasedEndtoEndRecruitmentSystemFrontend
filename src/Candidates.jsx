@@ -7,6 +7,12 @@ import "./styles/dashboard.css";
 const API = Config.BACKEND_URL + "/recruiter";
 const FILE_BASE = Config.BACKEND_URL + "/file";
 
+const ChatIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
 const PhoneIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -30,6 +36,10 @@ export default function Candidates() {
     const navigate = useNavigate();
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [chatModal, setChatModal] = useState({ open: false, candidate: null });
+    const [chatMessage, setChatMessage] = useState("");
+    const [chatLoading, setChatLoading] = useState(false);
+    const [recruiterId, setRecruiterId] = useState(null);
 
     const fetchCandidates = async () => {
         try {
@@ -49,11 +59,81 @@ export default function Candidates() {
 
     useEffect(() => {
         fetchCandidates();
+        fetchRecruiterId();
     }, []);
+
+    const fetchRecruiterId = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            
+            const res = await axios.get(API + "/get", {
+                headers: { Authorization: "Bearer " + token },
+            });
+            if (res.data && res.data.id) {
+                setRecruiterId(res.data.id);
+            }
+        } catch (e) {
+            console.error("Failed to fetch recruiter ID:", e);
+        }
+    };
 
     const openCandidateDetail = (c, index) => {
         const id = c.id || c.candidateId || index;
         navigate("/dashboard/candidates/evaluate/" + id);
+    };
+
+    const handleChatClick = (candidate) => {
+        setChatModal({ open: true, candidate });
+        setChatMessage("");
+    };
+
+    const handleChatClose = () => {
+        setChatModal({ open: false, candidate: null });
+        setChatMessage("");
+    };
+
+    const handleChatSubmit = async () => {
+        if (!chatModal.candidate || !recruiterId || !chatMessage.trim()) {
+            alert("Please enter a message");
+            return;
+        }
+
+        const candidateId = chatModal.candidate.id || chatModal.candidate.candidateId;
+        if (!candidateId) {
+            alert("Candidate ID not found");
+            return;
+        }
+
+        try {
+            setChatLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await axios.post(
+                Config.BACKEND_URL + "/recruiter/chats",
+                {
+                    recruiterId: recruiterId,
+                    candidateId: candidateId,
+                    message: chatMessage.trim(),
+                },
+                {
+                    headers: { Authorization: "Bearer " + token },
+                }
+            );
+
+            handleChatClose();
+            // Navigate to chats view with the new chat ID
+            if (res.data && res.data.id) {
+                navigate(`/dashboard/chats/${res.data.id}`);
+            } else {
+                navigate(`/dashboard/chats`);
+            }
+        } catch (e) {
+            console.error("Failed to create chat:", e);
+            const errorMsg = e.response?.data?.message || e.message || "Failed to create chat";
+            alert(errorMsg);
+        } finally {
+            setChatLoading(false);
+        }
     };
 
     return (
@@ -130,6 +210,9 @@ export default function Candidates() {
                                             View Resume
                                         </a>
                                     )}
+                                    <button type="button" className="btn-candidate-chat" onClick={() => handleChatClick(c)}>
+                                        <ChatIcon /> Chat
+                                    </button>
                                     <button type="button" className="btn-candidate-details" onClick={() => openCandidateDetail(c, index)}>
                                         View details →
                                     </button>
@@ -139,6 +222,36 @@ export default function Candidates() {
                     </div>
                 )}
             </div>
+
+            {/* Chat Modal */}
+            {chatModal.open && (
+                <div className="chat-modal-overlay" onClick={handleChatClose}>
+                    <div className="chat-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="chat-modal-header">
+                            <h3>Chat with {chatModal.candidate?.name || "Candidate"}</h3>
+                            <button type="button" className="chat-modal-close" onClick={handleChatClose}>×</button>
+                        </div>
+                        <div className="chat-modal-body">
+                            <textarea
+                                className="chat-modal-textarea"
+                                placeholder="Enter your message..."
+                                value={chatMessage}
+                                onChange={(e) => setChatMessage(e.target.value)}
+                                rows={6}
+                                disabled={chatLoading}
+                            />
+                        </div>
+                        <div className="chat-modal-footer">
+                            <button type="button" className="btn-chat-cancel" onClick={handleChatClose} disabled={chatLoading}>
+                                Cancel
+                            </button>
+                            <button type="button" className="btn-chat-send" onClick={handleChatSubmit} disabled={chatLoading || !chatMessage.trim()}>
+                                {chatLoading ? "Sending..." : "Send Message"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

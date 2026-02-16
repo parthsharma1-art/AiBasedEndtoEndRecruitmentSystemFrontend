@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
 import "../../styles/dashboard.css";
@@ -22,11 +23,41 @@ function useMediaQuery(query) {
 
 export default function CandidateJobMatching() {
   console.log("CandidateJobMatching component rendering");
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
+
+  const isLoggedIn = !!(
+    typeof window !== "undefined" &&
+    localStorage.getItem("token") &&
+    localStorage.getItem("candidateId")
+  );
+
+  const backButton = isLoggedIn ? (
+    <button
+      type="button"
+      onClick={() => navigate("/candidate-dashboard")}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "8px 16px",
+        background: "#f1f5f9",
+        color: "#475569",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontSize: "0.9rem",
+        fontWeight: 600,
+        marginBottom: 24
+      }}
+    >
+      ← Back to Dashboard
+    </button>
+  ) : null;
 
   useEffect(() => {
     console.log("CandidateJobMatching component mounted");
@@ -82,6 +113,7 @@ export default function CandidateJobMatching() {
   if (loading) {
     return (
       <div className="dashboard-content" style={{ padding: "20px" }}>
+        {backButton}
         <div style={{
           display: "flex",
           flexDirection: "column",
@@ -113,6 +145,7 @@ export default function CandidateJobMatching() {
   if (error) {
     return (
       <div className="dashboard-content" style={{ padding: "20px" }}>
+        {backButton}
         <div style={{
           padding: "20px 24px",
           background: "#fef2f2",
@@ -152,23 +185,54 @@ export default function CandidateJobMatching() {
         flexWrap: "wrap",
         gap: "15px"
       }}>
-        <div>
-          <h1 style={{
-            margin: 0,
-            fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem",
-            color: "#1e293b",
-            fontWeight: 700,
-            letterSpacing: "-0.025em"
-          }}>
-            Available Jobs ({jobs.length})
-          </h1>
-          <p style={{
-            margin: "8px 0 0",
-            color: "#64748b",
-            fontSize: isMobile ? "0.85rem" : "0.95rem"
-          }}>
-            Browse and apply to exciting opportunities
-          </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+          {isLoggedIn && (
+            <button
+              type="button"
+              onClick={() => navigate("/candidate-dashboard")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                background: "#f1f5f9",
+                color: "#475569",
+                border: "1px solid #e2e8f0",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                fontWeight: 600
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#e2e8f0";
+                e.currentTarget.style.color = "#1e293b";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#f1f5f9";
+                e.currentTarget.style.color = "#475569";
+              }}
+            >
+              ← Back to Dashboard
+            </button>
+          )}
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem",
+              color: "#1e293b",
+              fontWeight: 700,
+              letterSpacing: "-0.025em"
+            }}>
+              Available Jobs ({jobs.length})
+            </h1>
+            <p style={{
+              margin: "8px 0 0",
+              color: "#64748b",
+              fontSize: isMobile ? "0.85rem" : "0.95rem"
+            }}>
+              Browse and apply to exciting opportunities
+            </p>
+          </div>
         </div>
       </div>
 

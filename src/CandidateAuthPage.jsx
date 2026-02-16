@@ -515,16 +515,49 @@ export default function CandidateAuthPage() {
   const [isLogin, setIsLogin] = React.useState(true);
   const [showGoogleModal, setShowGoogleModal] = React.useState(false);
   const [googleLoading, setGoogleLoading] = React.useState(false);
-  const [form, setForm] = React.useState({});
+  const [form, setForm] = React.useState({
+    name: "",
+    email: "",
+    mobileNumber: "",
+    age: "",
+    gender: "",
+    location: {
+      city: "",
+      state: "",
+      country: ""
+    },
+    skills: "",
+    experienceYears: "",
+    highestQualification: "",
+    currentJobRole: "",
+    expectedSalary: "",
+    cityPreference: ""
+  });
   const [files, setFiles] = React.useState({
     profileImage: null,
-    idCard: null,
+    resume: null,
   });
 
   const nav = useNavigate();
 
-  const handle = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handle = (e) => {
+    const { name, value } = e.target;
+    
+    if (name.startsWith("location.")) {
+      const locationField = name.split(".")[1];
+      setForm({
+        ...form,
+        location: {
+          ...form.location,
+          [locationField]: value
+        }
+      });
+    } else if (name === "skills") {
+      setForm({ ...form, [name]: value });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  };
 
   const handleFile = (e) => {
     setFiles({ ...files, [e.target.name]: e.target.files[0] });
@@ -543,24 +576,69 @@ export default function CandidateAuthPage() {
       } else {
         const formData = new FormData();
 
+        // Append candidate fields according to CandidateRequest structure
         formData.append("name", form.name || "");
-        formData.append("mobileNumber", form.mobileNumber || "");
         formData.append("email", form.email || "");
-        formData.append("companyName", form.companyName || "");
-        formData.append("age", form.age ? parseInt(form.age) : "");
-        formData.append("state", form.state || "");
-        formData.append("country", form.country || "");
-        formData.append("designation", form.designation || "");
-
+        formData.append("mobileNumber", form.mobileNumber || "");
+        
+        if (form.age) {
+          formData.append("age", parseInt(form.age));
+        }
+        
+        if (form.gender) {
+          formData.append("gender", form.gender);
+        }
+        
+        // Append location fields
+        if (form.location.city) {
+          formData.append("location.city", form.location.city);
+        }
+        if (form.location.state) {
+          formData.append("location.state", form.location.state);
+        }
+        if (form.location.country) {
+          formData.append("location.country", form.location.country);
+        }
+        
+        // Append skills as multiple entries for List<String>
+        // Spring Boot @ModelAttribute expects multiple form fields with same name for List
+        if (form.skills && form.skills.trim()) {
+          const skillsArray = form.skills.split(',').map(s => s.trim()).filter(s => s);
+          skillsArray.forEach(skill => {
+            formData.append("skills", skill);
+          });
+        }
+        
+        if (form.experienceYears) {
+          formData.append("experienceYears", parseInt(form.experienceYears));
+        }
+        
+        if (form.highestQualification) {
+          formData.append("highestQualification", form.highestQualification);
+        }
+        
+        if (form.currentJobRole) {
+          formData.append("currentJobRole", form.currentJobRole);
+        }
+        
+        if (form.expectedSalary) {
+          formData.append("expectedSalary", parseInt(form.expectedSalary));
+        }
+        
+        if (form.cityPreference) {
+          formData.append("cityPreference", form.cityPreference);
+        }
+        
+        // Append files with correct field names for candidate API
         if (files.profileImage) {
           formData.append("profileImage", files.profileImage);
         }
 
-        if (files.idCard) {
-          formData.append("idCard", files.idCard);
+        if (files.resume) {
+          formData.append("resume", files.resume);
         }
 
-        // ✅ FIXED CREATE API (Removed manual Content-Type)
+        // Call candidate create API
         const res = await axios.post(
           API_BASE + "/candidate/create",
           formData
@@ -672,32 +750,85 @@ export default function CandidateAuthPage() {
           {!isLogin && (
             <>
               <input
-                name="companyName"
-                placeholder="Company"
-                onChange={handle}
-                style={inp}
-              />
-              <input
-                name="designation"
-                placeholder="Designation"
-                onChange={handle}
-                style={inp}
-              />
-              <input
                 name="age"
+                type="number"
                 placeholder="Age"
+                value={form.age}
                 onChange={handle}
                 style={inp}
               />
               <input
-                name="state"
+                name="gender"
+                placeholder="Gender"
+                value={form.gender}
+                onChange={handle}
+                style={inp}
+              />
+              
+              <h4 style={{ marginTop: 15, marginBottom: 5, fontSize: 14, fontWeight: 600 }}>Location</h4>
+              <input
+                name="location.city"
+                placeholder="City"
+                value={form.location.city}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="location.state"
                 placeholder="State"
+                value={form.location.state}
                 onChange={handle}
                 style={inp}
               />
               <input
-                name="country"
+                name="location.country"
                 placeholder="Country"
+                value={form.location.country}
+                onChange={handle}
+                style={inp}
+              />
+              
+              <input
+                name="skills"
+                placeholder="Skills (comma separated, e.g., Java, Python, React)"
+                value={form.skills}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="experienceYears"
+                type="number"
+                placeholder="Experience Years"
+                value={form.experienceYears}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="highestQualification"
+                placeholder="Highest Qualification"
+                value={form.highestQualification}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="currentJobRole"
+                placeholder="Current Job Role"
+                value={form.currentJobRole}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="expectedSalary"
+                type="number"
+                placeholder="Expected Salary"
+                value={form.expectedSalary}
+                onChange={handle}
+                style={inp}
+              />
+              <input
+                name="cityPreference"
+                placeholder="City Preference"
+                value={form.cityPreference}
                 onChange={handle}
                 style={inp}
               />
@@ -714,11 +845,11 @@ export default function CandidateAuthPage() {
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <label style={label}>ID Card</label>
+                <label style={label}>Resume</label>
                 <input
                   type="file"
-                  name="idCard"
-                  accept="image/*,.pdf"
+                  name="resume"
+                  accept=".pdf,.doc,.docx"
                   onChange={handleFile}
                   style={fileInp}
                 />
