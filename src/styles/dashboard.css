@@ -27,12 +27,28 @@
   display: flex; 
   flex-direction: column; 
   overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .notifications-header { 
-  padding: 16px; 
+  padding: 12px 16px; 
   border-bottom: 1px solid #e2e8f0; 
   background: #f8fafc; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 8px;
 }
 
 .notifications-header h4 { 
@@ -40,11 +56,65 @@
   font-size: 1rem; 
   font-weight: 600; 
   color: #1e293b; 
+  flex: 1;
+}
+
+.btn-mark-all-read {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #4f46e5;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-mark-all-read:hover {
+  color: #4338ca;
+  background: #f5f3ff;
+}
+
+.btn-mark-all-read:active {
+  transform: scale(0.98);
+}
+
+.mark-all-read-icon {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4f46e5;
 }
 
 .notifications-list { 
   overflow-y: auto; 
+  overflow-x: hidden;
   max-height: 400px; 
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .notifications-loading, 
@@ -84,20 +154,51 @@
 
 .notification-row { 
   cursor: pointer; 
-  transition: background-color 0.2s; 
+  transition: background-color 0.2s, opacity 0.2s; 
   border-bottom: 1px solid #f1f5f9; 
 }
 
-.notification-row:hover { 
-  background: #f8fafc; 
+/* Read notifications - light styling */
+.notification-row.read { 
+  background: #ffffff; 
+  opacity: 0.65;
 }
 
+.notification-row.read:hover { 
+  background: #f8fafc; 
+  opacity: 0.85;
+}
+
+.notification-row.read .notification-title.read {
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.notification-row.read .notification-message.read {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+/* Unread notifications - dark/styled */
 .notification-row.unread { 
-  background: #eff6ff; 
+  background: #f8fafc; 
+  border-left: 4px solid #4f46e5;
+  font-weight: 500;
 }
 
 .notification-row.unread:hover { 
-  background: #dbeafe; 
+  background: #f1f5f9; 
+  border-left-color: #4338ca;
+}
+
+.notification-row.unread .notification-title.unread {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.notification-row.unread .notification-message.unread {
+  color: #334155;
+  font-weight: 500;
 }
 
 .notification-row.processing { 
@@ -108,7 +209,6 @@
 .notification-row td { 
   padding: 12px 16px; 
   font-size: 0.875rem; 
-  color: #334155; 
 }
 
 .notification-title { 
@@ -124,8 +224,100 @@
   max-width: 200px; 
 }
 
+.notification-message-emoji {
+  font-size: 1.5rem;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.2;
+}
+
 .notification-status { 
   text-align: center; 
+  position: relative;
+}
+
+.notification-status-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.notification-emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-emoji-btn:hover {
+  background: #f1f5f9;
+  transform: scale(1.1);
+}
+
+.notification-emoji-display {
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+.emoji-picker {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 1001;
+  margin-bottom: 4px;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.emoji-option {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.emoji-option:hover {
+  background: #f1f5f9;
+  transform: scale(1.2);
+}
+
+.emoji-option:active {
+  transform: scale(1.1);
 }
 
 .status-read { 
@@ -148,9 +340,28 @@
 
 @media (max-width: 768px) {
   .notifications-dropdown { 
-    width: 90vw; 
+    width: calc(100vw - 32px); 
     max-width: 400px; 
     right: -10px; 
+    max-height: calc(100vh - 120px);
+  }
+  
+  .notifications-header {
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .notifications-header h4 {
+    font-size: 0.9rem;
+  }
+  
+  .btn-mark-all-read {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+  }
+  
+  .notifications-list {
+    max-height: calc(100vh - 200px);
   }
   
   .notifications-table th:nth-child(1) { width: 35%; }
@@ -159,6 +370,101 @@
   
   .notification-message { 
     max-width: 150px; 
+  }
+  
+  .notification-message-emoji {
+    font-size: 1.3rem;
+  }
+  
+  .notification-row td {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .notifications-table th {
+    padding: 10px 12px;
+    font-size: 0.7rem;
+  }
+  
+  .emoji-picker {
+    right: auto;
+    left: 0;
+  }
+  
+  .notification-emoji-btn {
+    font-size: 0.9rem;
+    padding: 3px;
+  }
+  
+  .emoji-option {
+    font-size: 1rem;
+    padding: 5px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-dropdown {
+    width: calc(100vw - 24px);
+    right: -8px;
+  }
+  
+  .notifications-header {
+    padding: 10px;
+  }
+  
+  .notifications-header h4 {
+    font-size: 0.85rem;
+  }
+  
+  .btn-mark-all-read {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+  }
+  
+  .notifications-list {
+    max-height: calc(100vh - 180px);
+  }
+  
+  .notification-row td {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+  
+  .notifications-table th {
+    padding: 8px 10px;
+    font-size: 0.65rem;
+  }
+  
+  .notification-message {
+    max-width: 120px;
+  }
+  
+  .notification-message-emoji {
+    font-size: 1.2rem;
+  }
+  
+  .emoji-picker {
+    right: auto;
+    left: 0;
+    padding: 6px;
+  }
+  
+  .notification-emoji-btn {
+    font-size: 0.85rem;
+    padding: 2px;
+  }
+  
+  .emoji-option {
+    font-size: 0.9rem;
+    padding: 4px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+  
+  .notification-emoji-display {
+    font-size: 1rem;
   }
 }
 .top-nav-profile { position: relative; }
@@ -672,6 +978,13 @@
   margin: 0 0 4px; font-size: 14px; line-height: 1.5;
   word-wrap: break-word;
 }
+
+.chat-message-emoji {
+  font-size: 2rem;
+  margin: 0 0 4px;
+  line-height: 1;
+  text-align: center;
+}
 .chat-message-time {
   font-size: 11px; opacity: 0.7; display: block;
   margin-top: 4px;
@@ -852,6 +1165,10 @@
   padding: 16px 20px; background: #fff; border-top: 1px solid #e5e7eb;
   display: flex; align-items: flex-end; gap: 8px;
 }
+.emoji-picker-wrapper {
+  position: relative;
+}
+
 .chats-input-emoji-btn, .chats-input-attach-btn {
   flex-shrink: 0; width: 36px; height: 36px; border: none;
   background: #f8fafc; border-radius: 6px; cursor: pointer;
@@ -860,6 +1177,56 @@
 }
 .chats-input-emoji-btn:hover, .chats-input-attach-btn:hover {
   background: #f1f5f9;
+}
+
+.chat-emoji-picker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 1001;
+  animation: slideUpEmoji 0.2s ease-out;
+}
+
+@keyframes slideUpEmoji {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-emoji-option {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.chat-emoji-option:hover {
+  background: #f1f5f9;
+  transform: scale(1.15);
+}
+
+.chat-emoji-option:active {
+  transform: scale(1.05);
 }
 .chats-input-textarea {
   flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px;
@@ -892,4 +1259,44 @@
   .chats-view-container { flex-direction: column; }
   .chats-sidebar { width: 100%; min-width: 100%; border-right: none; border-bottom: 1px solid #e5e7eb; }
   .chats-detail-panel { min-height: 400px; }
+  
+  .chat-emoji-picker {
+    bottom: calc(100% + 4px);
+    padding: 6px;
+    gap: 4px;
+  }
+  
+  .chat-emoji-option {
+    font-size: 1.3rem;
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .chats-input-emoji-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-emoji-picker {
+    bottom: calc(100% + 4px);
+    padding: 4px;
+    gap: 3px;
+  }
+  
+  .chat-emoji-option {
+    font-size: 1.2rem;
+    padding: 5px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .chats-input-emoji-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
 }

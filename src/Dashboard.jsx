@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 import "./styles/dashboard.css";
+import CONFIG from "./config/config";
+import { setRecruiterChatsCache } from "./utils/chatsCache";
 import HRTopNav from "./components/hr/HRTopNav";
 import HRSidebar from "./components/hr/HRSidebar";
 import HRDashboardHome from "./components/hr/HRDashboardHome";
@@ -36,26 +39,44 @@ function useMediaQuery(query) {
 
 export default function Dashboard() {
     const nav = useNavigate();
+    const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const isMobile = useMediaQuery('(max-width: 768px)');
+    const isOnChatsPage = location.pathname.includes("/chats");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const hrId = localStorage.getItem("hrId");
         const candidateId = localStorage.getItem("candidateId");
-        
-        // If no token, redirect to home
+
         if (!token) {
             nav("/");
             return;
         }
-        
-        // If user is a candidate (has candidateId but no hrId), redirect to candidate dashboard
         if (candidateId && !hrId) {
             nav("/candidate-dashboard");
             return;
         }
     }, [nav]);
+
+    // When NOT on chats tab: poll chats API every 30s (when on tab, ChatsView polls every 3s)
+    useEffect(() => {
+        if (isOnChatsPage) return;
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const fetchSilent = async () => {
+            try {
+                const res = await axios.get(CONFIG.BACKEND_URL + "/recruiter/chats", {
+                    headers: { Authorization: "Bearer " + token },
+                });
+                const data = Array.isArray(res.data) ? res.data : [];
+                setRecruiterChatsCache(data);
+            } catch (_) {}
+        };
+        fetchSilent();
+        const interval = setInterval(fetchSilent, 30000);
+        return () => clearInterval(interval);
+    }, [isOnChatsPage]);
 
     return (
         <div className="dashboard-layout" style={{ flexDirection: "column" }}>

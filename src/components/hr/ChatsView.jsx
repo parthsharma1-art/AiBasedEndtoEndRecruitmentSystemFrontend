@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
+import { getRecruiterChatsCache, setRecruiterChatsCache } from "../../utils/chatsCache";
 import "../../styles/dashboard.css";
 
 const FILE_BASE = CONFIG.BACKEND_URL + "/file";
@@ -15,6 +16,7 @@ const PersonIcon = () => (
 export default function ChatsView() {
     const { chatId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -22,21 +24,36 @@ export default function ChatsView() {
     const [newMessage, setNewMessage] = useState("");
     const [recruiterId, setRecruiterId] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const messagesEndRef = useRef(null);
+    const emojiPickerRef = useRef(null);
+
+    const isOnChatsPage = location.pathname.includes("/chats");
+
+    // Emoji mapping with IDs
+    const emojis = [
+        { emoji: '❤️', id: 'heart' },
+        { emoji: '😊', id: 'smile' },
+        { emoji: '😄', id: 'big_smile' },
+        { emoji: '😂', id: 'laugh' },
+        { emoji: '👍', id: 'thumbs_up' },
+        { emoji: '🎉', id: 'celebration' }
+    ];
 
     useEffect(() => {
+        if (!isOnChatsPage) return;
+        const cached = getRecruiterChatsCache();
+        if (Array.isArray(cached) && cached.length >= 0) setChats(cached);
         fetchRecruiterId();
-        fetchChats(true); // Initial load
-    }, []);
+        fetchChats(true); // Initial load when on chats page
+    }, [isOnChatsPage]);
 
-    // Poll chats every 3 seconds
+    // When on chats tab: poll every 3s; when not on tab, dashboard polls every 30s
     useEffect(() => {
-        const interval = setInterval(() => {
-            fetchChats(false); // Polling refresh every 30s
-        }, 30000);
-
+        if (!isOnChatsPage) return;
+        const interval = setInterval(() => fetchChats(false), 3000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isOnChatsPage]);
 
     useEffect(() => {
         if (chatId && chats.length > 0) {
@@ -88,6 +105,7 @@ export default function ChatsView() {
             // Handle ChatResponse array
             const chatsData = Array.isArray(res.data) ? res.data : [];
             setChats(chatsData);
+            setRecruiterChatsCache(chatsData);
 
             // If there's a selected chat, update it with latest data
             if (selectedChat) {
@@ -128,18 +146,22 @@ export default function ChatsView() {
         }
     };
 
-    const handleSendMessage = async () => {
-        if (!newMessage.trim() || !recruiterId || !selectedChat) return;
+    const handleSendMessage = async (emojiId = null) => {
+        if ((!newMessage.trim() && !emojiId) || !recruiterId || !selectedChat) return;
 
         try {
             setSending(true);
             const token = localStorage.getItem("token");
+            
+            // If emojiId is provided, send it in the message field
+            const messageToSend = emojiId ? `emojiId:${emojiId}` : newMessage.trim();
+            
             const res = await axios.post(
                 CONFIG.BACKEND_URL + "/recruiter/chats",
                 {
                     recruiterId: recruiterId,
                     candidateId: selectedChat.candidateResponse?.id || selectedChat.candidateResponse?.candidateId,
-                    message: newMessage.trim(),
+                    message: messageToSend,
                 },
                 {
                     headers: { Authorization: "Bearer " + token },
@@ -149,6 +171,7 @@ export default function ChatsView() {
             // Refresh chats to get updated messages
             await fetchChats();
             setNewMessage("");
+            setShowEmojiPicker(false);
         } catch (e) {
             console.error("Failed to send message:", e);
             const errorMsg = e.response?.data?.message || e.message || "Failed to send message";
@@ -157,6 +180,55 @@ export default function ChatsView() {
             setSending(false);
         }
     };
+
+    // Helper function to get emoji from emojiId
+    const getEmojiFromId = (emojiId) => {
+        const emojiData = emojis.find(e => e.id === emojiId);
+        return emojiData ? emojiData.emoji : null;
+    };
+
+    // Helper function to check if message contains emojiId and extract it
+    const getMessageDisplay = (message, emojiId = null) => {
+        // If emojiId is provided as separate field, use it
+        if (emojiId) {
+            const emoji = getEmojiFromId(emojiId);
+            if (emoji) return emoji;
+        }
+        
+        // Check if message contains emojiId prefix
+        if (message && message.startsWith('emojiId:')) {
+            const extractedEmojiId = message.replace('emojiId:', '');
+            return getEmojiFromId(extractedEmojiId) || message;
+        }
+        
+        return message;
+    };
+
+    const handleEmojiClick = (e) => {
+        e.stopPropagation();
+        setShowEmojiPicker(!showEmojiPicker);
+    };
+
+    const handleEmojiSelect = (emojiData) => {
+        handleSendMessage(emojiData.id);
+    };
+
+    // Close emoji picker when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+                setShowEmojiPicker(false);
+            }
+        };
+
+        if (showEmojiPicker) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showEmojiPicker]);
 
     const formatDate = (dateString) => {
         if (!dateString) return "";
@@ -191,7 +263,11 @@ export default function ChatsView() {
             return "No messages yet";
         }
         const lastMsg = chatResponse.chat.chatData[chatResponse.chat.chatData.length - 1];
-        return lastMsg.message || "Message sent";
+        if (!lastMsg.message && !lastMsg.emojiId) return "Message sent";
+        
+        // Check if message is an emojiId or if emojiId is a separate field
+        const displayMessage = getMessageDisplay(lastMsg.message, lastMsg.emojiId);
+        return displayMessage || "Message sent";
     };
 
     const getCandidateName = (chatResponse) => {
@@ -339,7 +415,11 @@ export default function ChatsView() {
                                             className={`chat-message ${isRecruiter ? "chat-message-sent" : "chat-message-received"}`}
                                         >
                                             <div className="chat-message-content">
-                                                {msg.message && <p className="chat-message-text">{msg.message}</p>}
+                                                {(msg.message || msg.emojiId) && (
+                                                    <p className={`chat-message-text ${(msg.message && msg.message.startsWith('emojiId:')) || msg.emojiId ? 'chat-message-emoji' : ''}`}>
+                                                        {getMessageDisplay(msg.message, msg.emojiId)}
+                                                    </p>
+                                                )}
                                                 <span className="chat-message-time">
                                                     {formatMessageTime(msg.createdAt)}
                                                 </span>
@@ -356,7 +436,31 @@ export default function ChatsView() {
                         </div>
 
                         <div className="chats-input-container">
-                            <button className="chats-input-emoji-btn">😊</button>
+                            <div className="emoji-picker-wrapper" ref={emojiPickerRef}>
+                                <button 
+                                    type="button"
+                                    className="chats-input-emoji-btn"
+                                    onClick={handleEmojiClick}
+                                    title="Add emoji"
+                                >
+                                    😊
+                                </button>
+                                {showEmojiPicker && (
+                                    <div className="chat-emoji-picker" onClick={(e) => e.stopPropagation()}>
+                                        {emojis.map((emojiData) => (
+                                            <button
+                                                key={emojiData.id}
+                                                type="button"
+                                                className="chat-emoji-option"
+                                                onClick={() => handleEmojiSelect(emojiData)}
+                                                title={emojiData.id}
+                                            >
+                                                {emojiData.emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                             <textarea
                                 className="chats-input-textarea"
                                 placeholder="Type a message..."
@@ -375,7 +479,7 @@ export default function ChatsView() {
                             <button
                                 type="button"
                                 className="chats-input-send-btn"
-                                onClick={handleSendMessage}
+                                onClick={() => handleSendMessage()}
                                 disabled={sending || !newMessage.trim()}
                             >
                                 Send

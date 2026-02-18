@@ -540,6 +540,10 @@ export default function CandidateAuthPage() {
 
   const nav = useNavigate();
 
+  const hasEmailOrNumber =
+    (form.email && String(form.email).trim()) ||
+    (form.mobileNumber && String(form.mobileNumber).trim());
+
   const handle = (e) => {
     const { name, value } = e.target;
     
@@ -564,6 +568,10 @@ export default function CandidateAuthPage() {
   };
 
   const submit = async () => {
+    const hasInput =
+      (form.email && String(form.email).trim()) ||
+      (form.mobileNumber && String(form.mobileNumber).trim());
+    if (!hasInput) return;
     try {
       if (isLogin) {
         const res = await axios.post(API_BASE + "/candidate/login", {
@@ -857,7 +865,17 @@ export default function CandidateAuthPage() {
             </>
           )}
 
-          <button onClick={submit} style={btn}>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!hasEmailOrNumber}
+            style={{
+              ...btn,
+              opacity: hasEmailOrNumber ? 1 : 0.5,
+              cursor: hasEmailOrNumber ? "pointer" : "not-allowed",
+              filter: hasEmailOrNumber ? "none" : "grayscale(0.5)",
+            }}
+          >
             {isLogin ? "Login" : "Create Account"}
           </button>
 

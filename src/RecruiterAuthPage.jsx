@@ -36,6 +36,10 @@ export default function RecruiterAuthPage() {
   };
 
   const submit = async () => {
+    const hasInput =
+      (form.email && String(form.email).trim()) ||
+      (form.mobileNumber && String(form.mobileNumber).trim());
+    if (!hasInput) return;
     try {
       if (isLogin) {
         const res = await axios.post(API_BASE + "/recruiter/login", {
@@ -89,6 +93,10 @@ export default function RecruiterAuthPage() {
     // Store login timestamp for 4-hour session check
     localStorage.setItem("loginTimestamp", Date.now().toString());
   };
+
+  const hasEmailOrNumber =
+    (form.email && String(form.email).trim()) ||
+    (form.mobileNumber && String(form.mobileNumber).trim());
 
   const googleLogin = () => {
     // Show modal first
@@ -231,7 +239,17 @@ export default function RecruiterAuthPage() {
             </>
           )}
 
-          <button onClick={submit} style={btn}>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!hasEmailOrNumber}
+            style={{
+              ...btn,
+              opacity: hasEmailOrNumber ? 1 : 0.5,
+              cursor: hasEmailOrNumber ? "pointer" : "not-allowed",
+              filter: hasEmailOrNumber ? "none" : "grayscale(0.5)",
+            }}
+          >
             {isLogin ? "Login" : "Create Account"}
           </button>
 

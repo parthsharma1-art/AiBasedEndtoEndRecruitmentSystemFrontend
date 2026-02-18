@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import "../../styles/dashboard.css";
+import CONFIG from "../../config/config";
+import { setCandidateChatsCache } from "../../utils/chatsCache";
 import CandidateTopNav from "./CandidateTopNav";
 import CandidateSidebar from "./CandidateSidebar";
 import CandidateDashboardHome from "./CandidateDashboardHome";
@@ -27,8 +30,10 @@ function useMediaQuery(query) {
 
 export default function CandidateDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const isOnChatsPage = location.pathname.includes("/chats");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -44,6 +49,25 @@ export default function CandidateDashboard() {
       return;
     }
   }, [navigate]);
+
+  // When NOT on chats tab: poll chats API every 30s (when on tab, CandidateChatsView polls every 3s)
+  useEffect(() => {
+    if (isOnChatsPage) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    const fetchSilent = async () => {
+      try {
+        const res = await axios.get(CONFIG.BACKEND_URL + "/candidate/chats", {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const data = Array.isArray(res.data) ? res.data : [];
+        setCandidateChatsCache(data);
+      } catch (_) {}
+    };
+    fetchSilent();
+    const interval = setInterval(fetchSilent, 30000);
+    return () => clearInterval(interval);
+  }, [isOnChatsPage]);
 
   return (
     <div
