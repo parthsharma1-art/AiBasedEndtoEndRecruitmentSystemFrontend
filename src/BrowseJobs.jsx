@@ -5,6 +5,7 @@ import Config from "./config/config";
 
 const JOBS_API = Config.BACKEND_URL + "/public/jobs";
 const COMPANIES_API = Config.BACKEND_URL + "/public/profiles"; // make sure backend config matches
+const APPLY_JOB_BASE = Config.BACKEND_URL + "/jobs";
 
 // Hook for responsive design
 function useMediaQuery(query) {
@@ -59,6 +60,15 @@ export default function BrowseJobs() {
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false); // For mobile filter modal
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    // Apply Job modal state
+    const [applyModalOpen, setApplyModalOpen] = useState(false);
+    const [applyJobInfo, setApplyJobInfo] = useState(null); // { job, j, jobId }
+    const [applyUseSameResume, setApplyUseSameResume] = useState(true);
+    const [applyUseSameEmail, setApplyUseSameEmail] = useState(true);
+    const [applyEmail, setApplyEmail] = useState("");
+    const [applyMobile, setApplyMobile] = useState("");
+    const [applyResumeFile, setApplyResumeFile] = useState(null);
+    const [applyLoading, setApplyLoading] = useState(false);
     
     // Filter states
     const [filters, setFilters] = useState({
@@ -247,6 +257,106 @@ export default function BrowseJobs() {
                 "10+": false
             }
         });
+    };
+
+    // Open Apply Job modal; if not logged in, redirect to candidate login
+    const openApplyModal = (job, j) => {
+        if (!isUserLoggedIn()) {
+            navigate("/candidate-auth");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/candidate-auth");
+            return;
+        }
+
+        const jobId = j?.id || job?.id || job?.jobId;
+        if (!jobId) {
+            alert("Unable to identify job ID for application.");
+            return;
+        }
+
+        const storedEmail = localStorage.getItem("candidateEmail") || "";
+        const storedPhone = localStorage.getItem("candidatePhone") || "";
+
+        setApplyJobInfo({ job, j, jobId });
+        setApplyEmail(storedEmail);
+        setApplyMobile(storedPhone);
+        setApplyUseSameEmail(!!storedEmail);
+        setApplyUseSameResume(true);
+        setApplyResumeFile(null);
+        setApplyModalOpen(true);
+    };
+
+    const closeApplyModal = () => {
+        if (applyLoading) return;
+        setApplyModalOpen(false);
+        setApplyJobInfo(null);
+        setApplyResumeFile(null);
+        setApplyEmail("");
+        setApplyMobile("");
+        setApplyUseSameEmail(true);
+        setApplyUseSameResume(true);
+    };
+
+    const handleSubmitApplication = async () => {
+        if (!applyJobInfo) return;
+
+        // Ensure user is still logged in
+        if (!isUserLoggedIn()) {
+            alert("Your session has expired. Please login again.");
+            navigate("/candidate-auth");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/candidate-auth");
+            return;
+        }
+
+        // Determine email to send
+        const emailToSend = (applyUseSameEmail ? applyEmail : applyEmail).trim();
+        const mobileToSend = (applyMobile || "").trim();
+
+        if (!emailToSend) {
+            alert("Please provide your email to apply.");
+            return;
+        }
+
+        // Build multipart form data according to ApplyJobRequest
+        const formData = new FormData();
+        formData.append("useSameResume", applyUseSameResume ? "true" : "false");
+        formData.append("useSameEmail", applyUseSameEmail ? "true" : "false");
+        formData.append("email", emailToSend);
+        formData.append("mobileNumber", mobileToSend);
+
+        if (!applyUseSameResume && applyResumeFile) {
+            formData.append("resume", applyResumeFile);
+        }
+
+        try {
+            setApplyLoading(true);
+            await axios.post(`${APPLY_JOB_BASE}/${applyJobInfo.jobId}/apply`, formData, {
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+
+            alert("Application submitted successfully!");
+            closeApplyModal();
+        } catch (err) {
+            console.error("Error applying to job:", err);
+            const msg =
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Failed to submit application. Please try again.";
+            alert(msg);
+        } finally {
+            setApplyLoading(false);
+        }
     };
 
     if (loading) {
@@ -741,7 +851,7 @@ export default function BrowseJobs() {
                                                     </div>
                                                 )}
 
-                                                {/* Apply Button */}
+                                                {/* Apply Button - opens modal */}
                                                 <button 
                                                     style={{
                                                         width: "100%",
@@ -767,10 +877,7 @@ export default function BrowseJobs() {
                                                         e.target.style.transform = "translateY(0)";
                                                         e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
                                                     }}
-                                                    onClick={() => {
-                                                        // TODO: Implement apply functionality
-                                                        alert("Apply functionality coming soon!");
-                                                    }}
+                                                    onClick={() => openApplyModal(job, j)}
                                                 >
                                                     Apply Now
                                                 </button>
@@ -1196,6 +1303,220 @@ export default function BrowseJobs() {
                     </>
                 )}
             </div>
+
+            {/* APPLY JOB MODAL */}
+            {applyModalOpen && applyJobInfo && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(15, 23, 42, 0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                        padding: "16px"
+                    }}
+                    onClick={closeApplyModal}
+                >
+                    <div
+                        style={{
+                            background: "#fff",
+                            borderRadius: "16px",
+                            maxWidth: "520px",
+                            width: "100%",
+                            padding: "24px 24px 20px",
+                            boxShadow: "0 20px 45px rgba(15,23,42,0.35)",
+                            position: "relative",
+                            maxHeight: "90vh",
+                            overflowY: "auto"
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: "1.35rem", color: "#0f172a" }}>Apply for this job</h2>
+                                <p style={{ margin: "4px 0 0", fontSize: "0.9rem", color: "#64748b" }}>
+                                    Review the details and confirm your application.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={closeApplyModal}
+                                style={{
+                                    border: "none",
+                                    background: "transparent",
+                                    fontSize: "1.25rem",
+                                    cursor: applyLoading ? "not-allowed" : "pointer",
+                                    color: "#64748b"
+                                }}
+                                disabled={applyLoading}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Job & Company Summary */}
+                        <div
+                            style={{
+                                padding: "12px 14px",
+                                borderRadius: "10px",
+                                background: "#f9fafb",
+                                border: "1px solid #e5e7eb",
+                                marginBottom: 16
+                            }}
+                        >
+                            <p style={{ margin: 0, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#94a3b8" }}>
+                                Job Overview
+                            </p>
+                            <h3 style={{ margin: "4px 0 4px", fontSize: "1.05rem", color: "#0f172a" }}>
+                                {applyJobInfo.j?.title || "Untitled Job"}
+                            </h3>
+                            {applyJobInfo.job?.companyName && (
+                                <p style={{ margin: 0, fontSize: "0.9rem", color: "#4f46e5", fontWeight: 600 }}>
+                                    🏢 {applyJobInfo.job.companyName}
+                                </p>
+                            )}
+                            {applyJobInfo.j?.location && (
+                                <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#64748b" }}>
+                                    📍 {applyJobInfo.j.location}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Contact & Resume Form */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {/* Email toggle */}
+                            <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500 }}>
+                                Contact Email
+                            </label>
+                            <label style={{ fontSize: "0.85rem", color: "#4b5563", display: "flex", alignItems: "center", gap: 8 }}>
+                                <input
+                                    type="checkbox"
+                                    checked={applyUseSameEmail}
+                                    onChange={(e) => setApplyUseSameEmail(e.target.checked)}
+                                />
+                                Use email from your profile
+                            </label>
+                            <input
+                                type="email"
+                                placeholder="Your email"
+                                value={applyEmail}
+                                onChange={(e) => setApplyEmail(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    borderRadius: "8px",
+                                    border: "1px solid #e5e7eb",
+                                    fontSize: "0.95rem",
+                                    background: applyUseSameEmail ? "#f9fafb" : "#ffffff"
+                                }}
+                                disabled={applyUseSameEmail}
+                            />
+
+                            {/* Mobile number */}
+                            <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500, marginTop: 8 }}>
+                                Mobile Number (optional)
+                            </label>
+                            <input
+                                type="tel"
+                                placeholder="Your mobile number"
+                                value={applyMobile}
+                                onChange={(e) => setApplyMobile(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    borderRadius: "8px",
+                                    border: "1px solid #e5e7eb",
+                                    fontSize: "0.95rem"
+                                }}
+                            />
+
+                            {/* Resume toggle */}
+                            <div style={{ marginTop: 12 }}>
+                                <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500 }}>
+                                    Resume
+                                </label>
+                                <label style={{ fontSize: "0.85rem", color: "#4b5563", display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={applyUseSameResume}
+                                        onChange={(e) => setApplyUseSameResume(e.target.checked)}
+                                    />
+                                    Use resume already uploaded to your profile
+                                </label>
+
+                                {!applyUseSameResume && (
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={(e) => {
+                                            const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                            setApplyResumeFile(file);
+                                        }}
+                                        style={{
+                                            width: "100%",
+                                            marginTop: 8,
+                                            padding: "8px",
+                                            borderRadius: "8px",
+                                            border: "1px solid #e5e7eb",
+                                            background: "#f9fafb",
+                                            fontSize: "0.9rem"
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                            <button
+                                type="button"
+                                onClick={handleSubmitApplication}
+                                disabled={
+                                    applyLoading ||
+                                    !applyEmail.trim() ||
+                                    (!applyUseSameResume && !applyResumeFile)
+                                }
+                                style={{
+                                    flex: 1,
+                                    padding: "10px 16px",
+                                    borderRadius: "10px",
+                                    border: "none",
+                                    background: applyLoading ? "#9ca3af" : "#4f46e5",
+                                    color: "#fff",
+                                    fontWeight: 600,
+                                    fontSize: "0.95rem",
+                                    cursor: applyLoading ? "not-allowed" : "pointer",
+                                    boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)",
+                                    opacity: applyLoading ? 0.8 : 1
+                                }}
+                            >
+                                {applyLoading ? "Submitting..." : "Submit Application"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={closeApplyModal}
+                                disabled={applyLoading}
+                                style={{
+                                    flex: 1,
+                                    padding: "10px 16px",
+                                    borderRadius: "10px",
+                                    border: "1px solid #e5e7eb",
+                                    background: "#f9fafb",
+                                    color: "#374151",
+                                    fontWeight: 500,
+                                    fontSize: "0.95rem",
+                                    cursor: applyLoading ? "not-allowed" : "pointer"
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
