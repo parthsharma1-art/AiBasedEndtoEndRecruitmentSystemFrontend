@@ -1391,14 +1391,6 @@ export default function BrowseJobs() {
                             <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500 }}>
                                 Contact Email
                             </label>
-                            <label style={{ fontSize: "0.85rem", color: "#4b5563", display: "flex", alignItems: "center", gap: 8 }}>
-                                <input
-                                    type="checkbox"
-                                    checked={applyUseSameEmail}
-                                    onChange={(e) => setApplyUseSameEmail(e.target.checked)}
-                                />
-                                Use email from your profile
-                            </label>
                             <input
                                 type="email"
                                 placeholder="Your email"
@@ -1415,9 +1407,8 @@ export default function BrowseJobs() {
                                 disabled={applyUseSameEmail}
                             />
 
-                            {/* Mobile number */}
                             <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500, marginTop: 8 }}>
-                                Mobile Number (optional)
+                                Mobile Number 
                             </label>
                             <input
                                 type="tel"
