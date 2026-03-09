@@ -28,7 +28,7 @@ function useMediaQuery(query) {
 function isUserLoggedIn() {
     const token = localStorage.getItem("token");
     if (!token) return false;
-    
+
     // Check if login timestamp exists
     const loginTimestamp = localStorage.getItem("loginTimestamp");
     if (!loginTimestamp) {
@@ -37,19 +37,19 @@ function isUserLoggedIn() {
         localStorage.setItem("loginTimestamp", Date.now().toString());
         return true;
     }
-    
+
     // Check if login was within last 4 hours (4 * 60 * 60 * 1000 milliseconds)
     const fourHoursInMs = 4 * 60 * 60 * 1000;
     const currentTime = Date.now();
     const loginTime = parseInt(loginTimestamp, 10);
-    
+
     if (currentTime - loginTime > fourHoursInMs) {
         // Token expired (more than 4 hours), clear it
         localStorage.removeItem("token");
         localStorage.removeItem("loginTimestamp");
         return false;
     }
-    
+
     return true;
 }
 
@@ -69,7 +69,7 @@ export default function BrowseJobs() {
     const [applyMobile, setApplyMobile] = useState("");
     const [applyResumeFile, setApplyResumeFile] = useState(null);
     const [applyLoading, setApplyLoading] = useState(false);
-    
+
     // Filter states
     const [filters, setFilters] = useState({
         jobType: {
@@ -91,24 +91,24 @@ export default function BrowseJobs() {
             "10+": false
         }
     });
-    
+
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
 
     const navigate = useNavigate();
-    
+
     // Check login status on mount and periodically
     useEffect(() => {
         setIsLoggedIn(isUserLoggedIn());
-        
+
         // Check every minute to update login status
         const interval = setInterval(() => {
             setIsLoggedIn(isUserLoggedIn());
         }, 60000); // Check every minute
-        
+
         return () => clearInterval(interval);
     }, []);
-    
+
     // Fetch data whenever tab changes
     useEffect(() => {
         if (activeTab === "jobs") fetchJobs();
@@ -133,7 +133,7 @@ export default function BrowseJobs() {
         try {
             const res = await axios.get(COMPANIES_API);
             const data = Array.isArray(res.data) ? res.data : [];
-            
+
             // Filter companies that have a valid company name
             const validCompanies = data.filter((c) => {
                 return (
@@ -143,7 +143,7 @@ export default function BrowseJobs() {
                     c.basicSetting.companyName.trim() !== ""
                 );
             });
-            
+
             setCompanies(validCompanies);
         } catch (err) {
             console.error(err);
@@ -197,13 +197,13 @@ export default function BrowseJobs() {
             if (experienceFilters.length > 0) {
                 const exp = j.experienceRequired || 0;
                 let matchesExperience = false;
-                
+
                 experienceFilters.forEach(([range]) => {
                     if (range === "0-2" && exp >= 0 && exp <= 2) matchesExperience = true;
                     if (range === "3-5" && exp >= 3 && exp <= 5) matchesExperience = true;
                     if (range === "5+" && exp >= 5) matchesExperience = true;
                 });
-                
+
                 if (!matchesExperience) return false;
             }
 
@@ -212,13 +212,13 @@ export default function BrowseJobs() {
             if (salaryFilters.length > 0) {
                 const salaryNum = extractSalaryNumber(j.salaryRange);
                 let matchesSalary = false;
-                
+
                 salaryFilters.forEach(([range]) => {
                     if (range === "3-6" && salaryNum >= 3 && salaryNum <= 6) matchesSalary = true;
                     if (range === "6-10" && salaryNum >= 6 && salaryNum <= 10) matchesSalary = true;
                     if (range === "10+" && salaryNum >= 10) matchesSalary = true;
                 });
-                
+
                 if (!matchesSalary) return false;
             }
 
@@ -227,12 +227,12 @@ export default function BrowseJobs() {
     };
 
     const filteredJobs = getFilteredJobs();
-    
+
     // Check if any filters are active
     const hasActiveFilters = () => {
         return Object.values(filters.jobType).some(v => v) ||
-               Object.values(filters.experience).some(v => v) ||
-               Object.values(filters.salary).some(v => v);
+            Object.values(filters.experience).some(v => v) ||
+            Object.values(filters.salary).some(v => v);
     };
 
     // Clear all filters
@@ -391,9 +391,9 @@ export default function BrowseJobs() {
     return (
         <>
             {/* NAVBAR */}
-           
+
             <div style={navbar}>
-                <div 
+                <div
                     style={{
                         ...logo,
                         cursor: "pointer",
@@ -431,18 +431,18 @@ export default function BrowseJobs() {
                 </div>
 
                 {isLoggedIn ? (
-                    <button 
+                    <button
                         style={{
                             ...loginBtn,
                             background: "#10b981"
-                        }} 
+                        }}
                         onClick={() => navigate("/dashboard")}
                     >
                         Dashboard
                     </button>
                 ) : (
-                    <button 
-                        style={loginBtn} 
+                    <button
+                        style={loginBtn}
                         onClick={() => navigate("/recruiter-auth")}
                     >
                         Login
@@ -471,8 +471,8 @@ export default function BrowseJobs() {
                                 gap: "15px"
                             }}>
                                 <div>
-                                    <h2 style={{ 
-                                        margin: 0, 
+                                    <h2 style={{
+                                        margin: 0,
                                         fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem",
                                         color: "#1e293b",
                                         fontWeight: 700,
@@ -480,9 +480,9 @@ export default function BrowseJobs() {
                                     }}>
                                         Available Jobs ({hasActiveFilters() ? filteredJobs.length : jobs.length})
                                         {hasActiveFilters() && (
-                                            <span style={{ 
-                                                fontSize: "0.8rem", 
-                                                color: "#64748b", 
+                                            <span style={{
+                                                fontSize: "0.8rem",
+                                                color: "#64748b",
                                                 fontWeight: 400,
                                                 marginLeft: "8px"
                                             }}>
@@ -490,10 +490,10 @@ export default function BrowseJobs() {
                                             </span>
                                         )}
                                     </h2>
-                                    <p style={{ 
-                                        margin: "8px 0 0", 
-                                        color: "#64748b", 
-                                        fontSize: isMobile ? "0.85rem" : "0.95rem" 
+                                    <p style={{
+                                        margin: "8px 0 0",
+                                        color: "#64748b",
+                                        fontSize: isMobile ? "0.85rem" : "0.95rem"
                                     }}>
                                         Browse and apply to exciting opportunities
                                     </p>
@@ -531,33 +531,33 @@ export default function BrowseJobs() {
                                     </button>
                                 )}
                             </div>
-                            
+
                             {filteredJobs.length === 0 ? (
-                                <div style={{ 
-                                    padding: "60px 40px", 
-                                    textAlign: "center", 
-                                    background: "#fff", 
+                                <div style={{
+                                    padding: "60px 40px",
+                                    textAlign: "center",
+                                    background: "#fff",
                                     borderRadius: "12px",
                                     border: "2px dashed #e2e8f0",
                                     boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
                                 }}>
                                     <div style={{ fontSize: "4rem", marginBottom: 16 }}>📋</div>
-                                    <h3 style={{ 
-                                        margin: "0 0 12px", 
-                                        fontSize: "1.25rem", 
+                                    <h3 style={{
+                                        margin: "0 0 12px",
+                                        fontSize: "1.25rem",
                                         color: "#1e293b",
                                         fontWeight: 600
                                     }}>
                                         {hasActiveFilters() ? "No Jobs Match Your Filters" : "No Jobs Available"}
                                     </h3>
-                                    <p style={{ 
-                                        color: "#64748b", 
+                                    <p style={{
+                                        color: "#64748b",
                                         margin: "0 auto 16px",
                                         fontSize: "0.95rem",
                                         maxWidth: "400px"
                                     }}>
-                                        {hasActiveFilters() 
-                                            ? "Try adjusting your filters to see more results." 
+                                        {hasActiveFilters()
+                                            ? "Try adjusting your filters to see more results."
                                             : "Check back later for new job opportunities!"}
                                     </p>
                                     {hasActiveFilters() && (
@@ -586,19 +586,19 @@ export default function BrowseJobs() {
                                     )}
                                 </div>
                             ) : (
-                                <div style={{ 
+                                <div style={{
                                     display: "grid",
-                                    gridTemplateColumns: isMobile 
-                                        ? "1fr" 
-                                        : isTablet 
-                                            ? "repeat(auto-fill, minmax(300px, 1fr))" 
+                                    gridTemplateColumns: isMobile
+                                        ? "1fr"
+                                        : isTablet
+                                            ? "repeat(auto-fill, minmax(300px, 1fr))"
                                             : "repeat(auto-fill, minmax(400px, 1fr))",
                                     gap: isMobile ? "15px" : "20px"
                                 }}>
                                     {filteredJobs.map((job, index) => {
                                         const j = job?.jobPostingsResponse;
                                         if (!j) return null;
-                                        
+
                                         return (
                                             <div
                                                 key={job.id || index}
@@ -655,9 +655,9 @@ export default function BrowseJobs() {
                                                 )}
 
                                                 {/* Job Title */}
-                                                <h3 style={{ 
-                                                    margin: "0 0 12px", 
-                                                    fontSize: isMobile ? "1.1rem" : "1.25rem", 
+                                                <h3 style={{
+                                                    margin: "0 0 12px",
+                                                    fontSize: isMobile ? "1.1rem" : "1.25rem",
                                                     color: "#1e293b",
                                                     fontWeight: 700,
                                                     paddingRight: isMobile ? "80px" : "100px",
@@ -667,10 +667,10 @@ export default function BrowseJobs() {
                                                 </h3>
 
                                                 {/* Description */}
-                                                <p style={{ 
-                                                    margin: "0 0 20px", 
-                                                    fontSize: "0.9rem", 
-                                                    color: "#64748b", 
+                                                <p style={{
+                                                    margin: "0 0 20px",
+                                                    fontSize: "0.9rem",
+                                                    color: "#64748b",
                                                     lineHeight: 1.6,
                                                     display: "-webkit-box",
                                                     WebkitLineClamp: 3,
@@ -689,9 +689,9 @@ export default function BrowseJobs() {
                                                         borderRadius: "8px",
                                                         border: "1px solid #c7d2fe"
                                                     }}>
-                                                        <p style={{ 
-                                                            margin: "0 0 6px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 6px",
+                                                            fontSize: "0.75rem",
                                                             color: "#4f46e5",
                                                             fontWeight: 600,
                                                             textTransform: "uppercase",
@@ -699,9 +699,9 @@ export default function BrowseJobs() {
                                                         }}>
                                                             👤 Profile
                                                         </p>
-                                                        <p style={{ 
-                                                            margin: 0, 
-                                                            fontSize: "0.95rem", 
+                                                        <p style={{
+                                                            margin: 0,
+                                                            fontSize: "0.95rem",
                                                             color: "#1e293b",
                                                             fontWeight: 600
                                                         }}>
@@ -721,9 +721,9 @@ export default function BrowseJobs() {
                                                     borderRadius: "8px"
                                                 }}>
                                                     <div>
-                                                        <p style={{ 
-                                                            margin: "0 0 4px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 4px",
+                                                            fontSize: "0.75rem",
                                                             color: "#64748b",
                                                             fontWeight: 500,
                                                             textTransform: "uppercase",
@@ -731,9 +731,9 @@ export default function BrowseJobs() {
                                                         }}>
                                                             💰 Salary
                                                         </p>
-                                                        <p style={{ 
-                                                            margin: 0, 
-                                                            fontSize: "0.95rem", 
+                                                        <p style={{
+                                                            margin: 0,
+                                                            fontSize: "0.95rem",
                                                             color: "#1e293b",
                                                             fontWeight: 600
                                                         }}>
@@ -741,9 +741,9 @@ export default function BrowseJobs() {
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p style={{ 
-                                                            margin: "0 0 4px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 4px",
+                                                            fontSize: "0.75rem",
                                                             color: "#64748b",
                                                             fontWeight: 500,
                                                             textTransform: "uppercase",
@@ -751,9 +751,9 @@ export default function BrowseJobs() {
                                                         }}>
                                                             🏢 Type
                                                         </p>
-                                                        <p style={{ 
-                                                            margin: 0, 
-                                                            fontSize: "0.95rem", 
+                                                        <p style={{
+                                                            margin: 0,
+                                                            fontSize: "0.95rem",
                                                             color: "#1e293b",
                                                             fontWeight: 600
                                                         }}>
@@ -761,9 +761,9 @@ export default function BrowseJobs() {
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p style={{ 
-                                                            margin: "0 0 4px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 4px",
+                                                            fontSize: "0.75rem",
                                                             color: "#64748b",
                                                             fontWeight: 500,
                                                             textTransform: "uppercase",
@@ -771,9 +771,9 @@ export default function BrowseJobs() {
                                                         }}>
                                                             ⭐ Experience
                                                         </p>
-                                                        <p style={{ 
-                                                            margin: 0, 
-                                                            fontSize: "0.95rem", 
+                                                        <p style={{
+                                                            margin: 0,
+                                                            fontSize: "0.95rem",
                                                             color: "#1e293b",
                                                             fontWeight: 600
                                                         }}>
@@ -781,9 +781,9 @@ export default function BrowseJobs() {
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p style={{ 
-                                                            margin: "0 0 4px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 4px",
+                                                            fontSize: "0.75rem",
                                                             color: "#64748b",
                                                             fontWeight: 500,
                                                             textTransform: "uppercase",
@@ -791,9 +791,9 @@ export default function BrowseJobs() {
                                                         }}>
                                                             📅 Posted
                                                         </p>
-                                                        <p style={{ 
-                                                            margin: 0, 
-                                                            fontSize: "0.95rem", 
+                                                        <p style={{
+                                                            margin: 0,
+                                                            fontSize: "0.95rem",
                                                             color: "#1e293b",
                                                             fontWeight: 600
                                                         }}>
@@ -805,9 +805,9 @@ export default function BrowseJobs() {
                                                 {/* Skills */}
                                                 {j.skillsRequired && j.skillsRequired.length > 0 && (
                                                     <div style={{ marginBottom: "16px" }}>
-                                                        <p style={{ 
-                                                            margin: "0 0 8px", 
-                                                            fontSize: "0.75rem", 
+                                                        <p style={{
+                                                            margin: "0 0 8px",
+                                                            fontSize: "0.75rem",
                                                             color: "#64748b",
                                                             fontWeight: 500,
                                                             textTransform: "uppercase",
@@ -851,8 +851,16 @@ export default function BrowseJobs() {
                                                     </div>
                                                 )}
 
+                                                {/* SHOWING TOTAL APPLIED CANDIDATES HERE */}
+
+                                                <span style={appliedCountBadge}>
+
+                                                    👥 {job.totalAppliedCandidates || 0} Applied
+
+                                                </span>
+
                                                 {/* Apply Button - opens modal */}
-                                                <button 
+                                                <button
                                                     style={{
                                                         width: "100%",
                                                         padding: "12px 24px",
@@ -973,40 +981,40 @@ export default function BrowseJobs() {
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Job Type</strong>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.jobType.FULL_TIME}
                                         onChange={() => handleFilterChange("jobType", "FULL_TIME")}
                                     /> Full-time
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.jobType.PART_TIME}
                                         onChange={() => handleFilterChange("jobType", "PART_TIME")}
                                     /> Part-time
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.jobType.REMOTE}
                                         onChange={() => handleFilterChange("jobType", "REMOTE")}
                                     /> Remote
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.jobType.INTERNSHIP}
                                         onChange={() => handleFilterChange("jobType", "INTERNSHIP")}
                                     /> Internship
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.jobType.HYBRID}
                                         onChange={() => handleFilterChange("jobType", "HYBRID")}
@@ -1017,24 +1025,24 @@ export default function BrowseJobs() {
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Experience</strong>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.experience["0-2"]}
                                         onChange={() => handleFilterChange("experience", "0-2")}
                                     /> 0–2 years
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.experience["3-5"]}
                                         onChange={() => handleFilterChange("experience", "3-5")}
                                     /> 3–5 years
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.experience["5+"]}
                                         onChange={() => handleFilterChange("experience", "5+")}
@@ -1045,24 +1053,24 @@ export default function BrowseJobs() {
                             <div style={filterBlock}>
                                 <strong style={filterTitle}>Salary</strong>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.salary["3-6"]}
                                         onChange={() => handleFilterChange("salary", "3-6")}
                                     /> 3–6 LPA
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.salary["6-10"]}
                                         onChange={() => handleFilterChange("salary", "6-10")}
                                     /> 6–10 LPA
                                 </label>
                                 <label style={filterLabel}>
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         style={checkboxStyle}
                                         checked={filters.salary["10+"]}
                                         onChange={() => handleFilterChange("salary", "10+")}
@@ -1161,44 +1169,44 @@ export default function BrowseJobs() {
                                         </button>
                                     )}
                                 </div>
-                                
+
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Job Type</strong>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.jobType.FULL_TIME}
                                             onChange={() => handleFilterChange("jobType", "FULL_TIME")}
                                         /> Full-time
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.jobType.PART_TIME}
                                             onChange={() => handleFilterChange("jobType", "PART_TIME")}
                                         /> Part-time
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.jobType.REMOTE}
                                             onChange={() => handleFilterChange("jobType", "REMOTE")}
                                         /> Remote
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.jobType.INTERNSHIP}
                                             onChange={() => handleFilterChange("jobType", "INTERNSHIP")}
                                         /> Internship
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.jobType.HYBRID}
                                             onChange={() => handleFilterChange("jobType", "HYBRID")}
@@ -1209,24 +1217,24 @@ export default function BrowseJobs() {
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Experience</strong>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.experience["0-2"]}
                                             onChange={() => handleFilterChange("experience", "0-2")}
                                         /> 0–2 years
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.experience["3-5"]}
                                             onChange={() => handleFilterChange("experience", "3-5")}
                                         /> 3–5 years
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.experience["5+"]}
                                             onChange={() => handleFilterChange("experience", "5+")}
@@ -1237,31 +1245,31 @@ export default function BrowseJobs() {
                                 <div style={filterBlock}>
                                     <strong style={filterTitle}>Salary</strong>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.salary["3-6"]}
                                             onChange={() => handleFilterChange("salary", "3-6")}
                                         /> 3–6 LPA
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.salary["6-10"]}
                                             onChange={() => handleFilterChange("salary", "6-10")}
                                         /> 6–10 LPA
                                     </label>
                                     <label style={filterLabel}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             style={checkboxStyle}
                                             checked={filters.salary["10+"]}
                                             onChange={() => handleFilterChange("salary", "10+")}
                                         /> 10+ LPA
                                     </label>
                                 </div>
-                                
+
                                 {/* Apply Button */}
                                 <button
                                     onClick={() => setShowFilters(false)}
@@ -1408,7 +1416,7 @@ export default function BrowseJobs() {
                             />
 
                             <label style={{ fontSize: "0.9rem", color: "#0f172a", fontWeight: 500, marginTop: 8 }}>
-                                Mobile Number 
+                                Mobile Number
                             </label>
                             <input
                                 type="tel"
@@ -1513,9 +1521,9 @@ export default function BrowseJobs() {
 }
 
 /* ===== STYLES ===== */
-const navbar = { 
-    display: "flex", 
-    justifyContent: "space-between", 
+const navbar = {
+    display: "flex",
+    justifyContent: "space-between",
     alignItems: "center",
     padding: "15px 20px",
     borderBottom: "1px solid #eee",
@@ -1523,15 +1531,15 @@ const navbar = {
     gap: "15px"
 };
 
-const logo = { 
-    fontWeight: "bold", 
-    fontSize: "clamp(18px, 4vw, 22px)", 
+const logo = {
+    fontWeight: "bold",
+    fontSize: "clamp(18px, 4vw, 22px)",
     color: "#ef4444",
     whiteSpace: "nowrap"
 };
 
-const navLinks = { 
-    display: "flex", 
+const navLinks = {
+    display: "flex",
     gap: "clamp(10px, 2vw, 25px)",
     flexWrap: "wrap",
     fontSize: "clamp(14px, 2vw, 16px)"
@@ -1539,19 +1547,19 @@ const navLinks = {
 
 const link = { cursor: "pointer", color: "#444" };
 const activeLink = { color: "#4f46e5", borderBottom: "2px solid #4f46e5" };
-const loginBtn = { 
-    background: "#2563eb", 
-    color: "#fff", 
-    padding: "8px 16px", 
-    borderRadius: 6, 
-    border: "none", 
+const loginBtn = {
+    background: "#2563eb",
+    color: "#fff",
+    padding: "8px 16px",
+    borderRadius: 6,
+    border: "none",
     cursor: "pointer",
     fontSize: "clamp(14px, 2vw, 16px)",
     whiteSpace: "nowrap"
 };
 
-const layout = { 
-    display: "flex", 
+const layout = {
+    display: "flex",
     flexDirection: "row", // Explicitly set to row to keep filters on right
     padding: "clamp(15px, 3vw, 25px)",
     gap: "clamp(15px, 3vw, 25px)",
@@ -1559,7 +1567,7 @@ const layout = {
     overflow: "hidden"
 };
 
-const sidebar = { 
+const sidebar = {
     width: "280px",
     flexShrink: 0,
     position: "sticky",
@@ -1586,12 +1594,12 @@ const sidebarTitle = {
     borderBottom: "2px solid #e2e8f0"
 };
 
-const filterBlock = { 
-    marginBottom: 24, 
-    display: "flex", 
-    flexDirection: "column", 
-    gap: 10, 
-    fontSize: 14 
+const filterBlock = {
+    marginBottom: 24,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    fontSize: 14
 };
 
 const filterTitle = {
@@ -1621,48 +1629,50 @@ const checkboxStyle = {
     accentColor: "#4f46e5"
 };
 
-const content = { 
+const content = {
     flex: 1,
     overflowY: "auto",
     paddingRight: "10px",
     minWidth: 0 // Allows flex item to shrink below content size
 };
 
-const jobCard = { 
-    border: "1px solid #ddd", 
-    padding: "clamp(15px, 3vw, 20px)", 
-    marginBottom: "clamp(15px, 3vw, 20px)", 
-    borderRadius: 8 
+const jobCard = {
+    border: "1px solid #ddd",
+    padding: "clamp(15px, 3vw, 20px)",
+    marginBottom: "clamp(15px, 3vw, 20px)",
+    borderRadius: 8
 };
 
-const applyBtn = { 
-    padding: "clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)", 
-    background: "#4f46e5", 
-    color: "#fff", 
-    border: "none", 
-    borderRadius: 6, 
+const applyBtn = {
+    padding: "clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)",
+    background: "#4f46e5",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
     cursor: "pointer",
     fontSize: "clamp(14px, 2vw, 16px)",
     width: "100%",
     maxWidth: "200px"
 };
 
-const center = { 
-    height: "60vh", 
-    display: "flex", 
-    alignItems: "center", 
-    justifyContent: "center" 
+const center = {
+    height: "60vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
 };
 
-const companyGrid = { 
-    display: "grid", 
-    gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", 
-    gap: "clamp(15px, 3vw, 20px)" 
+const companyGrid = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
+    gap: "clamp(15px, 3vw, 20px)"
 };
 
-const companyCard = { 
-    padding: "clamp(15px, 3vw, 20px)", 
-    borderRadius: 12, 
-    background: "#fff", 
-    boxShadow: "0 4px 10px rgba(0,0,0,.1)" 
+const companyCard = {
+    padding: "clamp(15px, 3vw, 20px)",
+    borderRadius: 12,
+    background: "#fff",
+    boxShadow: "0 4px 10px rgba(0,0,0,.1)"
 };
+
+const appliedCountBadge = { fontSize: "0.75rem", background: "#f1f5f9", color: "#475569", padding: "4px 18px", borderRadius: "6px", fontWeight: "600", whiteSpace: "nowrap" };
