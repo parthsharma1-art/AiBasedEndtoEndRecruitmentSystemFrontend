@@ -7,6 +7,7 @@ const menuItems = [
   { path: "/candidate-dashboard/resume", label: "Upload Resume", icon: "📄" },
   // Jobs should open the public browse jobs page
   { path: "/browse-jobs", label: "Jobs", icon: "🔍" },
+  { path: "/candidate-dashboard/applied-jobs", label: "Applied Jobs", icon: "📋" },
   { path: "/candidate-dashboard/chats", label: "Chats", icon: "💬" },
   { path: "/candidate-dashboard/assessment", label: "Assessment", icon: "📝" },
   { path: "/candidate-dashboard/interview", label: "AI Interview", icon: "🎤" },

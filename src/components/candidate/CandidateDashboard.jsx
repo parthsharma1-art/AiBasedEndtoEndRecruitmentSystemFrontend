@@ -9,6 +9,7 @@ import CandidateSidebar from "./CandidateSidebar";
 import CandidateDashboardHome from "./CandidateDashboardHome";
 import CandidateUploadResume from "./CandidateUploadResume";
 import CandidateJobMatching from "./CandidateJobMatching";
+import CandidateAppliedJobs from "./CandidateAppliedJobs";
 import CandidateAssessment from "./CandidateAssessment";
 import CandidateAIInterview from "./CandidateAIInterview";
 import CandidateResults from "./CandidateResults";
@@ -130,6 +131,7 @@ export default function CandidateDashboard() {
             <Route path="/" element={<CandidateDashboardHome />} />
             <Route path="resume" element={<CandidateUploadResume />} />
             <Route path="jobs" element={<CandidateJobMatching />} />
+            <Route path="applied-jobs" element={<CandidateAppliedJobs />} />
             <Route path="chats" element={<CandidateChatsView />} />
             <Route path="chats/:chatId" element={<CandidateChatsView />} />
             <Route path="assessment" element={<CandidateAssessment />} />

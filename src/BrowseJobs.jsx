@@ -339,14 +339,22 @@ export default function BrowseJobs() {
 
         try {
             setApplyLoading(true);
-            await axios.post(`${APPLY_JOB_BASE}/${applyJobInfo.jobId}/apply`, formData, {
+            const response = await axios.post(`${APPLY_JOB_BASE}/${applyJobInfo.jobId}/apply`, formData, {
                 headers: {
                     Authorization: "Bearer " + token,
                 },
             });
 
-            alert("Application submitted successfully!");
-            closeApplyModal();
+            // Check if application was successful
+            if (response.data === true) {
+                alert("Application submitted successfully!");
+                closeApplyModal();
+                // Navigate to applied jobs in candidate dashboard
+                navigate("/candidate-dashboard/applied-jobs");
+            } else {
+                alert("Application submitted, but there may be some issues. Please check your dashboard.");
+                closeApplyModal();
+            }
         } catch (err) {
             console.error("Error applying to job:", err);
             const msg =
