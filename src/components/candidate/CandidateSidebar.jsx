@@ -5,7 +5,9 @@ import "../../styles/dashboard.css";
 const menuItems = [
   { path: "/candidate-dashboard", label: "Dashboard", icon: "🏠" },
   { path: "/candidate-dashboard/resume", label: "Upload Resume", icon: "📄" },
-  { path: "/candidate-dashboard/jobs", label: "Jobs", icon: "🔍" },
+  // Jobs should open the public browse jobs page
+  { path: "/browse-jobs", label: "Jobs", icon: "🔍" },
+  { path: "/candidate-dashboard/applied-jobs", label: "Applied Jobs", icon: "📋" },
   { path: "/candidate-dashboard/chats", label: "Chats", icon: "💬" },
   { path: "/candidate-dashboard/assessment", label: "Assessment", icon: "📝" },
   { path: "/candidate-dashboard/interview", label: "AI Interview", icon: "🎤" },
@@ -84,17 +86,10 @@ export default function CandidateSidebar({ onClose }) {
         {menuItems.map((item) => {
           const handleClick = () => {
             if (onClose) onClose();
-            if (item.path === "/candidate-dashboard/jobs") {
-              navigate("/candidate-dashboard/jobs");
-            } else {
-              navigate(item.path);
-            }
+            navigate(item.path);
           };
 
-          const isActive =
-            item.path === "/candidate-dashboard/jobs"
-              ? location.pathname === "/candidate-dashboard/jobs"
-              : location.pathname === item.path;
+          const isActive = location.pathname === item.path;
 
           return (
             <div
