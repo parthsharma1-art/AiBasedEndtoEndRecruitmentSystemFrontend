@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "./config/config";
 import "./styles/dashboard.css";
+import candidateApplyIcon from "./assests/candidateApply.png";
 
 // Hook for responsive design
 function useMediaQuery(query) {
@@ -20,6 +21,22 @@ function useMediaQuery(query) {
 
     return matches;
 }
+
+const buttonStyle = {
+    width: "132px",
+    height: "42px",
+    padding: "0 12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "0.9rem",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.2s"
+};
 
 export default function AllJobs() {
     const [jobs, setJobs] = useState([]);
@@ -57,21 +74,21 @@ export default function AllJobs() {
             navigate("/");
             return;
         }
-        
+
         setLoading(true);
         setError(null);
-        
+
         try {
             // API endpoint: /api/profile/jobs (GET)
             // Backend returns list of jobs
             const apiUrl = `${CONFIG.BACKEND_URL}/profile/jobs`;
-            
+
             console.log("AllJobs: Fetching jobs from:", apiUrl);
             const res = await axios.get(apiUrl, {
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 10000,
             });
-            
+
             // Handle response - backend returns List<JobPostingsResponse>
             let jobsData = [];
             if (Array.isArray(res.data)) {
@@ -83,7 +100,7 @@ export default function AllJobs() {
             } else if (res.data && typeof res.data === 'object') {
                 jobsData = [res.data];
             }
-            
+
             setJobs(jobsData);
         } catch (err) {
             console.error("Error fetching jobs:", err);
@@ -242,11 +259,11 @@ export default function AllJobs() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <div style={{ 
-                    display: "flex", 
-                    flexDirection: "column", 
-                    alignItems: "center", 
-                    justifyContent: "center", 
+                <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
                     minHeight: "400px",
                     gap: 16
                 }}>
@@ -307,30 +324,30 @@ export default function AllJobs() {
             </button>
 
             {/* Header Section */}
-            <div style={{ 
-                display: "flex", 
+            <div style={{
+                display: "flex",
                 flexDirection: isMobile ? "column" : "row",
-                justifyContent: "space-between", 
-                alignItems: isMobile ? "flex-start" : "center", 
+                justifyContent: "space-between",
+                alignItems: isMobile ? "flex-start" : "center",
                 marginBottom: isMobile ? 24 : 32,
                 paddingBottom: 20,
                 borderBottom: "2px solid #e2e8f0",
                 gap: isMobile ? "16px" : "0"
             }}>
                 <div>
-                    <h1 style={{ 
-                        margin: 0, 
-                        fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem", 
+                    <h1 style={{
+                        margin: 0,
+                        fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "1.875rem",
                         color: "#1e293b",
                         fontWeight: 700,
                         letterSpacing: "-0.025em"
                     }}>
                         All Posted Jobs
                     </h1>
-                    <p style={{ 
-                        margin: "8px 0 0", 
-                        color: "#64748b", 
-                        fontSize: isMobile ? "0.85rem" : "0.95rem" 
+                    <p style={{
+                        margin: "8px 0 0",
+                        color: "#64748b",
+                        fontSize: isMobile ? "0.85rem" : "0.95rem"
                     }}>
                         Manage and view all your job postings
                     </p>
@@ -338,7 +355,7 @@ export default function AllJobs() {
                 <button
                     type="button"
                     className="btn-sm btn-view"
-                    style={{ 
+                    style={{
                         padding: isMobile ? "10px 20px" : "12px 24px",
                         fontSize: isMobile ? "0.85rem" : "0.95rem",
                         fontWeight: 600,
@@ -364,11 +381,11 @@ export default function AllJobs() {
 
             {/* Success/Error Message */}
             {message.text && (
-                <div style={{ 
-                    padding: "16px 20px", 
-                    background: message.type === "success" ? "#dcfce7" : "#fef2f2", 
-                    border: `1px solid ${message.type === "success" ? "#86efac" : "#fecaca"}`, 
-                    borderRadius: "12px", 
+                <div style={{
+                    padding: "16px 20px",
+                    background: message.type === "success" ? "#dcfce7" : "#fef2f2",
+                    border: `1px solid ${message.type === "success" ? "#86efac" : "#fecaca"}`,
+                    borderRadius: "12px",
                     marginBottom: 24,
                     color: message.type === "success" ? "#166534" : "#991b1b",
                     display: "flex",
@@ -381,11 +398,11 @@ export default function AllJobs() {
             )}
 
             {error && (
-                <div style={{ 
-                    padding: "20px 24px", 
-                    background: "#fef2f2", 
-                    border: "1px solid #fecaca", 
-                    borderRadius: "12px", 
+                <div style={{
+                    padding: "20px 24px",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: "12px",
                     marginBottom: 24,
                     color: "#991b1b"
                 }}>
@@ -420,25 +437,25 @@ export default function AllJobs() {
             )}
 
             {!error && jobs.length === 0 && (
-                <div style={{ 
-                    padding: "60px 40px", 
-                    textAlign: "center", 
-                    background: "#fff", 
+                <div style={{
+                    padding: "60px 40px",
+                    textAlign: "center",
+                    background: "#fff",
                     borderRadius: "12px",
                     border: "2px dashed #e2e8f0",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
                 }}>
                     <div style={{ fontSize: "4rem", marginBottom: 16 }}>📋</div>
-                    <h3 style={{ 
-                        margin: "0 0 12px", 
-                        fontSize: "1.25rem", 
+                    <h3 style={{
+                        margin: "0 0 12px",
+                        fontSize: "1.25rem",
                         color: "#1e293b",
                         fontWeight: 600
                     }}>
                         No Jobs Found
                     </h3>
-                    <p style={{ 
-                        color: "#64748b", 
+                    <p style={{
+                        color: "#64748b",
                         marginBottom: 24,
                         fontSize: "0.95rem",
                         maxWidth: "400px",
@@ -449,7 +466,7 @@ export default function AllJobs() {
                     <button
                         type="button"
                         className="btn-sm btn-view"
-                        style={{ 
+                        style={{
                             padding: "12px 24px",
                             fontSize: "0.95rem",
                             fontWeight: 600,
@@ -475,28 +492,28 @@ export default function AllJobs() {
 
             {!error && jobs.length > 0 && (
                 <div>
-                    <div style={{ 
-                        marginBottom: 20, 
+                    <div style={{
+                        marginBottom: 20,
                         padding: "12px 16px",
                         background: "#f8fafc",
                         borderRadius: "8px",
                         border: "1px solid #e2e8f0"
                     }}>
-                        <p style={{ 
-                            margin: 0, 
-                            fontSize: "0.9rem", 
+                        <p style={{
+                            margin: 0,
+                            fontSize: "0.9rem",
                             color: "#475569",
                             fontWeight: 500
                         }}>
                             📊 Total Jobs: <strong style={{ color: "#1e293b" }}>{jobs.length}</strong>
                         </p>
                     </div>
-                    <div style={{ 
+                    <div style={{
                         display: "grid",
-                        gridTemplateColumns: isMobile 
-                            ? "1fr" 
-                            : isTablet 
-                                ? "repeat(auto-fill, minmax(300px, 1fr))" 
+                        gridTemplateColumns: isMobile
+                            ? "1fr"
+                            : isTablet
+                                ? "repeat(auto-fill, minmax(300px, 1fr))"
                                 : "repeat(auto-fill, minmax(400px, 1fr))",
                         gap: isMobile ? "15px" : "20px"
                     }}>
@@ -541,9 +558,9 @@ export default function AllJobs() {
                                 </div>
 
                                 {/* Job Title */}
-                                <h3 style={{ 
-                                    margin: "0 0 12px", 
-                                    fontSize: isMobile ? "1.1rem" : "1.25rem", 
+                                <h3 style={{
+                                    margin: "0 0 12px",
+                                    fontSize: isMobile ? "1.1rem" : "1.25rem",
                                     color: "#1e293b",
                                     fontWeight: 700,
                                     paddingRight: isMobile ? "80px" : "100px",
@@ -553,10 +570,10 @@ export default function AllJobs() {
                                 </h3>
 
                                 {/* Description */}
-                                <p style={{ 
-                                    margin: "0 0 20px", 
-                                    fontSize: "0.9rem", 
-                                    color: "#64748b", 
+                                <p style={{
+                                    margin: "0 0 20px",
+                                    fontSize: "0.9rem",
+                                    color: "#64748b",
                                     lineHeight: 1.6,
                                     display: "-webkit-box",
                                     WebkitLineClamp: 3,
@@ -575,9 +592,9 @@ export default function AllJobs() {
                                         borderRadius: "8px",
                                         border: "1px solid #c7d2fe"
                                     }}>
-                                        <p style={{ 
-                                            margin: "0 0 6px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 6px",
+                                            fontSize: "0.75rem",
                                             color: "#4f46e5",
                                             fontWeight: 600,
                                             textTransform: "uppercase",
@@ -585,9 +602,9 @@ export default function AllJobs() {
                                         }}>
                                             👤 Profile
                                         </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            fontSize: "0.95rem", 
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: "0.95rem",
                                             color: "#1e293b",
                                             fontWeight: 600
                                         }}>
@@ -607,9 +624,9 @@ export default function AllJobs() {
                                     borderRadius: "8px"
                                 }}>
                                     <div>
-                                        <p style={{ 
-                                            margin: "0 0 4px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 4px",
+                                            fontSize: "0.75rem",
                                             color: "#64748b",
                                             fontWeight: 500,
                                             textTransform: "uppercase",
@@ -617,9 +634,9 @@ export default function AllJobs() {
                                         }}>
                                             💰 Salary
                                         </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            fontSize: "0.95rem", 
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: "0.95rem",
                                             color: "#1e293b",
                                             fontWeight: 600
                                         }}>
@@ -627,9 +644,9 @@ export default function AllJobs() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p style={{ 
-                                            margin: "0 0 4px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 4px",
+                                            fontSize: "0.75rem",
                                             color: "#64748b",
                                             fontWeight: 500,
                                             textTransform: "uppercase",
@@ -637,9 +654,9 @@ export default function AllJobs() {
                                         }}>
                                             🏢 Type
                                         </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            fontSize: "0.95rem", 
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: "0.95rem",
                                             color: "#1e293b",
                                             fontWeight: 600
                                         }}>
@@ -647,9 +664,9 @@ export default function AllJobs() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p style={{ 
-                                            margin: "0 0 4px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 4px",
+                                            fontSize: "0.75rem",
                                             color: "#64748b",
                                             fontWeight: 500,
                                             textTransform: "uppercase",
@@ -657,9 +674,9 @@ export default function AllJobs() {
                                         }}>
                                             ⭐ Experience
                                         </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            fontSize: "0.95rem", 
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: "0.95rem",
                                             color: "#1e293b",
                                             fontWeight: 600
                                         }}>
@@ -667,9 +684,9 @@ export default function AllJobs() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p style={{ 
-                                            margin: "0 0 4px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 4px",
+                                            fontSize: "0.75rem",
                                             color: "#64748b",
                                             fontWeight: 500,
                                             textTransform: "uppercase",
@@ -677,9 +694,9 @@ export default function AllJobs() {
                                         }}>
                                             📅 Created
                                         </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            fontSize: "0.95rem", 
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: "0.95rem",
                                             color: "#1e293b",
                                             fontWeight: 600
                                         }}>
@@ -691,9 +708,9 @@ export default function AllJobs() {
                                 {/* Skills */}
                                 {job.skillsRequired && job.skillsRequired.length > 0 && (
                                     <div style={{ marginTop: "16px", marginBottom: "16px" }}>
-                                        <p style={{ 
-                                            margin: "0 0 8px", 
-                                            fontSize: "0.75rem", 
+                                        <p style={{
+                                            margin: "0 0 8px",
+                                            fontSize: "0.75rem",
                                             color: "#64748b",
                                             fontWeight: 500,
                                             textTransform: "uppercase",
@@ -742,7 +759,8 @@ export default function AllJobs() {
                                     display: "flex",
                                     gap: "10px",
                                     marginTop: "20px",
-                                    flexWrap: "wrap"
+                                    flexWrap: "wrap",
+                                    alignItems: "center"
                                 }}>
                                     <button
                                         onClick={(e) => {
@@ -751,30 +769,10 @@ export default function AllJobs() {
                                         }}
                                         disabled={updateLoading}
                                         style={{
-                                            flex: 1,
-                                            minWidth: "120px",
-                                            padding: "10px 16px",
+                                            ...buttonStyle,
                                             background: "#10b981",
                                             color: "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
-                                            cursor: updateLoading ? "not-allowed" : "pointer",
-                                            fontSize: "0.9rem",
-                                            fontWeight: 600,
-                                            transition: "all 0.2s",
                                             opacity: updateLoading ? 0.6 : 1
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (!updateLoading) {
-                                                e.target.style.background = "#059669";
-                                                e.target.style.transform = "translateY(-2px)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (!updateLoading) {
-                                                e.target.style.background = "#10b981";
-                                                e.target.style.transform = "translateY(0)";
-                                            }
                                         }}
                                     >
                                         {updateLoading ? "Loading..." : "✏️ Update"}
@@ -782,34 +780,33 @@ export default function AllJobs() {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            navigate(`/dashboard/jobs/${job.id}}/applications`, {
+                                                state: { jobId: job.id }
+                                            });
+                                        }}
+                                        disabled={updateLoading}
+                                        style={{
+                                            ...buttonStyle,
+                                            background: "#10b981",
+                                            color: "#fff",
+                                            opacity: updateLoading ? 0.6 : 1
+                                        }}
+                                    >
+                                        <img style={{ height: "18px" }} src={candidateApplyIcon} alt="" />
+                                        Applicants
+                                    </button>
+
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             handleDelete(job.id || job.jobId);
                                         }}
                                         disabled={deleteLoading[job.id || job.jobId]}
                                         style={{
-                                            flex: 1,
-                                            minWidth: "120px",
-                                            padding: "10px 16px",
+                                            ...buttonStyle,
                                             background: "#ef4444",
                                             color: "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
-                                            cursor: deleteLoading[job.id || job.jobId] ? "not-allowed" : "pointer",
-                                            fontSize: "0.9rem",
-                                            fontWeight: 600,
-                                            transition: "all 0.2s",
                                             opacity: deleteLoading[job.id || job.jobId] ? 0.6 : 1
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (!deleteLoading[job.id || job.jobId]) {
-                                                e.target.style.background = "#dc2626";
-                                                e.target.style.transform = "translateY(-2px)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (!deleteLoading[job.id || job.jobId]) {
-                                                e.target.style.background = "#ef4444";
-                                                e.target.style.transform = "translateY(0)";
-                                            }
                                         }}
                                     >
                                         {deleteLoading[job.id || job.jobId] ? "Deleting..." : "🗑️ Delete"}
