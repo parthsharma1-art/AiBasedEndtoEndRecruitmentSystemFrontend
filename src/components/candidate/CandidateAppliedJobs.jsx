@@ -1,249 +1,298 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
 import "../../styles/dashboard.css";
 
-const FILE_BASE = CONFIG.BACKEND_URL + "/file";
-
-export default function AppliedCandidates() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const jobID = location.state?.jobId;
-
-  const [candidates, setCandidates] = useState([]);
-  const [loading, setLoading] = useState(true);
+// responsive hook
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    if (jobID) {
-      fetchCandidates();
-    }
-  }, [jobID]);
+    const media = window.matchMedia(query);
 
-  const fetchCandidates = async () => {
-    const token = localStorage.getItem("token");
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
+
+  return matches;
+}
+
+export default function CandidateAppliedJobs() {
+  const navigate = useNavigate();
+
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const isMobile = useMediaQuery("(max-width:768px)");
+  const isTablet = useMediaQuery("(max-width:1024px)");
+
+  useEffect(() => {
+    fetchAppliedJobs();
+  }, []);
+
+  const fetchAppliedJobs = async () => {
+    setLoading(true);
+    setError(null);
 
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/candidate-auth");
+        return;
+      }
+
       const res = await axios.get(
-        `${CONFIG.BACKEND_URL}/profile/job/get/${jobID}/applications`,
+        CONFIG.BACKEND_URL + "/jobs/applied",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: "Bearer " + token
+          }
         }
       );
 
-      const mappedCandidates = (res.data || []).map((item) => ({
-        id: item.id,
-        candidateName: item.candidateName,
-        resumeId: item.resumeId,
-        profileImageId: item.profileImageId,
-        applyDate: item.applyDate,
-        status: item.status,
-        candidateSkills: item.candidateSkills || [],
-        atsScore: item.atsScore,
-      }));
-
-      setCandidates(mappedCandidates);
+      setJobs(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Error loading candidates", err);
+      console.error(err);
+      setError("Failed to load applied jobs.");
+      setJobs([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "ACCEPTED":
+        return {
+          background: "#dcfce7",
+          color: "#166534"
+        };
+      case "REJECTED":
+        return {
+          background: "#fee2e2",
+          color: "#991b1b"
+        };
+      default:
+        return {
+          background: "#fef3c7",
+          color: "#92400e"
+        };
+    }
+  };
+
   if (loading) {
     return (
-      <div className="dashboard-content">
-        <h2>Loading Candidates...</h2>
+      <div className="dashboard-content" style={{ padding: 20 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 400
+          }}
+        >
+          <h2>Loading applied jobs...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-content" style={{ padding: 20 }}>
+        <div
+          style={{
+            padding: 20,
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: 12
+          }}
+        >
+          ⚠️ {error}
+
+          <button
+            onClick={fetchAppliedJobs}
+            style={{
+              marginTop: 10,
+              padding: "8px 16px",
+              background: "#4f46e5",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer"
+            }}
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-content">
-
-      {/* Back Button */}
-      <button
-        className="btn-back"
-        onClick={() => navigate("/dashboard/jobs")}
+    <div className="dashboard-content" style={{ padding: 20 }}>
+      <div
         style={{
-          marginBottom: "15px",
-          padding: "8px 14px",
-          borderRadius: "6px",
-          border: "none",
-          background: "#2563eb",
-          color: "#fff",
-          cursor: "pointer"
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+          flexWrap: "wrap"
         }}
       >
-        ← Back to Dashboard
-      </button>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "#1e293b"
+          }}
+        >
+          Applied Jobs
+        </h1>
+      </div>
 
-      <h1>Applied Candidates</h1>
+      {jobs.length === 0 ? (
+        <div
+          style={{
+            textAlign: "center",
+            padding: 40,
+            background: "#f8fafc",
+            borderRadius: 12,
+            border: "2px dashed #e2e8f0"
+          }}
+        >
+          <h3>No Applied Jobs Yet</h3>
 
-      {candidates.length === 0 ? (
-        <p>No candidates applied yet.</p>
+          <button
+            onClick={() => navigate("/browse-jobs")}
+            style={{
+              marginTop: 20,
+              padding: "10px 20px",
+              background: "#4f46e5",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer"
+            }}
+          >
+            Browse Jobs
+          </button>
+        </div>
       ) : (
-        <>
-          <div className="candidate-table">
-            <table className="dashboard-table">
-              <thead>
-                <tr>
-                  <th>Candidate</th>
-                  <th>Skills</th>
-                  <th>ATS Score</th>
-                  <th>Status</th>
-                  <th>Applied Date</th>
-                  <th>Resume</th>
-                </tr>
-              </thead>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : isTablet
+              ? "repeat(2,1fr)"
+              : "repeat(3,1fr)",
+            gap: 20
+          }}
+        >
+          {jobs.map((application, index) => (
+            <div
+              key={application.id || index}
+              style={{
+                background: "#fff",
+                border: "1px solid #e2e8f0",
+                borderRadius: 12,
+                padding: 20,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+              }}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <h3
+                  style={{
+                    margin: "0 0 4px 0",
+                    fontSize: "1.1rem",
+                    fontWeight: 600
+                  }}
+                >
+                  {application.title}
+                </h3>
 
-              <tbody>
-                {candidates.map((c) => (
-                  <tr key={c.id}>
-                    {/* Candidate */}
-                    <td>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px"
-                        }}
-                      >
-                        <img
-                          src={
-                            c.profileImageId
-                              ? `${FILE_BASE}/${c.profileImageId}`
-                              : "/default-profile.png"
-                          }
-                          alt={c.candidateName}
-                          style={{
-                            width: "42px",
-                            height: "42px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                            border: "1px solid #e5e7eb"
-                          }}
-                          onError={(e) =>
-                            (e.target.src = "/default-profile.png")
-                          }
-                        />
-
-                        <div style={{display:"flex",flexDirection:"column"}}>
-                          <span style={{fontWeight:"600"}}>
-                            {c.candidateName}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Skills */}
-                    <td>
-                      <div className="skills">
-                        {c.candidateSkills.map((s, i) => (
-                          <span key={i} className="skill">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* ATS Score */}
-                    <td>{c.atsScore ?? "N/A"}</td>
-
-                    {/* Status */}
-                    <td>
-                      <span className="status">{c.status}</span>
-                    </td>
-
-                    {/* Date */}
-                    <td>
-                      {c.applyDate
-                        ? new Date(c.applyDate).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-
-                    {/* Resume */}
-                    <td>
-                      {c.resumeId ? (
-                        <a
-                          href={`${FILE_BASE}/${c.resumeId}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn-sm btn-view"
-                        >
-                          View Resume
-                        </a>
-                      ) : (
-                        "No Resume"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Cards */}
-          <div className="candidate-cards">
-            {candidates.map((c) => (
-              <div className="candidate-card" key={c.id}>
-                <div className="card-header">
-                  <img
-                    src={
-                      c.profileImageId
-                        ? `${FILE_BASE}/${c.profileImageId}`
-                        : "/default-profile.png"
-                    }
-                    alt="profile"
-                    className="candidate-avatar"
-                    onError={(e) =>
-                      (e.target.src = "/default-profile.png")
-                    }
-                  />
-
-                  <div>
-                    <h3>{c.candidateName}</h3>
-                    <span className="status">{c.status}</span>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  <p><strong>Skills:</strong></p>
-
-                  <div className="skills">
-                    {c.candidateSkills.map((s, i) => (
-                      <span key={i} className="skill">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p>
-                    <strong>ATS Score:</strong> {c.atsScore ?? "N/A"}
-                  </p>
-
-                  <p>
-                    <strong>Applied:</strong>{" "}
-                    {c.applyDate
-                      ? new Date(c.applyDate).toLocaleDateString()
-                      : "N/A"}
-                  </p>
-
-                  {c.resumeId && (
-                    <a
-                      href={`${FILE_BASE}/${c.resumeId}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-sm btn-view"
-                    >
-                      View Resume
-                    </a>
-                  )}
-                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "0.9rem",
+                    color: "#64748b"
+                  }}
+                >
+                  {application.companyName}
+                </p>
               </div>
-            ))}
-          </div>
-        </>
+
+              <div style={{ marginBottom: 12 }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    background: "#dbeafe",
+                    color: "#1e40af",
+                    borderRadius: 20,
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    marginRight: 8
+                  }}
+                >
+                  {application.jobType}
+                </span>
+
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    background: "#dcfce7",
+                    color: "#166534",
+                    borderRadius: 20,
+                    fontSize: "0.8rem",
+                    fontWeight: 600
+                  }}
+                >
+                  {application.jobProfile}
+                </span>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <p style={{ margin: 0 }}>
+                  💰 {application.salaryRange}
+                </p>
+
+                <p style={{ margin: "4px 0 0 0" }}>
+                  📅 Applied on{" "}
+                  {application.appliedAt
+                    ? new Date(application.appliedAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  textAlign: "center",
+                  ...getStatusStyle(application.jobStatus)
+                }}
+              >
+                Application Status: {application.jobStatus}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

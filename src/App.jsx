@@ -17,6 +17,7 @@ import CandidateGoogleSuccess from "./CandidateGoogleSuccess";
 import CandidateDashboard from "./components/candidate/CandidateDashboard";
 import AllJobs from "./AllJobs";
 import CandidateAppliedJobs from "./components/candidate/CandidateAppliedJobs";
+import CandidateListAppliedJobs from "./components/hr/CandidatesListAppliedJobs";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
       <Route path="/candidate/google-success" element={<CandidateGoogleSuccess />} />
       <Route path="/dashboard/jobs" element={<AllJobs />} />
 
+
       {/* DASHBOARD */}
       <Route
         path="/dashboard/*"
@@ -43,7 +45,7 @@ export default function App() {
           // </AuthCheck>
         }
       />
-      <Route path="dashboard/jobs/:jobId/applications" element={<CandidateAppliedJobs />} />
+      <Route path="dashboard/jobs/:jobId/applications" element={<CandidateListAppliedJobs />} />
       {/* company pages */}
       <Route path="/:companySlug/jobs" element={<CompanyJobsPage />} />
       <Route path="/:companySlug" element={<CompanyPublicPage />} />
