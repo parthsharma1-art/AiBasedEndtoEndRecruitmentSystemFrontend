@@ -1300,3 +1300,83 @@
     font-size: 14px;
   }
 }
+
+
+
+
+
+
+
+/* applied job csss */
+
+/* Candidate row */
+.candidate-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Avatar */
+.candidate-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Skills */
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.skill {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Status */
+.status {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Mobile cards hidden by default */
+.candidate-cards {
+  display: none;
+}
+
+/* Card */
+.candidate-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+
+  .candidate-table {
+    display: none;
+  }
+
+  .candidate-cards {
+    display: block;
+  }
+
+}
