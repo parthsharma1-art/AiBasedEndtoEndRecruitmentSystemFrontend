@@ -36,7 +36,8 @@ export default function CandidateLandingPage() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
-    const location = useLocation();
+    const location = useLocation(); 
+    
     const isInDashboard = location.pathname.includes('/candidate-dashboard');
 
     useEffect(() => {
