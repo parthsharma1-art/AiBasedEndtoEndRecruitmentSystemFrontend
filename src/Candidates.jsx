@@ -2,10 +2,66 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
-import "./styles/dashboard.css";
 
 const API = Config.BACKEND_URL + "/recruiter";
 const FILE_BASE = Config.BACKEND_URL + "/file";
+
+/* Internal CSS for Recruiter Candidates page - self-contained, no external dashboard.css dependency */
+const candidatesPageStyles = `
+.rc-page-wrap { flex: 1; min-height: 100%; min-height: min(100%, 100vh); display: flex; flex-direction: column; background: #f1f5f9; padding: 24px; box-sizing: border-box; }
+.rc-card { background: #fff; border-radius: 14px; padding: 28px 32px; box-shadow: 0 2px 8px rgba(0,0,0,.06); max-width: 1200px; width: 100%; margin: 0 auto; border: 1px solid #e2e8f0; flex-shrink: 0; }
+.rc-title { margin: 0 0 24px; font-size: 1.4rem; color: #1e293b; font-weight: 600; letter-spacing: -0.02em; }
+.rc-loading, .rc-empty { margin: 24px 0; color: #64748b; font-size: 1rem; }
+.rc-list-wrap { border: 1px solid #e2e8f0; border-radius: 12px; overflow: auto; background: #fff; width: 100%; }
+.rc-list { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.rc-list thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.rc-list th { padding: 16px 20px; text-align: left; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+.rc-list th.rc-th-name { width: 28%; min-width: 160px; }
+.rc-list th.rc-th-contact { width: 32%; min-width: 160px; }
+.rc-list th.rc-th-id { width: 14%; min-width: 90px; text-align: right; padding-right: 24px; }
+.rc-list th.rc-th-details { width: 26%; min-width: 140px; text-align: right; padding-right: 24px; }
+.rc-list tbody tr { cursor: pointer; background: #fff; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+.rc-list tbody tr:last-child { border-bottom: none; }
+.rc-list tbody tr:hover { background: #f8fafc; }
+.rc-list td { padding: 18px 20px; vertical-align: middle; }
+.rc-list td.rc-td-id { text-align: right; padding-right: 24px; }
+.rc-list td.rc-td-actions { text-align: right; padding-right: 24px; }
+.rc-name-inner { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.rc-avatar-wrap { flex-shrink: 0; }
+.rc-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; }
+.rc-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
+.rc-avatar-initials { color: #4338ca; font-weight: 700; letter-spacing: 0.02em; }
+.rc-name { font-weight: 600; font-size: 1rem; color: #1e293b; }
+.rc-contact-cell { font-size: 0.9rem; color: #475569; }
+.rc-contact-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.rc-contact-item:last-child { margin-bottom: 0; }
+.rc-contact-icon { color: #94a3b8; flex-shrink: 0; display: inline-flex; }
+.rc-contact-empty { color: #94a3b8; }
+.rc-id-badge { display: inline-block; padding: 6px 10px; background: #f1f5f9; color: #475569; font-size: 0.8rem; font-weight: 600; border-radius: 6px; font-family: ui-monospace, monospace; }
+.rc-actions-cell { vertical-align: middle; }
+.rc-actions-inner { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.rc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; font-size: 0.8125rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background 0.2s, color 0.2s; white-space: nowrap; border: none; font-family: inherit; text-decoration: none; box-sizing: border-box; min-width: 120px; max-width: 140px; }
+.rc-btn-resume { background: #2563eb; color: #fff; }
+.rc-btn-resume:hover { background: #1d4ed8; color: #fff; }
+.rc-btn-chat { background: #10b981; color: #fff; }
+.rc-btn-chat:hover { background: #059669; color: #fff; }
+.rc-btn-details { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+.rc-btn-details:hover { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+.rc-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.rc-modal-content { background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
+.rc-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
+.rc-modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 600; color: #1e293b; }
+.rc-modal-close { background: none; border: none; font-size: 28px; color: #64748b; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+.rc-modal-close:hover { background: #f1f5f9; color: #1e293b; }
+.rc-modal-body { padding: 20px 24px; flex: 1; min-height: 0; overflow: auto; }
+.rc-modal-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
+.rc-modal-footer { display: flex; gap: 12px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid #e5e7eb; }
+.rc-btn-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-weight: 500; cursor: pointer; }
+.rc-btn-cancel:hover { background: #f8fafc; }
+.rc-btn-send { padding: 10px 20px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
+.rc-btn-send:hover { background: #1d4ed8; }
+.rc-btn-send:disabled, .rc-btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+`;
 
 const ChatIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -31,6 +87,92 @@ const PersonIcon = () => (
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
   </svg>
 );
+
+function getInitials(name) {
+  if (!name || typeof name !== "string") return null;
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function CandidateAvatar({ candidate, fileBase }) {
+  const [imageFailed, setImageFailed] = React.useState(false);
+  const hasImage = candidate.profileImageId && !imageFailed;
+  const initials = getInitials(candidate.name);
+
+  return (
+    <div className="rc-avatar-wrap">
+      {candidate.profileImageId && !imageFailed ? (
+        <img
+          src={`${fileBase}/${candidate.profileImageId}`}
+          alt=""
+          className="rc-avatar"
+          onError={() => setImageFailed(true)}
+        />
+      ) : null}
+      <div className="rc-avatar-placeholder" style={{ display: hasImage ? "none" : "flex" }} aria-hidden="true">
+        {initials ? <span className="rc-avatar-initials">{initials}</span> : <PersonIcon />}
+      </div>
+    </div>
+  );
+}
+
+function formatCandidateId(id) {
+  if (id == null || id === "") return "—";
+  const s = String(id);
+  return s.startsWith("cd_") ? s : `cd_${s}`;
+}
+
+function CandidateRow({ candidate: c, index, onOpenDetail, onChatClick, fileBase }) {
+  return (
+    <tr
+      onClick={(e) => { if (!e.target.closest(".rc-actions-cell")) onOpenDetail(); }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && !e.target.closest(".rc-actions-cell") && onOpenDetail()}
+    >
+      <td>
+        <div className="rc-name-inner">
+          <CandidateAvatar candidate={c} fileBase={fileBase} />
+          <span className="rc-name">{c.name || "—"}</span>
+        </div>
+      </td>
+      <td className="rc-contact-cell">
+        {c.mobileNumber && (
+          <div className="rc-contact-item">
+            <span className="rc-contact-icon" aria-hidden="true"><PhoneIcon /></span>
+            <span>{c.mobileNumber}</span>
+          </div>
+        )}
+        {c.email && (
+          <div className="rc-contact-item">
+            <span className="rc-contact-icon" aria-hidden="true"><EmailIcon /></span>
+            <span>{c.email}</span>
+          </div>
+        )}
+        {!c.mobileNumber && !c.email && <span className="rc-contact-empty">—</span>}
+      </td>
+      <td className="rc-td-id">
+        <span className="rc-id-badge">{formatCandidateId(c.id ?? c.candidateId)}</span>
+      </td>
+      <td className="rc-td-actions rc-actions-cell" onClick={(e) => e.stopPropagation()}>
+        <div className="rc-actions-inner">
+          {c.resumeId && (
+            <a href={`${fileBase}/${c.resumeId}`} target="_blank" rel="noreferrer" className="rc-btn rc-btn-resume">
+              View Resume
+            </a>
+          )}
+          <button type="button" className="rc-btn rc-btn-chat" onClick={() => onChatClick()}>
+            <ChatIcon /> Chat
+          </button>
+          <button type="button" className="rc-btn rc-btn-details" onClick={() => onOpenDetail()}>
+            View details →
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function Candidates() {
     const navigate = useNavigate();
@@ -137,103 +279,53 @@ export default function Candidates() {
     };
 
     return (
-        <div className="candidates-page-wrap">
-            <div className="candidates-card">
-                <h2 className="candidates-title">Candidates</h2>
+        <div className="rc-page-wrap">
+            <style>{candidatesPageStyles}</style>
+            <div className="rc-card">
+                <h2 className="rc-title">Candidates</h2>
 
-                {loading && <p className="candidates-loading">Loading candidates...</p>}
+                {loading && <p className="rc-loading">Loading candidates...</p>}
 
-                {!loading && list.length === 0 && <p className="candidates-empty">No candidates found</p>}
+                {!loading && list.length === 0 && <p className="rc-empty">No candidates found</p>}
 
                 {!loading && list.length > 0 && (
-                    <div className="candidates-list">
-                        <div className="candidates-list-header">
-                            <span className="candidates-list-header-name">Candidate</span>
-                            <span className="candidates-list-header-contact">Contact</span>
-                            <span className="candidates-list-header-id">Candidate ID</span>
-                            <span className="candidates-list-header-details">Details</span>
-                        </div>
-                        {list.map((c, index) => (
-                            <div
-                                key={c.id || index}
-                                className="candidate-row"
-                                onClick={(e) => { if (!e.target.closest(".candidate-row-actions-cell")) openCandidateDetail(c, index); }}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => e.key === "Enter" && !e.target.closest(".candidate-row-actions-cell") && openCandidateDetail(c, index)}
-                            >
-                                <div className="candidate-row-name-cell">
-                                    <div className="candidate-row-avatar-wrap">
-                                        {c.profileImageId ? (
-                                            <img
-                                                src={`${FILE_BASE}/${c.profileImageId}`}
-                                                alt=""
-                                                className="candidate-row-avatar"
-                                                onError={(e) => {
-                                                    e.target.style.display = "none";
-                                                    e.target.nextSibling.style.display = "flex";
-                                                }}
-                                            />
-                                        ) : null}
-                                        <div className="candidate-row-avatar-placeholder" style={{ display: c.profileImageId ? "none" : "flex" }}>
-                                            <PersonIcon />
-                                        </div>
-                                    </div>
-                                    <span className="candidate-row-name">{c.name || "—"}</span>
-                                </div>
-                                <div className="candidate-row-contact-cell">
-                                    {c.mobileNumber && (
-                                        <div className="candidate-row-contact-item">
-                                            <span className="candidate-row-contact-icon" aria-hidden="true"><PhoneIcon /></span>
-                                            <span>{c.mobileNumber}</span>
-                                        </div>
-                                    )}
-                                    {c.email && (
-                                        <div className="candidate-row-contact-item">
-                                            <span className="candidate-row-contact-icon" aria-hidden="true"><EmailIcon /></span>
-                                            <span>{c.email}</span>
-                                        </div>
-                                    )}
-                                    {!c.mobileNumber && !c.email && <span className="candidate-row-contact-empty">—</span>}
-                                </div>
-                                <div className="candidate-row-id-cell">
-                                    <span className="candidate-id-badge">{c.id || c.candidateId || "—"}</span>
-                                </div>
-                                <div className="candidate-row-actions-cell" onClick={(e) => e.stopPropagation()}>
-                                    {c.resumeId && (
-                                        <a
-                                            href={`${FILE_BASE}/${c.resumeId}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="btn-candidate-resume"
-                                        >
-                                            View Resume
-                                        </a>
-                                    )}
-                                    <button type="button" className="btn-candidate-chat" onClick={() => handleChatClick(c)}>
-                                        <ChatIcon /> Chat
-                                    </button>
-                                    <button type="button" className="btn-candidate-details" onClick={() => openCandidateDetail(c, index)}>
-                                        View details →
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="rc-list-wrap">
+                        <table className="rc-list" cellSpacing={0} cellPadding={0}>
+                            <thead>
+                                <tr>
+                                    <th className="rc-th-name" scope="col">Candidate</th>
+                                    <th className="rc-th-contact" scope="col">Contact</th>
+                                    <th className="rc-th-id" scope="col">Candidate ID</th>
+                                    <th className="rc-th-details" scope="col">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {list.map((c, index) => (
+                                    <CandidateRow
+                                        key={c.id || c.candidateId || index}
+                                        candidate={c}
+                                        index={index}
+                                        onOpenDetail={() => openCandidateDetail(c, index)}
+                                        onChatClick={() => handleChatClick(c)}
+                                        fileBase={FILE_BASE}
+                                    />
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>
 
-            {/* Chat Modal */}
             {chatModal.open && (
-                <div className="chat-modal-overlay" onClick={handleChatClose}>
-                    <div className="chat-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="chat-modal-header">
+                <div className="rc-modal-overlay" onClick={handleChatClose}>
+                    <div className="rc-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="rc-modal-header">
                             <h3>Chat with {chatModal.candidate?.name || "Candidate"}</h3>
-                            <button type="button" className="chat-modal-close" onClick={handleChatClose}>×</button>
+                            <button type="button" className="rc-modal-close" onClick={handleChatClose}>×</button>
                         </div>
-                        <div className="chat-modal-body">
+                        <div className="rc-modal-body">
                             <textarea
-                                className="chat-modal-textarea"
+                                className="rc-modal-textarea"
                                 placeholder="Enter your message..."
                                 value={chatMessage}
                                 onChange={(e) => setChatMessage(e.target.value)}
@@ -241,11 +333,11 @@ export default function Candidates() {
                                 disabled={chatLoading}
                             />
                         </div>
-                        <div className="chat-modal-footer">
-                            <button type="button" className="btn-chat-cancel" onClick={handleChatClose} disabled={chatLoading}>
+                        <div className="rc-modal-footer">
+                            <button type="button" className="rc-btn-cancel" onClick={handleChatClose} disabled={chatLoading}>
                                 Cancel
                             </button>
-                            <button type="button" className="btn-chat-send" onClick={handleChatSubmit} disabled={chatLoading || !chatMessage.trim()}>
+                            <button type="button" className="rc-btn-send" onClick={handleChatSubmit} disabled={chatLoading || !chatMessage.trim()}>
                                 {chatLoading ? "Sending..." : "Send Message"}
                             </button>
                         </div>
