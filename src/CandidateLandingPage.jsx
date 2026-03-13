@@ -30,6 +30,11 @@ export default function CandidateLandingPage() {
         profileImage: null,
         resume: null,
     });
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({ newPassword: "", confirmPassword: "" });
+    const [passwordLoading, setPasswordLoading] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const isInDashboard = location.pathname.includes('/candidate-dashboard');
@@ -172,6 +177,49 @@ export default function CandidateLandingPage() {
         }
     };
 
+    const handleUpdatePassword = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Please login again.");
+            return;
+        }
+        if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
+            alert("Please fill both password fields.");
+            return;
+        }
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            alert("New password and confirm password do not match.");
+            return;
+        }
+        if (passwordForm.newPassword.length < 6) {
+            alert("Password must be at least 6 characters.");
+            return;
+        }
+        try {
+            setPasswordLoading(true);
+            await axios.put(
+                API + "/candidate/update-password",
+                {
+                    newPassword: passwordForm.newPassword,
+                    confirmPassword: passwordForm.confirmPassword,
+                },
+                {
+                    headers: { Authorization: "Bearer " + token },
+                }
+            );
+            alert("Password updated successfully.");
+            setShowPasswordModal(false);
+            setPasswordForm({ newPassword: "", confirmPassword: "" });
+            setShowNewPassword(false);
+            setShowConfirmPassword(false);
+        } catch (err) {
+            console.error("Error updating password:", err);
+            alert(err.response?.data?.message || "Failed to update password. Please try again.");
+        } finally {
+            setPasswordLoading(false);
+        }
+    };
+
     if (loading)
         return (
             <div className={isInDashboard ? "dashboard-content" : ""} style={isInDashboard ? {} : { textAlign: "center", marginTop: 100 }}>
@@ -242,6 +290,40 @@ export default function CandidateLandingPage() {
                     >
                         <span>✏️</span>
                         <span>Update Profile</span>
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            setPasswordForm({ newPassword: "", confirmPassword: "" });
+                            setShowNewPassword(false);
+                            setShowConfirmPassword(false);
+                            setShowPasswordModal(true);
+                        }}
+                        style={{
+                            padding: "12px 24px",
+                            background: "#0f766e",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            boxShadow: "0 2px 4px rgba(15, 118, 110, 0.2)"
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.background = "#0d9488";
+                            e.target.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.background = "#0f766e";
+                            e.target.style.transform = "translateY(0)";
+                        }}
+                    >
+                        <span>🔒</span>
+                        <span>Update Password</span>
                     </button>
 
                     {candidate.resumeId && (
@@ -607,6 +689,125 @@ export default function CandidateLandingPage() {
                                 >
                                     {updateLoading ? "Updating..." : "Update Profile"}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Update Password Modal */}
+            {showPasswordModal && (
+                <>
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 2000,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "20px",
+                            overflowY: "auto"
+                        }}
+                        onClick={() => { if (!passwordLoading) setShowPasswordModal(false); }}
+                    >
+                        <div
+                            style={{
+                                background: "#fff",
+                                borderRadius: "12px",
+                                padding: "30px",
+                                maxWidth: "420px",
+                                width: "100%",
+                                boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+                                margin: "20px 0"
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                                <h2 style={{ margin: 0, fontSize: "1.35rem", color: "#1e293b", fontWeight: 700 }}>Update Password</h2>
+                                <button
+                                    onClick={() => { if (!passwordLoading) setShowPasswordModal(false); }}
+                                    disabled={passwordLoading}
+                                    style={{ background: "none", border: "none", fontSize: "24px", cursor: passwordLoading ? "not-allowed" : "pointer", color: "#64748b", padding: "4px 8px" }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <div style={{ display: "grid", gap: "16px" }}>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, color: "#1e293b", fontSize: "0.9rem" }}>New Password *</label>
+                                    <div style={{ position: "relative" }}>
+                                        <input
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={passwordForm.newPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                            placeholder="Enter new password"
+                                            style={{ width: "100%", padding: "12px 44px 12px 14px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "1rem", boxSizing: "border-box" }}
+                                            disabled={passwordLoading}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword((p) => !p)}
+                                            disabled={passwordLoading}
+                                            title={showNewPassword ? "Hide" : "Show"}
+                                            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 6, cursor: passwordLoading ? "not-allowed" : "pointer", color: "#64748b" }}
+                                        >
+                                            {showNewPassword ? (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                                            ) : (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, color: "#1e293b", fontSize: "0.9rem" }}>Confirm Password *</label>
+                                    <div style={{ position: "relative" }}>
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={passwordForm.confirmPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                            placeholder="Confirm new password"
+                                            style={{ width: "100%", padding: "12px 44px 12px 14px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "1rem", boxSizing: "border-box" }}
+                                            disabled={passwordLoading}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword((p) => !p)}
+                                            disabled={passwordLoading}
+                                            title={showConfirmPassword ? "Hide" : "Show"}
+                                            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 6, cursor: passwordLoading ? "not-allowed" : "pointer", color: "#64748b" }}
+                                        >
+                                            {showConfirmPassword ? (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                                            ) : (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "12px", marginTop: 8 }}>
+                                    <button
+                                        onClick={() => { if (!passwordLoading) setShowPasswordModal(false); }}
+                                        disabled={passwordLoading}
+                                        style={{ flex: 1, padding: "12px", background: "#e2e8f0", color: "#475569", border: "none", borderRadius: "8px", fontSize: "16px", cursor: passwordLoading ? "not-allowed" : "pointer", fontWeight: 500 }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleUpdatePassword}
+                                        disabled={passwordLoading}
+                                        style={{ flex: 1, padding: "12px", background: passwordLoading ? "#9ca3af" : "#0f766e", color: "#fff", border: "none", borderRadius: "8px", fontSize: "16px", cursor: passwordLoading ? "not-allowed" : "pointer", fontWeight: 500 }}
+                                    >
+                                        {passwordLoading ? "Updating..." : "Update Password"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
