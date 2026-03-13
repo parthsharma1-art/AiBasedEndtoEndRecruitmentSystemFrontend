@@ -226,17 +226,31 @@ export default function RecruiterAuthPage() {
   };
 
   return (
-    <div className="auth-page-wrapper" style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
+    <div
+      className="auth-page-wrapper"
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        fontFamily: "Arial",
+        width: "100%",
+        maxWidth: "100vw",
+        overflowX: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
       <div
         className="auth-left-panel"
         style={{
-          flex: 1,
+          flex: "1 1 0",
+          minWidth: 0,
           background: "#4f46e5",
           color: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 30,
+          fontSize: "clamp(1.25rem, 4vw, 30px)",
+          padding: "20px",
+          boxSizing: "border-box",
         }}
       >
         HR Recruitment Panel
@@ -244,12 +258,14 @@ export default function RecruiterAuthPage() {
 
       <div
         style={{
-          flex: 1,
+          flex: "1 1 0",
+          minWidth: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           padding: "20px",
           overflowY: "auto",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -257,11 +273,13 @@ export default function RecruiterAuthPage() {
           style={{
             width: "100%",
             maxWidth: 500,
+            minWidth: 0,
             padding: 30,
             boxShadow: "0 10px 25px rgba(0,0,0,.1)",
             borderRadius: 12,
             maxHeight: "90vh",
             overflowY: "auto",
+            boxSizing: "border-box",
           }}
         >
           <h2>{isLogin ? (loginMode === "otp" ? "HR Login with OTP" : "HR Login") : "Create Recruiter Account"}</h2>
@@ -756,6 +774,7 @@ export default function RecruiterAuthPage() {
         @media (max-width: 768px) {
           .auth-page-wrapper {
             flex-direction: column !important;
+            overflow-x: hidden !important;
           }
           .auth-left-panel {
             display: none !important;
@@ -765,6 +784,10 @@ export default function RecruiterAuthPage() {
             padding: 20px !important;
             max-height: calc(100vh - 40px) !important;
           }
+        }
+        
+        .auth-page-wrapper * {
+          box-sizing: border-box;
         }
         
         .auth-form-container::-webkit-scrollbar {
