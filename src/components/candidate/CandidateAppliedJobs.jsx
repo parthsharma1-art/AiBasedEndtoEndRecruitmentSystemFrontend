@@ -125,7 +125,7 @@ export default function CandidateAppliedJobs() {
             style={{
               marginTop: 10,
               padding: "8px 16px",
-              background: "#4f46e5",
+              background: "var(--primary)",
               color: "#fff",
               border: "none",
               borderRadius: 6,
@@ -179,7 +179,7 @@ export default function CandidateAppliedJobs() {
             style={{
               marginTop: 20,
               padding: "10px 20px",
-              background: "#4f46e5",
+              background: "var(--primary)",
               color: "#fff",
               border: "none",
               borderRadius: 8,

@@ -271,7 +271,7 @@ export default function AllJobs() {
                         width: "48px",
                         height: "48px",
                         border: "4px solid #e2e8f0",
-                        borderTopColor: "#4f46e5",
+                        borderTopColor: "var(--primary)",
                         borderRadius: "50%",
                         animation: "spin 1s linear infinite"
                     }}></div>
@@ -415,7 +415,7 @@ export default function AllJobs() {
                         onClick={fetchJobs}
                         style={{
                             padding: "10px 20px",
-                            background: "#4f46e5",
+                            background: "var(--primary)",
                             color: "#fff",
                             border: "none",
                             borderRadius: "8px",
@@ -428,7 +428,7 @@ export default function AllJobs() {
                             e.target.style.background = "#4338ca";
                         }}
                         onMouseLeave={(e) => {
-                            e.target.style.background = "#4f46e5";
+                            e.target.style.background = "var(--primary)";
                         }}
                     >
                         🔄 Retry
@@ -534,7 +534,7 @@ export default function AllJobs() {
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = "translateY(-4px)";
                                     e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)";
-                                    e.currentTarget.style.borderColor = "#4f46e5";
+                                    e.currentTarget.style.borderColor = "var(--primary)";
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = "translateY(0)";
@@ -595,7 +595,7 @@ export default function AllJobs() {
                                         <p style={{
                                             margin: "0 0 6px",
                                             fontSize: "0.75rem",
-                                            color: "#4f46e5",
+                                            color: "var(--primary)",
                                             fontWeight: 600,
                                             textTransform: "uppercase",
                                             letterSpacing: "0.5px"
@@ -729,7 +729,7 @@ export default function AllJobs() {
                                                     style={{
                                                         padding: "4px 10px",
                                                         background: "#e0e7ff",
-                                                        color: "#4f46e5",
+                                                        color: "var(--primary)",
                                                         borderRadius: "6px",
                                                         fontSize: "0.8rem",
                                                         fontWeight: 500
@@ -1059,7 +1059,7 @@ export default function AllJobs() {
                                     disabled={updateLoading || !updateForm.title.trim() || !updateForm.description.trim()}
                                     style={{
                                         padding: "12px 24px",
-                                        background: updateLoading || !updateForm.title.trim() || !updateForm.description.trim() ? "#9ca3af" : "#4f46e5",
+                                        background: updateLoading || !updateForm.title.trim() || !updateForm.description.trim() ? "#9ca3af" : "var(--primary)",
                                         color: "#fff",
                                         border: "none",
                                         borderRadius: "8px",
@@ -1075,7 +1075,7 @@ export default function AllJobs() {
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!updateLoading && updateForm.title.trim() && updateForm.description.trim()) {
-                                            e.target.style.background = "#4f46e5";
+                                            e.target.style.background = "var(--primary)";
                                         }
                                     }}
                                 >

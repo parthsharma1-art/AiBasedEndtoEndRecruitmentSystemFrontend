@@ -29,7 +29,7 @@ const candidatesPageStyles = `
 .rc-name-inner { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .rc-avatar-wrap { flex-shrink: 0; }
 .rc-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; }
-.rc-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
+.rc-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-light-hover) 100%); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
 .rc-avatar-initials { color: #4338ca; font-weight: 700; letter-spacing: 0.02em; }
 .rc-name { font-weight: 600; font-size: 1rem; color: #1e293b; }
 .rc-contact-cell { font-size: 0.9rem; color: #475569; }

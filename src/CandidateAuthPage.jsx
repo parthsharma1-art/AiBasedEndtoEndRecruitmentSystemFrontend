@@ -162,7 +162,7 @@
 //       <div
 //         style={{
 //           flex: 1,
-//           background: "#4f46e5",
+//           background: "var(--primary)",
 //           color: "white",
 //           display: "flex",
 //           alignItems: "center",
@@ -259,7 +259,7 @@
 //           <p style={{ marginTop: 15 }}>
 //             {isLogin ? "No account? " : "Already have account? "}
 //             <span
-//               style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
+//               style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 600 }}
 //               onClick={() => setIsLogin(!isLogin)}
 //             >
 //               {isLogin ? "Sign Up" : "Login"}
@@ -290,7 +290,7 @@
 //           >
 //             <div
 //               style={{
-//                 background: "#fff",
+//                 background: "var(--bg-card)",
 //                 borderRadius: "12px",
 //                 padding: "32px",
 //                 maxWidth: "450px",
@@ -374,7 +374,7 @@
 //                   disabled={googleLoading}
 //                   style={{
 //                     padding: "12px 24px",
-//                     background: googleLoading ? "#9ca3af" : "#4f46e5",
+//                     background: googleLoading ? "#9ca3af" : "var(--primary)",
 //                     color: "#fff",
 //                     border: "none",
 //                     borderRadius: "8px",
@@ -395,7 +395,7 @@
 //                   }}
 //                   onMouseLeave={(e) => {
 //                     if (!googleLoading) {
-//                       e.target.style.background = "#4f46e5";
+//                       e.target.style.background = "var(--primary)";
 //                     }
 //                   }}
 //                 >
@@ -455,7 +455,7 @@
 //   width: "100%",
 //   padding: 12,
 //   marginTop: 15,
-//   background: "#4f46e5",
+//   background: "var(--primary)",
 //   color: "white",
 //   border: "none",
 //   borderRadius: 8,
@@ -467,7 +467,7 @@
 //   width: "100%",
 //   padding: 12,
 //   marginTop: 15,
-//   background: "#fff",
+//   background: "var(--bg-card)",
 //   color: "#444",
 //   border: "1px solid #ddd",
 //   borderRadius: 10,
@@ -819,7 +819,7 @@ export default function CandidateAuthPage() {
         className="auth-left-panel"
         style={{
           flex: 1,
-          background: "#4f46e5",
+          background: "var(--primary)",
           color: "white",
           display: "flex",
           alignItems: "center",
@@ -904,7 +904,7 @@ export default function CandidateAuthPage() {
               )}
               <p style={{ marginTop: 12, fontSize: 14 }}>
                 <span
-                  style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
+                  style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 600 }}
                   onClick={() => { setLoginMode("password"); setOtpStep("email"); setOtpEmail(""); setOtpCode(""); }}
                 >
                   ← Back to password login
@@ -1131,7 +1131,7 @@ export default function CandidateAuthPage() {
           {isLogin && loginMode === "password" && (
             <p style={{ marginTop: 10, fontSize: 14 }}>
               <span
-                style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
+                style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 600 }}
                 onClick={() => setLoginMode("otp")}
               >
                 Login with OTP
@@ -1156,7 +1156,7 @@ export default function CandidateAuthPage() {
             {isLogin ? "No account? " : "Already have account? "}
             <span
               style={{
-                color: "#4f46e5",
+                color: "var(--primary)",
                 cursor: "pointer",
                 fontWeight: 600,
               }}
@@ -1190,7 +1190,7 @@ export default function CandidateAuthPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: "12px",
               padding: "30px",
               maxWidth: "400px",
@@ -1244,7 +1244,7 @@ export default function CandidateAuthPage() {
                 style={{
                   flex: 1,
                   padding: "12px",
-                  background: googleLoading ? "#9ca3af" : "#4f46e5",
+                  background: googleLoading ? "#9ca3af" : "var(--primary)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -1301,7 +1301,7 @@ export default function CandidateAuthPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: "12px",
               padding: "30px",
               maxWidth: "400px",
@@ -1342,7 +1342,7 @@ export default function CandidateAuthPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  background: "#4f46e5",
+                  background: "var(--primary)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -1426,7 +1426,7 @@ export default function CandidateAuthPage() {
         }
         
         .password-eye-button:hover {
-          color: #4f46e5 !important;
+          color: var(--primary) !important;
         }
       `}</style>
     </div>
@@ -1445,7 +1445,7 @@ const btn = {
   width: "100%",
   padding: 12,
   marginTop: 15,
-  background: "#4f46e5",
+  background: "var(--primary)",
   color: "white",
   border: "none",
   borderRadius: 8,
@@ -1457,7 +1457,7 @@ const googleBtn = {
   width: "100%",
   padding: 12,
   marginTop: 15,
-  background: "#fff",
+  background: "var(--bg-card)",
   color: "#444",
   border: "1px solid #ddd",
   borderRadius: 10,

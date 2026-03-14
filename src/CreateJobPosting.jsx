@@ -148,7 +148,7 @@ export default function CreateJobPosting() {
                 onClick={handleSubmit}
                 style={{
                     ...btn,
-                    background: isFormValid ? "#4f46e5" : "#9ca3af",
+                    background: isFormValid ? "var(--primary)" : "#9ca3af",
                     cursor: isFormValid ? "pointer" : "not-allowed",
                     opacity: isFormValid ? 1 : 0.6
                 }}
@@ -176,4 +176,4 @@ const inp = {
 };
 
 
-const btn = { padding: "12px 20px", background: "#4f46e5", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 16 };
+const btn = { padding: "12px 20px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 16 };

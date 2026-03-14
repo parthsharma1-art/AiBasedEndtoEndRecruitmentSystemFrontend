@@ -243,7 +243,7 @@ export default function RecruiterAuthPage() {
         style={{
           flex: "1 1 0",
           minWidth: 0,
-          background: "#4f46e5",
+          background: "var(--primary)",
           color: "white",
           display: "flex",
           alignItems: "center",
@@ -334,7 +334,7 @@ export default function RecruiterAuthPage() {
               )}
               <p style={{ marginTop: 12, fontSize: 14 }}>
                 <span
-                  style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
+                  style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 600 }}
                   onClick={() => { setLoginMode("password"); setOtpStep("email"); setOtpEmail(""); setOtpCode(""); }}
                 >
                   ← Back to password login
@@ -509,7 +509,7 @@ export default function RecruiterAuthPage() {
           {isLogin && loginMode === "password" && (
             <p style={{ marginTop: 10, fontSize: 14 }}>
               <span
-                style={{ color: "#4f46e5", cursor: "pointer", fontWeight: 600 }}
+                style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 600 }}
                 onClick={() => setLoginMode("otp")}
               >
                 Login with OTP
@@ -534,7 +534,7 @@ export default function RecruiterAuthPage() {
             {isLogin ? "No account? " : "Already have account? "}
             <span
               style={{
-                color: "#4f46e5",
+                color: "var(--primary)",
                 cursor: "pointer",
                 fontWeight: 600,
               }}
@@ -568,7 +568,7 @@ export default function RecruiterAuthPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: "12px",
               padding: "30px",
               maxWidth: "400px",
@@ -622,7 +622,7 @@ export default function RecruiterAuthPage() {
                 style={{
                   flex: 1,
                   padding: "12px",
-                  background: googleLoading ? "#9ca3af" : "#4f46e5",
+                  background: googleLoading ? "#9ca3af" : "var(--primary)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -679,7 +679,7 @@ export default function RecruiterAuthPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: "12px",
               padding: "30px",
               maxWidth: "400px",
@@ -720,7 +720,7 @@ export default function RecruiterAuthPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  background: "#4f46e5",
+                  background: "var(--primary)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -809,7 +809,7 @@ export default function RecruiterAuthPage() {
         }
         
         .password-eye-button:hover {
-          color: #4f46e5 !important;
+          color: var(--primary) !important;
         }
       `}</style>
     </div>
@@ -828,7 +828,7 @@ const btn = {
   width: "100%",
   padding: 12,
   marginTop: 15,
-  background: "#4f46e5",
+  background: "var(--primary)",
   color: "white",
   border: "none",
   borderRadius: 8,
@@ -840,7 +840,7 @@ const googleBtn = {
   width: "100%",
   padding: 12,
   marginTop: 15,
-  background: "#fff",
+  background: "var(--bg-card)",
   color: "#444",
   border: "1px solid #ddd",
   borderRadius: 10,
@@ -896,5 +896,6 @@ const eyeButton = {
   alignItems: "center",
   justifyContent: "center",
   color: "#666",
+
   transition: "color 0.2s",
 };

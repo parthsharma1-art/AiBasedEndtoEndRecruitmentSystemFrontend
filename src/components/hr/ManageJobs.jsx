@@ -127,7 +127,7 @@ export default function ManageJobs() {
             onClick={fetchJobs}
             style={{
               padding: "8px 16px",
-              background: "#4f46e5",
+              background: "var(--primary)",
               color: "#fff",
               border: "none",
               borderRadius: 6,

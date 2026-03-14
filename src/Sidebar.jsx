@@ -119,7 +119,7 @@ const item = {
 
 const profileBtn = {
     padding: "8px 16px",
-    background: "#4f46e5", // blue button
+    background: "var(--primary)", // blue button
     color: "#fff",
     border: "none",
     borderRadius: 6,
