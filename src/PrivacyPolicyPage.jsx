@@ -7,7 +7,7 @@ export default function PrivacyPolicyPage() {
   const [contactOpen, setContactOpen] = useState(false);
 
   return (
-    <div style={{ fontFamily: "Arial", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="page-privacy" style={{ fontFamily: "Arial", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* HEADER */}
       <header style={header}>
@@ -147,7 +147,7 @@ export default function PrivacyPolicyPage() {
         <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 15 }}>
           © 2026 AI Recruitment Platform. All rights reserved.
         </div>
-        <div style={footerLinksWrap}>
+        <div className="footer-links-wrap" style={footerLinksWrap}>
           <span style={footerLink} onClick={() => navigate("/about")}>About Us</span>
           <span style={footerLink} onClick={() => setContactOpen(true)}>Contact</span>
           <span style={footerLink} onClick={() => navigate("/privacy-policy")}>Privacy Policy</span>

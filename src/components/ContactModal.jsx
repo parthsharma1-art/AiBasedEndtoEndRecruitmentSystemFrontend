@@ -62,8 +62,8 @@ export default function ContactModal({ open, onClose }) {
   if (!open) return null;
 
   return (
-    <div style={overlay} onClick={handleClose}>
-      <div style={modalWrap} onClick={(e) => e.stopPropagation()}>
+    <div className="contact-modal-overlay" style={overlay} onClick={handleClose}>
+      <div className="contact-modal-wrap" style={modalWrap} onClick={(e) => e.stopPropagation()}>
         <div style={modalHeader}>
           <h3 style={modalTitle}>Contact Us</h3>
           <button type="button" style={closeBtn} onClick={handleClose} aria-label="Close">

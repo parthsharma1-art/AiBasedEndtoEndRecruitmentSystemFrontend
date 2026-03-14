@@ -7,7 +7,7 @@ export default function AboutUsPage() {
   const [contactOpen, setContactOpen] = useState(false);
 
   return (
-    <div style={{ fontFamily: "Arial", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="page-about" style={{ fontFamily: "Arial", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* HEADER - same as HomePage */}
       <header style={header}>
@@ -50,7 +50,7 @@ export default function AboutUsPage() {
 
       {/* WHAT WE DO */}
       <section style={section}>
-        <h3 style={sectionTitle}>What We Do</h3>
+        <h3 className="section-title" style={sectionTitle}>What We Do</h3>
         <p style={sectionText}>
           <strong>AI Based End to End Recruitment System</strong> is a single platform that connects companies and job seekers. We use AI to screen resumes, match candidates to jobs, run assessments and AI interviews, and give recruiters analytics—so hiring is faster, fairer, and easier for everyone.
         </p>
@@ -58,7 +58,7 @@ export default function AboutUsPage() {
 
       {/* FOR RECRUITERS */}
       <section style={section}>
-        <h3 style={sectionTitle}>For Recruiters & Companies</h3>
+        <h3 className="section-title" style={sectionTitle}>For Recruiters & Companies</h3>
         <p style={sectionText}>
           Post jobs, manage your company profile, and get a full hiring toolkit in one place:
         </p>
@@ -74,7 +74,7 @@ export default function AboutUsPage() {
 
       {/* FOR CANDIDATES */}
       <section style={section}>
-        <h3 style={sectionTitle}>For Candidates</h3>
+        <h3 className="section-title" style={sectionTitle}>For Candidates</h3>
         <p style={sectionText}>
           Find the right role and stand out with AI-backed tools:
         </p>
@@ -90,8 +90,8 @@ export default function AboutUsPage() {
 
       {/* WHY CHOOSE US */}
       <section style={section}>
-        <h3 style={sectionTitle}>Why Choose Our Platform</h3>
-        <div style={cardWrap}>
+        <h3 className="section-title" style={sectionTitle}>Why Choose Our Platform</h3>
+        <div className="card-wrap" style={cardWrap}>
           <div style={card}>
             <div style={cardLabel}>End-to-end</div>
             <p style={cardText}>From job posting and applications to screening, interviews, and analytics—all in one product.</p>
@@ -110,7 +110,7 @@ export default function AboutUsPage() {
       {/* CTA */}
       <section style={ctaSection}>
         <p style={ctaText}>Ready to get started?</p>
-        <div style={ctaBtnWrap}>
+        <div className="cta-btn-wrap" style={ctaBtnWrap}>
           <button onClick={() => navigate("/recruiter-auth")} style={btnBlue}>
             For Recruiters
           </button>
@@ -131,7 +131,7 @@ export default function AboutUsPage() {
         <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 15 }}>
           © 2026 AI Recruitment Platform. All rights reserved.
         </div>
-        <div style={footerLinksWrap}>
+        <div className="footer-links-wrap" style={footerLinksWrap}>
           <span style={footerLink} onClick={() => navigate("/about")}>About Us</span>
           <span style={footerLink} onClick={() => setContactOpen(true)}>Contact</span>
           <span style={footerLink} onClick={() => navigate("/privacy-policy")}>Privacy Policy</span>
