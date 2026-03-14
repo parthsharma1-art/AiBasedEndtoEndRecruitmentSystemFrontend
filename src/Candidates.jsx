@@ -62,6 +62,73 @@ const candidatesPageStyles = `
 .rc-btn-send { padding: 10px 20px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
 .rc-btn-send:hover { background: #1d4ed8; }
 .rc-btn-send:disabled, .rc-btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 900px) {
+  .rc-page-wrap { padding: 16px; }
+  .rc-card { padding: 20px 20px; }
+  .rc-title { font-size: 1.25rem; margin-bottom: 20px; }
+  .rc-list th, .rc-list td { padding: 14px 12px; font-size: 0.9rem; }
+  .rc-list th.rc-th-name { width: 24%; min-width: 120px; }
+  .rc-list th.rc-th-contact { width: 28%; min-width: 120px; }
+  .rc-list th.rc-th-id { width: 16%; min-width: 80px; }
+  .rc-list th.rc-th-details { width: 32%; min-width: 120px; }
+  .rc-actions-inner { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .rc-btn { min-width: 100px; max-width: none; padding: 8px 12px; font-size: 0.75rem; }
+}
+
+@media (max-width: 768px) {
+  .rc-page-wrap { padding: 12px; }
+  .rc-card { padding: 16px; border-radius: 12px; }
+  .rc-title { font-size: 1.15rem; margin-bottom: 16px; }
+  .rc-list-wrap { border-radius: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .rc-list { min-width: 600px; table-layout: auto; }
+  .rc-list thead th { padding: 12px 10px; font-size: 0.7rem; }
+  .rc-list td { padding: 12px 10px; }
+  .rc-name-inner { gap: 12px; }
+  .rc-avatar, .rc-avatar-placeholder { width: 40px; height: 40px; }
+  .rc-name { font-size: 0.9rem; }
+  .rc-contact-cell { font-size: 0.8rem; }
+  .rc-id-badge { font-size: 0.75rem; padding: 4px 8px; }
+  .rc-actions-inner { flex-direction: column; align-items: stretch; }
+  .rc-btn { width: 100%; max-width: none; min-width: 0; justify-content: center; min-height: 44px; }
+  .rc-modal-overlay { padding: 12px; align-items: flex-end; }
+  .rc-modal-content { max-height: 85vh; max-height: 85dvh; border-radius: 12px 12px 0 0; }
+  .rc-modal-header { padding: 16px 20px; }
+  .rc-modal-header h3 { font-size: 1.1rem; }
+  .rc-modal-body { padding: 16px 20px; }
+  .rc-modal-footer { padding: 12px 20px; flex-wrap: wrap; gap: 8px; }
+  .rc-btn-cancel, .rc-btn-send { flex: 1; min-width: 120px; }
+}
+
+/* Mobile card layout (used when .rc-cards-list is present) */
+.rc-cards-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.rc-candidate-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+}
+.rc-candidate-card:hover { background: #f8fafc; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.rc-card-top { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+.rc-card-avatar-wrap { flex-shrink: 0; }
+.rc-card-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; }
+.rc-card-avatar-ph { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
+.rc-card-main { flex: 1; min-width: 0; }
+.rc-card-name { font-weight: 600; font-size: 1rem; color: #1e293b; margin-bottom: 6px; }
+.rc-card-id { display: inline-block; padding: 4px 8px; background: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 600; border-radius: 6px; font-family: ui-monospace, monospace; margin-bottom: 8px; }
+.rc-card-contact { font-size: 0.875rem; color: #475569; }
+.rc-card-contact-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.rc-card-contact-item:last-child { margin-bottom: 0; }
+.rc-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.rc-card-actions .rc-btn { min-width: 0; flex: 1; min-height: 44px; }
+.rc-card-actions .rc-btn-resume { flex: 1 1 100%; }
+@media (max-width: 480px) {
+  .rc-page-wrap { padding: 10px; }
+  .rc-card { padding: 14px; }
+  .rc-title { font-size: 1.05rem; }
+  .rc-candidate-card { padding: 14px; }
+  .rc-card-name { font-size: 0.95rem; }
+  .rc-modal-content { border-radius: 12px 12px 0 0; }
+}
 `;
 
 const ChatIcon = () => (
@@ -175,6 +242,70 @@ function CandidateRow({ candidate: c, index, onOpenDetail, onChatClick, fileBase
   );
 }
 
+function CandidateCard({ candidate: c, index, onOpenDetail, onChatClick, fileBase }) {
+  const [imgErr, setImgErr] = React.useState(false);
+  const hasImg = c.profileImageId && !imgErr;
+  const initials = getInitials(c.name);
+
+  return (
+    <div
+      className="rc-candidate-card"
+      onClick={(e) => { if (!e.target.closest(".rc-card-actions")) onOpenDetail(); }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && !e.target.closest(".rc-card-actions") && onOpenDetail()}
+    >
+      <div className="rc-card-top">
+        <div className="rc-card-avatar-wrap">
+          {c.profileImageId && !imgErr ? (
+            <img
+              src={`${fileBase}/${c.profileImageId}`}
+              alt=""
+              className="rc-card-avatar"
+              onError={() => setImgErr(true)}
+            />
+          ) : null}
+          <div className="rc-card-avatar-ph" style={{ display: hasImg ? "none" : "flex" }} aria-hidden="true">
+            {initials ? <span className="rc-avatar-initials">{initials}</span> : <PersonIcon />}
+          </div>
+        </div>
+        <div className="rc-card-main">
+          <div className="rc-card-name">{c.name || "—"}</div>
+          <span className="rc-card-id">{formatCandidateId(c.id ?? c.candidateId)}</span>
+          <div className="rc-card-contact">
+            {c.mobileNumber && (
+              <div className="rc-card-contact-item">
+                <span className="rc-contact-icon" aria-hidden="true"><PhoneIcon /></span>
+                <span>{c.mobileNumber}</span>
+              </div>
+            )}
+            {c.email && (
+              <div className="rc-card-contact-item">
+                <span className="rc-contact-icon" aria-hidden="true"><EmailIcon /></span>
+                <span>{c.email}</span>
+              </div>
+            )}
+            {!c.mobileNumber && !c.email && <span className="rc-contact-empty">—</span>}
+          </div>
+        </div>
+      </div>
+      <div className="rc-card-actions" onClick={(e) => e.stopPropagation()}>
+        {c.resumeId && (
+          <a href={`${fileBase}/${c.resumeId}`} target="_blank" rel="noreferrer" className="rc-btn rc-btn-resume">
+            View Resume
+          </a>
+        )}
+        <button type="button" className="rc-btn rc-btn-chat" onClick={() => onChatClick()}>
+          <ChatIcon /> Chat
+        </button>
+        <button type="button" className="rc-btn rc-btn-details" onClick={() => onOpenDetail()}>
+          View details →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Candidates() {
     const navigate = useNavigate();
     const [list, setList] = useState([]);
@@ -183,6 +314,13 @@ export default function Candidates() {
     const [chatMessage, setChatMessage] = useState("");
     const [chatLoading, setChatLoading] = useState(false);
     const [recruiterId, setRecruiterId] = useState(null);
+    const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth <= 768);
+
+    useEffect(() => {
+        const onResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
 
     const fetchCandidates = async () => {
         try {
@@ -290,30 +428,49 @@ export default function Candidates() {
                 {!loading && list.length === 0 && <p className="rc-empty">No candidates found</p>}
 
                 {!loading && list.length > 0 && (
-                    <div className="rc-list-wrap">
-                        <table className="rc-list" cellSpacing={0} cellPadding={0}>
-                            <thead>
-                                <tr>
-                                    <th className="rc-th-name" scope="col">Candidate</th>
-                                    <th className="rc-th-contact" scope="col">Contact</th>
-                                    <th className="rc-th-id" scope="col">Candidate ID</th>
-                                    <th className="rc-th-details" scope="col">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {list.map((c, index) => (
-                                    <CandidateRow
-                                        key={c.id || c.candidateId || index}
-                                        candidate={c}
-                                        index={index}
-                                        onOpenDetail={() => openCandidateDetail(c, index)}
-                                        onChatClick={() => handleChatClick(c)}
-                                        fileBase={FILE_BASE}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <>
+                        {isMobile ? (
+                            <div className="rc-list-wrap">
+                                <div className="rc-cards-list">
+                                    {list.map((c, index) => (
+                                        <CandidateCard
+                                            key={c.id || c.candidateId || index}
+                                            candidate={c}
+                                            index={index}
+                                            onOpenDetail={() => openCandidateDetail(c, index)}
+                                            onChatClick={() => handleChatClick(c)}
+                                            fileBase={FILE_BASE}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="rc-list-wrap">
+                                <table className="rc-list" cellSpacing={0} cellPadding={0}>
+                                    <thead>
+                                        <tr>
+                                            <th className="rc-th-name" scope="col">Candidate</th>
+                                            <th className="rc-th-contact" scope="col">Contact</th>
+                                            <th className="rc-th-id" scope="col">Candidate ID</th>
+                                            <th className="rc-th-details" scope="col">Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {list.map((c, index) => (
+                                            <CandidateRow
+                                                key={c.id || c.candidateId || index}
+                                                candidate={c}
+                                                index={index}
+                                                onOpenDetail={() => openCandidateDetail(c, index)}
+                                                onChatClick={() => handleChatClick(c)}
+                                                fileBase={FILE_BASE}
+                                            />
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
