@@ -154,6 +154,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "./context/ThemeContext";
 
 // Utility: check if recruiter or candidate is logged in
 function isUserLoggedIn() {
@@ -187,6 +188,7 @@ function clearAuthAndLogout() {
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const handleLogout = () => {
@@ -207,7 +209,7 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div style={{ fontFamily: "Arial" }}>
+        <div style={{ fontFamily: "Arial", background: "var(--bg-body)", color: "var(--text)", minHeight: "100vh" }}>
 
             {/* HEADER */}
             <header style={header}>
@@ -226,6 +228,27 @@ export default function HomePage() {
                 </h1>
 
                 <nav style={nav}>
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        style={{
+                            ...linkStyle,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "6px 12px",
+                            borderRadius: 8,
+                            background: "var(--primary)",
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                        }}
+                        title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+                    >
+                        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+                    </button>
                     {isLoggedIn ? (
                         <>
                             <button 
@@ -370,13 +393,13 @@ const header = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "15px 20px",
-    background: "#f5f5f5",
+    background: "var(--header-bg)",
     flexWrap: "wrap"
 };
 
 const logo = {
     fontSize: 24,
-    color: "#4f46e5",
+    color: "var(--primary)",
     marginBottom: 8
 };
 
@@ -392,7 +415,7 @@ const linkStyle = {
     border: "none",
     cursor: "pointer",
     fontSize: 16,
-    color: "#4f46e5"
+    color: "var(--primary)"
 };
 
 /* ================= HERO ================= */
@@ -424,7 +447,7 @@ const heroBtnWrap = {
 /* HERO BUTTONS */
 const btnStyleBlue = {
     padding: "12px 25px",
-    background: "#4f46e5",
+    background: "var(--primary)",
     color: "white",
     border: "none",
     borderRadius: 6,
@@ -464,7 +487,7 @@ const footerBtnContainer = {
 
 const footerBtn = {
     padding: "10px 20px",
-    background: "#4f46e5",
+    background: "var(--primary)",
     border: "none",
     borderRadius: 6,
     color: "white",

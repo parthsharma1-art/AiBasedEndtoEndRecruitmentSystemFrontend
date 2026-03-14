@@ -109,7 +109,7 @@ export default function CandidateGoogleSuccess() {
                 width: "48px",
                 height: "48px",
                 border: "4px solid #e2e8f0",
-                borderTopColor: "#4f46e5",
+                borderTopColor: "var(--primary)",
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite"
             }}></div>

@@ -156,7 +156,7 @@ export default function Company() {
                     disabled={!isChanged}
                     style={{
                         ...btn,
-                        background: isChanged ? "#4f46e5" : "#9ca3af",
+                        background: isChanged ? "var(--primary)" : "#9ca3af",
                         cursor: isChanged ? "pointer" : "not-allowed",
                         opacity: isChanged ? 1 : 0.6
                     }}
@@ -172,7 +172,7 @@ export default function Company() {
 function Section({ title, children }) {
     return (
         <div style={{ marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 12, color: "#4f46e5", fontSize: "1.05rem" }}>{title}</h3>
+            <h3 style={{ marginBottom: 12, color: "var(--primary)", fontSize: "1.05rem" }}>{title}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
         </div>
     );
@@ -200,7 +200,7 @@ const btn = {
     marginTop: 24,
     padding: 14,
     width: "100%",
-    background: "#4f46e5",
+    background: "var(--primary)",
     color: "white",
     border: "none",
     borderRadius: 8,

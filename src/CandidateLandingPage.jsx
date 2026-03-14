@@ -264,7 +264,7 @@ export default function CandidateLandingPage() {
                         onClick={handleUpdateClick}
                         style={{
                             padding: "12px 24px",
-                            background: "#4f46e5",
+                            background: "var(--primary)",
                             color: "#fff",
                             border: "none",
                             borderRadius: "8px",
@@ -283,7 +283,7 @@ export default function CandidateLandingPage() {
                             e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
                         }}
                         onMouseLeave={(e) => {
-                            e.target.style.background = "#4f46e5";
+                            e.target.style.background = "var(--primary)";
                             e.target.style.transform = "translateY(0)";
                             e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
                         }}
@@ -667,7 +667,7 @@ export default function CandidateLandingPage() {
                                     disabled={updateLoading || !form.name.trim() || !form.email.trim() || !form.mobileNumber.trim()}
                                     style={{
                                         padding: "12px 24px",
-                                        background: updateLoading || !form.name.trim() || !form.email.trim() || !form.mobileNumber.trim() ? "#9ca3af" : "#4f46e5",
+                                        background: updateLoading || !form.name.trim() || !form.email.trim() || !form.mobileNumber.trim() ? "#9ca3af" : "var(--primary)",
                                         color: "#fff",
                                         border: "none",
                                         borderRadius: "8px",
@@ -683,7 +683,7 @@ export default function CandidateLandingPage() {
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!updateLoading && form.name.trim() && form.email.trim() && form.mobileNumber.trim()) {
-                                            e.target.style.background = "#4f46e5";
+                                            e.target.style.background = "var(--primary)";
                                         }
                                     }}
                                 >
@@ -842,13 +842,13 @@ const profileImg = {
     borderRadius: "50%",
     objectFit: "cover",
     marginBottom: 20,
-    border: "4px solid #4f46e5",
+    border: "4px solid var(--primary)",
 };
 
 const resumeBtn = {
     display: "inline-block",
     padding: "10px 20px",
-    background: "#4f46e5",
+    background: "var(--primary)",
     color: "white",
     borderRadius: 8,
     textDecoration: "none",

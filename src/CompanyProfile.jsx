@@ -60,7 +60,7 @@ export default function CompanyProfile() {
                     width: "48px",
                     height: "48px",
                     border: "4px solid #e2e8f0",
-                    borderTopColor: "#4f46e5",
+                    borderTopColor: "var(--primary)",
                     borderRadius: "50%",
                     animation: "spin 1s linear infinite"
                 }}></div>
@@ -234,7 +234,7 @@ export default function CompanyProfile() {
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = "translateY(-4px)";
                                     e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)";
-                                    e.currentTarget.style.borderColor = "#4f46e5";
+                                    e.currentTarget.style.borderColor = "var(--primary)";
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = "translateY(0)";
@@ -297,7 +297,7 @@ export default function CompanyProfile() {
                                         <p style={{ 
                                             margin: "0 0 6px", 
                                             fontSize: "0.75rem", 
-                                            color: "#4f46e5",
+                                            color: "var(--primary)",
                                             fontWeight: 600,
                                             textTransform: "uppercase",
                                             letterSpacing: "0.5px"
@@ -431,7 +431,7 @@ export default function CompanyProfile() {
                                                     style={{
                                                         padding: "4px 10px",
                                                         background: "#e0e7ff",
-                                                        color: "#4f46e5",
+                                                        color: "var(--primary)",
                                                         borderRadius: "6px",
                                                         fontSize: "0.8rem",
                                                         fontWeight: 500
@@ -461,7 +461,7 @@ export default function CompanyProfile() {
                                     style={{
                                         width: "100%",
                                         padding: "12px 24px",
-                                        background: "#4f46e5",
+                                        background: "var(--primary)",
                                         color: "#fff",
                                         border: "none",
                                         borderRadius: "8px",
@@ -478,7 +478,7 @@ export default function CompanyProfile() {
                                         e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.target.style.background = "#4f46e5";
+                                        e.target.style.background = "var(--primary)";
                                         e.target.style.transform = "translateY(0)";
                                         e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
                                     }}

@@ -83,7 +83,7 @@ export default function HRSidebar({ onClose }) {
           onClick={() => navigate("/dashboard/profile")}
           style={{
             padding: "8px 16px",
-            background: "#4f46e5",
+            background: "var(--primary)",
             color: "#fff",
             border: "none",
             borderRadius: 6,
