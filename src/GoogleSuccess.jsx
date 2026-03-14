@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import showToast from "./utils/toast";
 
 export default function GoogleSuccess() {
     const nav = useNavigate();
@@ -23,8 +24,8 @@ export default function GoogleSuccess() {
             localStorage.setItem("hrId", id);
             // Store login timestamp for 4-hour session check
             localStorage.setItem("loginTimestamp", Date.now().toString());
-
-            // redirect to dashboard
+            showToast("Logged in successfully", "success");
+            // redirect to recruiter dashboard
             nav("/dashboard");
         } else {
             nav("/");

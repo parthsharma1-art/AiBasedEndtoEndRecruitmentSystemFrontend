@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "./config/config";
+import showToast from "./utils/toast";
 import "./styles/dashboard.css";
 import candidateApplyIcon from "./assests/candidateApply.png";
 
@@ -124,7 +125,7 @@ export default function AllJobs() {
     const fetchJobDetails = async (jobId) => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Token not found. Please login again.");
+            showToast("Token not found. Please login again.", "error");
             return;
         }
 
@@ -148,7 +149,7 @@ export default function AllJobs() {
             setShowUpdateModal(true);
         } catch (err) {
             console.error("Error fetching job details:", err);
-            alert(err.response?.data?.message || "Error fetching job details. Please try again.");
+            showToast(err.response?.data?.message || "Error fetching job details. Please try again.", "error");
         } finally {
             setUpdateLoading(false);
         }
@@ -157,7 +158,7 @@ export default function AllJobs() {
     const handleUpdate = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Token not found. Please login again.");
+            showToast("Token not found. Please login again.", "error");
             return;
         }
 
@@ -216,7 +217,7 @@ export default function AllJobs() {
 
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Token not found. Please login again.");
+            showToast("Token not found. Please login again.", "error");
             setShowDeleteDialog(false);
             setJobToDelete(null);
             return;

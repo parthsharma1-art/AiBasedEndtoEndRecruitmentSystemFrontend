@@ -154,6 +154,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ContactModal from "./components/ContactModal";
+import showToast from "./utils/toast";
 
 // Utility: check if recruiter or candidate is logged in
 function isUserLoggedIn() {
@@ -188,10 +190,12 @@ function clearAuthAndLogout() {
 export default function HomePage() {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [contactOpen, setContactOpen] = useState(false);
 
     const handleLogout = () => {
         clearAuthAndLogout();
         setIsLoggedIn(false);
+        showToast("Logged out successfully", "success");
         navigate("/");
     };
 
@@ -250,6 +254,7 @@ export default function HomePage() {
                             <button onClick={() => navigate("/recruiter-auth")} style={linkStyle}>For Recruiters</button>
                             <button onClick={() => navigate("/candidate-auth")} style={linkStyle}>For Candidates</button>
                             <button onClick={() => navigate("/pricing")} style={linkStyle}>Pricing</button>
+                            <button onClick={() => navigate("/about")} style={linkStyle}>About Us</button>
                         </>
                     )}
                 </nav>
@@ -352,13 +357,15 @@ export default function HomePage() {
 
                 {/* LINKS */}
                 <div style={footerLinksWrap}>
-                    <span style={footerLink}>About Us</span>
-                    <span style={footerLink}>Contact</span>
-                    <span style={footerLink}>Privacy Policy</span>
+                    <span style={footerLink} onClick={() => navigate("/about")}>About Us</span>
+                    <span style={footerLink} onClick={() => setContactOpen(true)}>Contact</span>
+                    <span style={footerLink} onClick={() => navigate("/privacy-policy")}>Privacy Policy</span>
                     <span style={footerLink}>Terms of Service</span>
                 </div>
 
             </footer>
+
+            <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
         </div>
     );
 }

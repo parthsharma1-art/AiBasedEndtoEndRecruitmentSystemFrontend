@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
 import { getRecruiterChatsCache, setRecruiterChatsCache } from "../../utils/chatsCache";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 const FILE_BASE = CONFIG.BACKEND_URL + "/file";
@@ -175,7 +176,7 @@ export default function ChatsView() {
         } catch (e) {
             console.error("Failed to send message:", e);
             const errorMsg = e.response?.data?.message || e.message || "Failed to send message";
-            alert(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setSending(false);
         }

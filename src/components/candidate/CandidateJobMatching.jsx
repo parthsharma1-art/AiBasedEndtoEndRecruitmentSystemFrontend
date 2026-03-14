@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 // Hook for responsive design
@@ -88,7 +89,7 @@ export default function CandidateJobMatching() {
   const handleApply = async (jobId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login to apply for jobs.");
+      showToast("Please login to apply for jobs.", "error");
       return;
     }
 
@@ -103,10 +104,10 @@ export default function CandidateJobMatching() {
           },
         }
       );
-      alert("Application submitted successfully!");
+      showToast("Application submitted successfully!", "success");
     } catch (err) {
       console.error("Error applying:", err);
-      alert(err.response?.data?.message || "Failed to submit application. Please try again.");
+      showToast(err.response?.data?.message || "Failed to submit application. Please try again.", "error");
     }
   };
 

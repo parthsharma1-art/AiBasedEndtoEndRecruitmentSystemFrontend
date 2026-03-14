@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function CandidateProfile() {
@@ -102,7 +103,7 @@ export default function CandidateProfile() {
   const handleUpdate = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Token not found. Please login again.");
+      showToast("Token not found. Please login again.", "error");
       return;
     }
 
@@ -147,12 +148,12 @@ export default function CandidateProfile() {
         localStorage.setItem("name", res.data.name);
       }
 
-      alert("Profile updated successfully!");
+      showToast("Profile updated successfully!", "success");
       setShowUpdateModal(false);
       fetchProfile(); // Refresh profile data
     } catch (err) {
       console.error("Error updating profile:", err);
-      alert(err.response?.data?.message || "Failed to update profile. Please try again.");
+      showToast(err.response?.data?.message || "Failed to update profile. Please try again.", "error");
     } finally {
       setUpdateLoading(false);
     }
@@ -161,19 +162,19 @@ export default function CandidateProfile() {
   const handleUpdatePassword = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login again.");
+      showToast("Please login again.", "error");
       return;
     }
     if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
-      alert("Please fill both password fields.");
+      showToast("Please fill both password fields.", "error");
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert("New password and confirm password do not match.");
+      showToast("New password and confirm password do not match.", "error");
       return;
     }
     if (passwordForm.newPassword.length < 6) {
-      alert("Password must be at least 6 characters.");
+      showToast("Password must be at least 6 characters.", "error");
       return;
     }
     try {
@@ -188,14 +189,14 @@ export default function CandidateProfile() {
           headers: { Authorization: "Bearer " + token },
         }
       );
-      alert("Password updated successfully.");
+      showToast("Password updated successfully.", "success");
       setShowPasswordModal(false);
       setPasswordForm({ newPassword: "", confirmPassword: "" });
       setShowNewPassword(false);
       setShowConfirmPassword(false);
     } catch (err) {
       console.error("Error updating password:", err);
-      alert(err.response?.data?.message || "Failed to update password. Please try again.");
+      showToast(err.response?.data?.message || "Failed to update password. Please try again.", "error");
     } finally {
       setPasswordLoading(false);
     }

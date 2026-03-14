@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 const menuItems = [
@@ -98,6 +99,7 @@ export default function HRSidebar({ onClose }) {
         <button
           onClick={() => {
             localStorage.clear();
+            showToast("Logged out successfully", "success");
             navigate("/");
           }}
           style={{

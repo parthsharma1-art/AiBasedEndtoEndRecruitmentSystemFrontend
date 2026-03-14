@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Config from "./config/config"
+import Config from "./config/config";
+import showToast from "./utils/toast";
 
 const API_BASE = Config.BACKEND_URL + "/profile";
 
@@ -38,7 +39,7 @@ export default function CreateJobPosting() {
         const token = localStorage.getItem("token");
 
         if (!token) {
-            alert("Token not found. Please login again.");
+            showToast("Token not found. Please login again.", "error");
             return;
         }
 
@@ -72,11 +73,11 @@ export default function CreateJobPosting() {
 
             // After successful backend response, redirect to Manage Jobs page
             // The AllJobs component will automatically refresh and show the new job
-            alert("Job posted successfully! Redirecting to Manage Jobs...");
+            showToast("Job posted successfully! Redirecting to Manage Jobs...", "success");
             navigate("/dashboard/jobs", { replace: false }); // Use replace: false to allow refresh
         } catch (err) {
             console.error("Error creating job:", err.response || err);
-            alert(err.response?.data?.message || "Error creating job. Please try again.");
+            showToast(err.response?.data?.message || "Error creating job. Please try again.", "error");
         } finally {
             setLoading(false);
         }

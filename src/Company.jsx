@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 const API_BASE = Config.BACKEND_URL 
 const API_PROFILE = `${API_BASE}/profile`;
@@ -27,7 +28,7 @@ export default function Company() {
     const getToken = () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("JWT token not found, please login again.");
+            showToast("JWT token not found, please login again.", "error");
             return null;
         }
         return token;
@@ -114,9 +115,9 @@ export default function Company() {
             });
             
             if (dataLoaded) {
-                alert("Company profile updated successfully 🚀");
+                showToast("Company profile updated successfully 🚀", "success");
             } else {
-                alert("Company profile created successfully 🚀");
+                showToast("Company profile created successfully 🚀", "success");
                 setDataLoaded(true);
             }
 
@@ -124,7 +125,7 @@ export default function Company() {
             setIsChanged(false);
         } catch (err) {
             console.error("Error saving profile:", err.response || err);
-            alert("Error saving profile");
+            showToast("Error saving profile", "error");
         }
     };
 

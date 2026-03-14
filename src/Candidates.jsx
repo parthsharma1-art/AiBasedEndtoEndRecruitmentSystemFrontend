@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 const API = Config.BACKEND_URL + "/recruiter";
 const FILE_BASE = Config.BACKEND_URL + "/file";
@@ -193,7 +194,7 @@ export default function Candidates() {
             setList(Array.isArray(res.data) ? res.data : []);
         } catch (e) {
             console.log(e);
-            alert("Failed to load candidates");
+            showToast("Failed to load candidates", "error");
         } finally {
             setLoading(false);
         }
@@ -237,13 +238,13 @@ export default function Candidates() {
 
     const handleChatSubmit = async () => {
         if (!chatModal.candidate || !recruiterId || !chatMessage.trim()) {
-            alert("Please enter a message");
+            showToast("Please enter a message", "error");
             return;
         }
 
         const candidateId = chatModal.candidate.id || chatModal.candidate.candidateId;
         if (!candidateId) {
-            alert("Candidate ID not found");
+            showToast("Candidate ID not found", "error");
             return;
         }
 
@@ -272,7 +273,7 @@ export default function Candidates() {
         } catch (e) {
             console.error("Failed to create chat:", e);
             const errorMsg = e.response?.data?.message || e.message || "Failed to create chat";
-            alert(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setChatLoading(false);
         }

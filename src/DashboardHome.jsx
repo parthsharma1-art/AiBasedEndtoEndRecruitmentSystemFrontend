@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 export default function DashboardHome() {
     const [profile, setProfile] = useState(null);
@@ -34,7 +35,7 @@ export default function DashboardHome() {
     const fetchProfile = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Please login first");
+            showToast("Please login first", "error");
             setLoading(false);
             return;
         }
@@ -51,7 +52,7 @@ export default function DashboardHome() {
             setProfile(res.data);
         } catch (err) {
             console.error("Failed to fetch profile:", err);
-            alert("Failed to load profile");
+            showToast("Failed to load profile", "error");
         } finally {
             setLoading(false);
         }
@@ -93,7 +94,7 @@ export default function DashboardHome() {
     const handleUpdate = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Token not found. Please login again.");
+            showToast("Token not found. Please login again.", "error");
             return;
         }
 
@@ -133,13 +134,13 @@ export default function DashboardHome() {
                 localStorage.setItem("hrName", res.data.name);
             }
 
-            alert("Profile updated successfully!");
+            showToast("Profile updated successfully!", "success");
             setShowUpdateModal(false);
             // Refresh profile data
             await fetchProfile();
         } catch (err) {
             console.error("Error updating profile:", err);
-            alert(err.response?.data?.message || "Failed to update profile. Please try again.");
+            showToast(err.response?.data?.message || "Failed to update profile. Please try again.", "error");
         } finally {
             setUpdateLoading(false);
         }
@@ -148,19 +149,19 @@ export default function DashboardHome() {
     const handleUpdatePassword = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Please login again.");
+            showToast("Please login again.", "error");
             return;
         }
         if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
-            alert("Please fill both password fields.");
+            showToast("Please fill both password fields.", "error");
             return;
         }
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-            alert("New password and confirm password do not match.");
+            showToast("New password and confirm password do not match.", "error");
             return;
         }
         if (passwordForm.newPassword.length < 6) {
-            alert("Password must be at least 6 characters.");
+            showToast("Password must be at least 6 characters.", "error");
             return;
         }
         try {
@@ -175,14 +176,14 @@ export default function DashboardHome() {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            alert("Password updated successfully.");
+            showToast("Password updated successfully.", "success");
             setShowPasswordModal(false);
             setPasswordForm({ newPassword: "", confirmPassword: "" });
             setShowNewPassword(false);
             setShowConfirmPassword(false);
         } catch (err) {
             console.error("Error updating password:", err);
-            alert(err.response?.data?.message || "Failed to update password. Please try again.");
+            showToast(err.response?.data?.message || "Failed to update password. Please try again.", "error");
         } finally {
             setPasswordLoading(false);
         }

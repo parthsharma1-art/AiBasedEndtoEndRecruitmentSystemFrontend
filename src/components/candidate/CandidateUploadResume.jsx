@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function CandidateUploadResume() {
@@ -24,7 +25,7 @@ export default function CandidateUploadResume() {
 
   const upload = async () => {
     if (!file) {
-      alert("Select a PDF resume first.");
+      showToast("Select a PDF resume first.", "error");
       return;
     }
     setLoading(true);

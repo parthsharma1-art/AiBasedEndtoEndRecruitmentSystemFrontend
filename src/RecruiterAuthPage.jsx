@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "./config/config";
+import showToast from "./utils/toast";
 
 const API_BASE = CONFIG.BACKEND_URL;
 
@@ -54,13 +55,13 @@ export default function RecruiterAuthPage() {
 
   const submit = async () => {
     if (!hasEmailAndPassword) {
-      alert("Please enter email and password");
+      showToast("Please enter email and password", "error");
       return;
     }
 
     // Validate password match for signup
     if (!isLogin && form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      showToast("Passwords do not match", "error");
       return;
     }
 
@@ -72,6 +73,7 @@ export default function RecruiterAuthPage() {
         });
 
         saveUser(res.data);
+        showToast("Logged in successfully", "success");
         nav("/dashboard");
       } else {
         const formData = new FormData();
@@ -106,6 +108,7 @@ export default function RecruiterAuthPage() {
         );
 
         saveUser(res.data);
+        showToast("Account created successfully", "success");
         nav("/dashboard");
       }
     } catch (e) {
@@ -121,10 +124,10 @@ export default function RecruiterAuthPage() {
             message.toLowerCase().includes("invalid") || message.toLowerCase().includes("credentials")) {
           setShowOtpSignupModal(true);
         } else {
-          alert(message || "Login failed. Please try again.");
+          showToast(message || "Login failed. Please try again.", "error");
         }
       } else {
-        alert("Operation failed");
+        showToast("Operation failed", "error");
       }
     }
   };
@@ -157,12 +160,12 @@ export default function RecruiterAuthPage() {
       if (googleUrl) {
         window.location.href = googleUrl;
       } else {
-        alert("Google URL not received");
+        showToast("Google URL not received", "error");
         setGoogleLoading(false);
       }
     } catch (err) {
       console.error("Google login error:", err);
-      alert("Google login failed");
+      showToast("Google login failed", "error");
       setGoogleLoading(false);
     }
   };
@@ -170,7 +173,7 @@ export default function RecruiterAuthPage() {
   const sendOtp = async () => {
     const email = (loginMode === "otp" ? otpEmail : form.email)?.trim();
     if (!email) {
-      alert("Please enter your email");
+      showToast("Please enter your email", "error");
       return;
     }
     try {
@@ -179,11 +182,11 @@ export default function RecruiterAuthPage() {
       setOtpEmail(email);
       setOtpStep("otp");
       setOtpCode("");
-      alert("OTP sent to your email. Please check your inbox.");
+      showToast("OTP sent to your email. Please check your inbox.", "success");
     } catch (e) {
       console.error(e);
       const msg = e.response?.data?.message || e.response?.data?.error || "Failed to send OTP";
-      alert(msg);
+      showToast(msg, "error");
     } finally {
       setSendOtpLoading(false);
     }
@@ -193,7 +196,7 @@ export default function RecruiterAuthPage() {
     const email = otpEmail.trim();
     const otp = otpCode.trim();
     if (!email || !otp) {
-      alert("Please enter email and OTP");
+      showToast("Please enter email and OTP", "error");
       return;
     }
     try {
@@ -210,16 +213,17 @@ export default function RecruiterAuthPage() {
         setOtpCode("");
         setOtpEmail("");
         setLoginMode("password");
+        showToast("Logged in successfully", "success");
         nav("/dashboard");
       } else {
-        alert("Login success but no token received. Please try again.");
+        showToast("Login success but no token received. Please try again.", "error");
       }
     } catch (e) {
       console.error(e);
       const msg = e.response?.status === 400
         ? (typeof e.response?.data === "string" ? e.response.data : "Invalid OTP")
         : (e.response?.data?.message || e.response?.data?.error || "Verification failed");
-      alert(msg);
+      showToast(msg, "error");
     } finally {
       setVerifyOtpLoading(false);
     }

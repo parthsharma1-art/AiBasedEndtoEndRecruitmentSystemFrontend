@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 const JOBS_API = Config.BACKEND_URL + "/public/jobs";
 const COMPANIES_API = Config.BACKEND_URL + "/public/profiles"; // make sure backend config matches
@@ -122,7 +123,7 @@ export default function BrowseJobs() {
             setJobs(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error(err);
-            alert("Failed to load jobs");
+            showToast("Failed to load jobs", "error");
         } finally {
             setLoading(false);
         }
@@ -147,7 +148,7 @@ export default function BrowseJobs() {
             setCompanies(validCompanies);
         } catch (err) {
             console.error(err);
-            alert("Failed to load companies");
+            showToast("Failed to load companies", "error");
         } finally {
             setLoading(false);
         }
@@ -274,7 +275,7 @@ export default function BrowseJobs() {
 
         const jobId = j?.id || job?.id || job?.jobId;
         if (!jobId) {
-            alert("Unable to identify job ID for application.");
+            showToast("Unable to identify job ID for application.", "error");
             return;
         }
 
@@ -306,7 +307,7 @@ export default function BrowseJobs() {
 
         // Ensure user is still logged in
         if (!isUserLoggedIn()) {
-            alert("Your session has expired. Please login again.");
+            showToast("Your session has expired. Please login again.", "error");
             navigate("/candidate-auth");
             return;
         }
@@ -322,7 +323,7 @@ export default function BrowseJobs() {
         const mobileToSend = (applyMobile || "").trim();
 
         if (!emailToSend) {
-            alert("Please provide your email to apply.");
+            showToast("Please provide your email to apply.", "error");
             return;
         }
 
@@ -347,12 +348,12 @@ export default function BrowseJobs() {
 
             // Check if application was successful
             if (response.data === true) {
-                alert("Application submitted successfully!");
+                showToast("Application submitted successfully!", "success");
                 closeApplyModal();
                 // Navigate to applied jobs in candidate dashboard
                 navigate("/candidate-dashboard/applied-jobs");
             } else {
-                alert("Application submitted, but there may be some issues. Please check your dashboard.");
+                showToast("Application submitted, but there may be some issues. Please check your dashboard.", "info");
                 closeApplyModal();
             }
         } catch (err) {
@@ -361,7 +362,7 @@ export default function BrowseJobs() {
                 err.response?.data?.message ||
                 err.response?.data ||
                 "Failed to submit application. Please try again.";
-            alert(msg);
+            showToast(msg, "error");
         } finally {
             setApplyLoading(false);
         }
