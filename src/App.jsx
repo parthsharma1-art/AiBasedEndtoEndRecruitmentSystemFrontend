@@ -21,6 +21,7 @@ import CandidateDashboard from "./components/candidate/CandidateDashboard";
 import AllJobs from "./AllJobs";
 import CandidateAppliedJobs from "./components/candidate/CandidateAppliedJobs";
 import CandidateListAppliedJobs from "./components/hr/CandidatesListAppliedJobs";
+import Toast from "./components/Toast";
 
 const MIN_LOADING_MS = 5000;
 
@@ -54,6 +55,8 @@ export default function App() {
   }
 
   return (
+    <>
+    <Toast />
     <Routes>
 
       <Route path="/" element={<HomePage />} />
@@ -87,5 +90,6 @@ export default function App() {
       <Route path="/companies/:subdomain" element={<CompanyProfile />} />
 
     </Routes>
+    </>
   );
 }

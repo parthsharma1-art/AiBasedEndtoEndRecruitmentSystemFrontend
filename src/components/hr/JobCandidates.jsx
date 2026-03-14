@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 const ChatIcon = () => (
@@ -69,13 +70,13 @@ export default function JobCandidates() {
 
   const handleChatSubmit = async () => {
     if (!chatModal.candidate || !recruiterId || !chatMessage.trim()) {
-      alert("Please enter a message");
+      showToast("Please enter a message", "error");
       return;
     }
 
     const candidateId = chatModal.candidate.id || chatModal.candidate.candidateId;
     if (!candidateId) {
-      alert("Candidate ID not found");
+      showToast("Candidate ID not found", "error");
       return;
     }
 
@@ -104,7 +105,7 @@ export default function JobCandidates() {
     } catch (e) {
       console.error("Failed to create chat:", e);
       const errorMsg = e.response?.data?.message || e.message || "Failed to create chat";
-      alert(errorMsg);
+      showToast(errorMsg, "error");
     } finally {
       setChatLoading(false);
     }

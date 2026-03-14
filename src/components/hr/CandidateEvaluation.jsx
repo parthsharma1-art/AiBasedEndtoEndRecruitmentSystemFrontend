@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function CandidateEvaluation() {
@@ -47,13 +48,13 @@ export default function CandidateEvaluation() {
         body: JSON.stringify({ action }),
       });
       if (res.ok) {
-        alert("Action recorded.");
+        showToast("Action recorded.", "success");
         navigate("/dashboard/candidates");
       } else {
-        alert("Action failed. Connect backend for " + action);
+        showToast("Action failed. Connect backend for " + action, "error");
       }
     } catch (e) {
-      alert("Action failed. Connect backend for " + action);
+      showToast("Action failed. Connect backend for " + action, "error");
     }
   };
 

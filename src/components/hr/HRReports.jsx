@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function HRReports() {
@@ -22,7 +23,7 @@ export default function HRReports() {
       window.URL.revokeObjectURL(url);
     } catch (e) {
       console.error(e);
-      alert("Export not available. Connect backend endpoint /recruiter/reports/shortlisted");
+      showToast("Export not available. Connect backend endpoint /recruiter/reports/shortlisted", "error");
     } finally {
       setLoading(false);
     }
@@ -45,21 +46,21 @@ export default function HRReports() {
           <button
             className="btn-sm btn-edit"
             style={{ padding: "10px 20px" }}
-            onClick={() => alert("Interview transcripts – connect backend")}
+            onClick={() => showToast("Interview transcripts – connect backend", "info")}
           >
             Interview transcripts
           </button>
           <button
             className="btn-sm btn-edit"
             style={{ padding: "10px 20px" }}
-            onClick={() => alert("Assessment performance report – connect backend")}
+            onClick={() => showToast("Assessment performance report – connect backend", "info")}
           >
             Assessment performance report
           </button>
           <button
             className="btn-sm btn-edit"
             style={{ padding: "10px 20px" }}
-            onClick={() => alert("Hiring statistics – connect backend")}
+            onClick={() => showToast("Hiring statistics – connect backend", "info")}
           >
             Hiring statistics
           </button>

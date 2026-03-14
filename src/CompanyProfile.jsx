@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 // Hook for responsive design
 function useMediaQuery(query) {
@@ -40,7 +41,7 @@ export default function CompanyProfile() {
             setCompany(res.data);
         } catch (err) {
             console.error(err);
-            alert("Failed to load company");
+            showToast("Failed to load company", "error");
         } finally {
             setLoading(false);
         }
@@ -101,7 +102,7 @@ export default function CompanyProfile() {
     };
 
     const handleApply = (jobId) => {
-        alert(`Applying to job ID: ${jobId}`);
+        showToast(`Applying to job ID: ${jobId}`, "info");
     };
 
     return (

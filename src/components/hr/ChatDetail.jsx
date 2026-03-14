@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CONFIG from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function ChatDetail() {
@@ -65,7 +66,7 @@ export default function ChatDetail() {
             }
         } catch (e) {
             console.error("Failed to fetch chat:", e);
-            alert("Failed to load chat");
+            showToast("Failed to load chat", "error");
         } finally {
             setLoading(false);
         }
@@ -110,7 +111,7 @@ export default function ChatDetail() {
         } catch (e) {
             console.error("Failed to send message:", e);
             const errorMsg = e.response?.data?.message || e.message || "Failed to send message";
-            alert(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setSending(false);
         }

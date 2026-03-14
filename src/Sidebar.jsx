@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 export default function Sidebar() {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function Sidebar() {
     const handleLogout = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("You are already logged out");
+            showToast("You are already logged out", "info");
             navigate("/", { replace: true });
             return;
         }
@@ -25,13 +26,14 @@ export default function Sidebar() {
 
             if (res.data === true || res.data.success === true) {
                 localStorage.clear(); // remove all stored HR info
+                showToast("Logged out successfully", "success");
                 navigate("/", { replace: true });
             } else {
-                alert("Logout failed. Try again.");
+                showToast("Logout failed. Try again.", "error");
             }
         } catch (err) {
             console.error("Logout error:", err.response || err);
-            alert("Logout failed. Try again.");
+            showToast("Logout failed. Try again.", "error");
         }
     };
 
@@ -39,7 +41,7 @@ export default function Sidebar() {
     const handleProfile = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Please login first");
+            showToast("Please login first", "error");
             navigate("/", { replace: true });
             return;
         }
@@ -52,13 +54,13 @@ export default function Sidebar() {
             if (res.data) {
                 // Store or use data as needed
                 console.log("Profile data:", res.data);
-                alert(`Hello ${res.data.basicSetting?.companyName || "User"}!`);
+                showToast(`Hello ${res.data.basicSetting?.companyName || "User"}!`, "success");
             } else {
-                alert("Failed to fetch profile data");
+                showToast("Failed to fetch profile data", "error");
             }
         } catch (err) {
             console.error("Profile fetch error:", err.response || err);
-            alert("Failed to fetch profile data");
+            showToast("Failed to fetch profile data", "error");
         }
     };
 

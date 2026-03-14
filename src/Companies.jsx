@@ -19,7 +19,7 @@
 //             setCompanies(Array.isArray(res.data) ? res.data : []);
 //         } catch (err) {
 //             console.error(err);
-//             alert("Failed to load companies");
+//             showToast("Failed to load companies", "error");
 //         }
 //     };
 
@@ -82,6 +82,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 const API = Config.BACKEND_URL + "/public/profiles";
 
@@ -112,7 +113,7 @@ export default function Companies() {
             setCompanies(validCompanies);
         } catch (err) {
             console.error(err);
-            alert("Failed to load companies");
+            showToast("Failed to load companies", "error");
         }
     };
 

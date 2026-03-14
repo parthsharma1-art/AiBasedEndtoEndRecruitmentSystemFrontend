@@ -155,6 +155,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ContactModal from "./components/ContactModal";
+import showToast from "./utils/toast";
 
 // Utility: check if recruiter or candidate is logged in
 function isUserLoggedIn() {
@@ -194,6 +195,7 @@ export default function HomePage() {
     const handleLogout = () => {
         clearAuthAndLogout();
         setIsLoggedIn(false);
+        showToast("Logged out successfully", "success");
         navigate("/");
     };
 

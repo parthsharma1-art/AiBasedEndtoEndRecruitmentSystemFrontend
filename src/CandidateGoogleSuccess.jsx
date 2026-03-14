@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "./config/config";
+import showToast from "./utils/toast";
 
 export default function CandidateGoogleSuccess() {
     const nav = useNavigate();
@@ -52,6 +53,7 @@ export default function CandidateGoogleSuccess() {
                 }
 
                 // Redirect to candidate dashboard
+                showToast("Logged in successfully", "success");
                 nav("/candidate-dashboard");
             } catch (err) {
                 console.error("Error fetching candidate data:", err);

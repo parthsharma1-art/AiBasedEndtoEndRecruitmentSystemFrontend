@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function HRTopNav({ onMenuClick }) {
@@ -258,6 +259,7 @@ export default function HRTopNav({ onMenuClick }) {
       });
     } catch (_) {}
     localStorage.clear();
+    showToast("Logged out successfully", "success");
     navigate("/");
   };
 

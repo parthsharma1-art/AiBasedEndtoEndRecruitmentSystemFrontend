@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Config from "../../config/config";
+import showToast from "../../utils/toast";
 import "../../styles/dashboard.css";
 
 export default function CandidateTopNav({ onMenuClick }) {
@@ -228,6 +229,7 @@ export default function CandidateTopNav({ onMenuClick }) {
 
   const handleLogout = () => {
     localStorage.clear();
+    showToast("Logged out successfully", "success");
     navigate("/");
   };
 
