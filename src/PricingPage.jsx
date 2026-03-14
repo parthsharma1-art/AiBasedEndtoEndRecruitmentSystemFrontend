@@ -27,7 +27,7 @@ export default function PricingPage() {
     ];
 
     return (
-        <div style={{ fontFamily: "Arial", background: "#0f172a", minHeight: "100vh", color: "white" }}>
+        <div className="page-pricing" style={{ fontFamily: "Arial", background: "#0f172a", minHeight: "100vh", color: "white" }}>
 
             {/* HEADER */}
             <div style={header}>
@@ -62,7 +62,7 @@ export default function PricingPage() {
             </div>
 
             {/* PRICING CARDS */}
-            <div style={cardContainer}>
+            <div className="card-container" style={cardContainer}>
                 {plans.map((plan, index) => (
                     <div key={index} style={card}>
                         <h3 style={{ fontSize: 24 }}>{plan.name}</h3>

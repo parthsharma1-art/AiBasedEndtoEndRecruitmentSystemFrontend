@@ -78,21 +78,43 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, [isOnChatsPage]);
 
+    // When sidebar is open on mobile, lock background scroll so only the sidebar scrolls
+    useEffect(() => {
+        if (isMobile && sidebarOpen) {
+            document.body.style.overflow = "hidden";
+            document.documentElement.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+            document.documentElement.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+            document.documentElement.style.overflow = "";
+        };
+    }, [isMobile, sidebarOpen]);
+
     return (
-        <div className="dashboard-layout" style={{ flexDirection: "column" }}>
+        <div
+            className={`dashboard-layout ${isMobile && sidebarOpen ? "hr-sidebar-open" : ""}`}
+            style={{ flexDirection: "column" }}
+        >
             <HRTopNav onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-            <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
+            <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative", minHeight: 0 }}>
                 <div style={{
                     position: isMobile ? "fixed" : "relative",
                     zIndex: isMobile ? 1000 : 1,
                     transform: isMobile && !sidebarOpen ? "translateX(-100%)" : "translateX(0)",
                     transition: "transform 0.3s ease-in-out",
-                    height: isMobile ? "100vh" : "auto"
+                    height: isMobile ? "100vh" : "100%",
+                    minHeight: 0,
+                    display: "flex",
                 }}>
                     <HRSidebar onClose={() => setSidebarOpen(false)} />
                 </div>
                 {isMobile && sidebarOpen && (
                     <div 
+                        className="hr-sidebar-overlay"
+                        role="presentation"
                         style={{
                             position: "fixed",
                             top: 0,
@@ -106,7 +128,11 @@ export default function Dashboard() {
                         onClick={() => setSidebarOpen(false)}
                     />
                 )}
-                <div style={{ flex: 1, overflow: "auto", width: isMobile && sidebarOpen ? 0 : "auto" }}>
+                <div style={{
+                    flex: 1,
+                    overflow: isMobile && sidebarOpen ? "hidden" : "auto",
+                    width: isMobile && sidebarOpen ? 0 : "auto",
+                }}>
                     <Routes>
                         <Route path="/" element={<HRDashboardHome />} />
                         <Route path="profile" element={<DashboardHome />} />

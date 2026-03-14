@@ -211,7 +211,7 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div style={{ fontFamily: "Arial" }}>
+        <div className="page-home" style={{ fontFamily: "Arial" }}>
 
             {/* HEADER */}
             <header style={header}>
@@ -270,7 +270,7 @@ export default function HomePage() {
                     Connect top talent with the right opportunities efficiently using our AI-driven platform.
                 </p>
 
-                <div style={heroBtnWrap}>
+                <div className="hero-btn-wrap" style={heroBtnWrap}>
                     {isLoggedIn ? (
                         <button 
                             onClick={() => navigate("/dashboard")} 
@@ -306,7 +306,7 @@ export default function HomePage() {
             <footer style={footerStyle}>
 
                 {/* FOOTER BUTTONS */}
-                <div style={footerBtnContainer}>
+                <div className="footer-btn-container" style={footerBtnContainer}>
                     {isLoggedIn ? (
                         <>
                             <button 
@@ -356,7 +356,7 @@ export default function HomePage() {
                 </div>
 
                 {/* LINKS */}
-                <div style={footerLinksWrap}>
+                <div className="footer-links-wrap" style={footerLinksWrap}>
                     <span style={footerLink} onClick={() => navigate("/about")}>About Us</span>
                     <span style={footerLink} onClick={() => setContactOpen(true)}>Contact</span>
                     <span style={footerLink} onClick={() => navigate("/privacy-policy")}>Privacy Policy</span>

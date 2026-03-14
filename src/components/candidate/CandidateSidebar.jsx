@@ -43,7 +43,8 @@ export default function CandidateSidebar({ onClose }) {
         flexDirection: "column",
         justifyContent: "space-between",
         width: sidebarWidth,
-        maxWidth: "85vw",
+        maxWidth: isMobile ? "85vw" : "none",
+        minWidth: 0,
         background: "#0f172a",
         color: "white",
         height: "100%",
@@ -51,11 +52,11 @@ export default function CandidateSidebar({ onClose }) {
         padding: 20,
         boxSizing: "border-box",
         flexShrink: 0,
-        overflowY: "auto",
         overflowX: "hidden",
+        overflowY: "auto",
       }}
     >
-      <div>
+      <div className="candidate-sidebar-menu" style={{ flex: 1, minHeight: 0, minWidth: 0, overflowX: "hidden", overflowY: "auto" }}>
         {isMobile && onClose && (
           <div
             style={{
@@ -63,6 +64,7 @@ export default function CandidateSidebar({ onClose }) {
               justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 20,
+              flexShrink: 0,
             }}
           >
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Candidate</h2>
@@ -77,6 +79,11 @@ export default function CandidateSidebar({ onClose }) {
                 fontSize: 24,
                 cursor: "pointer",
                 padding: "4px 8px",
+                minWidth: 44,
+                minHeight: 44,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 lineHeight: 1,
               }}
             >
@@ -117,31 +124,34 @@ export default function CandidateSidebar({ onClose }) {
                 marginRight: -20,
                 paddingLeft: 20,
                 paddingRight: 20,
+                minWidth: 0,
               }}
             >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
+              <span style={{ flexShrink: 0 }}>{item.icon}</span>
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{item.label}</span>
             </div>
           );
         })}
       </div>
-      <button
-        type="button"
-        onClick={handleLogout}
-        style={{
-          padding: "10px 16px",
-          background: "#ef4444",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-          width: "100%",
-          fontWeight: "bold",
-          fontSize: "0.95rem",
-        }}
-      >
-        Logout
-      </button>
+      <div style={{ flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={handleLogout}
+          style={{
+            padding: "10px 16px",
+            background: "#ef4444",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+            width: "100%",
+            fontWeight: "bold",
+            fontSize: "0.95rem",
+          }}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
