@@ -236,6 +236,8 @@ export default function RecruiterAuthPage() {
         maxWidth: "100vw",
         overflowX: "hidden",
         boxSizing: "border-box",
+        background: "var(--bg-body)",
+        color: "var(--text)",
       }}
     >
       <div
@@ -266,6 +268,7 @@ export default function RecruiterAuthPage() {
           padding: "20px",
           overflowY: "auto",
           boxSizing: "border-box",
+          background: "var(--bg-body)",
         }}
       >
         <div
@@ -280,6 +283,8 @@ export default function RecruiterAuthPage() {
             maxHeight: "90vh",
             overflowY: "auto",
             boxSizing: "border-box",
+            background: "var(--bg-card)",
+            color: "var(--text)",
           }}
         >
           <h2>{isLogin ? (loginMode === "otp" ? "HR Login with OTP" : "HR Login") : "Create Recruiter Account"}</h2>
@@ -307,7 +312,7 @@ export default function RecruiterAuthPage() {
                 </>
               ) : (
                 <>
-                  <input type="email" placeholder="Email" value={otpEmail} readOnly style={{ ...inp, background: "#f5f5f5" }} />
+                  <input type="email" placeholder="Email" value={otpEmail} readOnly style={{ ...inp, background: "var(--bg-input)" }} />
                   <input
                     type="text"
                     placeholder="Enter OTP"
@@ -326,7 +331,7 @@ export default function RecruiterAuthPage() {
                   <button
                     type="button"
                     onClick={() => { setOtpStep("email"); setOtpCode(""); }}
-                    style={{ ...btn, background: "#e2e8f0", color: "#475569", marginTop: 8 }}
+                    style={{ ...btn, background: "var(--btn-secondary-bg)", color: "var(--text-muted-2)", marginTop: 8 }}
                   >
                     Change Email
                   </button>
@@ -580,7 +585,7 @@ export default function RecruiterAuthPage() {
           >
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <div style={{ fontSize: "3rem", marginBottom: "10px" }}>🔐</div>
-              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#1e293b" }}>
+              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "var(--text)" }}>
                 Google Login
               </h2>
             </div>
@@ -588,7 +593,7 @@ export default function RecruiterAuthPage() {
             <p
               style={{
                 textAlign: "center",
-                color: "#64748b",
+                color: "var(--text-muted)",
                 fontSize: "0.95rem",
                 lineHeight: "1.6",
                 marginBottom: "25px",
@@ -605,8 +610,8 @@ export default function RecruiterAuthPage() {
                 style={{
                   flex: 1,
                   padding: "12px",
-                  background: "#e2e8f0",
-                  color: "#475569",
+                  background: "var(--btn-secondary-bg)",
+                  color: "var(--text-muted-2)",
                   border: "none",
                   borderRadius: "8px",
                   fontSize: "16px",
@@ -691,7 +696,7 @@ export default function RecruiterAuthPage() {
           >
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <div style={{ fontSize: "3rem", marginBottom: "10px" }}>🔒</div>
-              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#1e293b" }}>
+              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "var(--text)" }}>
                 Login Failed
               </h2>
             </div>
@@ -699,7 +704,7 @@ export default function RecruiterAuthPage() {
             <p
               style={{
                 textAlign: "center",
-                color: "#64748b",
+                color: "var(--text-muted)",
                 fontSize: "0.95rem",
                 lineHeight: "1.6",
                 marginBottom: "25px",
@@ -736,8 +741,8 @@ export default function RecruiterAuthPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  background: "#e2e8f0",
-                  color: "#475569",
+                  background: "var(--btn-secondary-bg)",
+                  color: "var(--text-muted-2)",
                   border: "none",
                   borderRadius: "8px",
                   fontSize: "16px",
@@ -820,8 +825,10 @@ const inp = {
   width: "100%",
   padding: 12,
   marginTop: 10,
-  border: "1px solid #ddd",
+  border: "1px solid var(--border)",
   borderRadius: 8,
+  background: "var(--bg-input)",
+  color: "var(--text)",
 };
 
 const btn = {
@@ -841,8 +848,8 @@ const googleBtn = {
   padding: 12,
   marginTop: 15,
   background: "var(--bg-card)",
-  color: "#444",
-  border: "1px solid #ddd",
+  color: "var(--text)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   fontSize: 16,
   cursor: "pointer",
@@ -858,15 +865,15 @@ const label = {
   fontSize: 14,
   fontWeight: 600,
   marginBottom: 5,
-  color: "#444",
+  color: "var(--text)",
 };
 
 const fileInp = {
   width: "100%",
   padding: 10,
-  border: "1px solid #ddd",
+  border: "1px solid var(--border)",
   borderRadius: 8,
-  background: "#fafafa",
+  background: "var(--bg-input)",
 };
 
 const passwordWrapper = {
@@ -879,8 +886,10 @@ const passwordInput = {
   width: "100%",
   padding: 12,
   paddingRight: 45,
-  border: "1px solid #ddd",
+  border: "1px solid var(--border)",
   borderRadius: 8,
+  background: "var(--bg-input)",
+  color: "var(--text)",
 };
 
 const eyeButton = {
@@ -895,7 +904,6 @@ const eyeButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: "#666",
-
+  color: "var(--text-muted)",
   transition: "color 0.2s",
 };
