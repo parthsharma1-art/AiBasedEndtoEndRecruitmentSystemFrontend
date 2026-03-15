@@ -59,33 +59,24 @@ export default function CandidateListAppliedJobs() {
   }
 
   return (
-    <div className="dashboard-content">
-
+    <div className="dashboard-content candidates-applied-page">
       {/* Back Button */}
       <button
-        className="btn-back"
+        className="btn-back btn-back-applied"
         onClick={() => navigate("/dashboard/jobs")}
-        style={{
-          marginBottom: "15px",
-          padding: "8px 14px",
-          borderRadius: "6px",
-          border: "none",
-          background: "#2563eb",
-          color: "#fff",
-          cursor: "pointer"
-        }}
       >
         ← Back to Dashboard
       </button>
 
-      <h1>Applied Candidates</h1>
+      <h1 className="candidates-applied-title">Applied Candidates</h1>
 
       {candidates.length === 0 ? (
-        <p>No candidates applied yet.</p>
+        <p className="candidates-applied-empty">No candidates applied yet.</p>
       ) : (
         <>
-          <div className="candidate-table">
-            <table className="dashboard-table">
+          <div className="candidate-table-wrap">
+            <div className="candidate-table">
+            <table className="dashboard-table candidates-applied-table">
               <thead>
                 <tr>
                   <th>Candidate</th>
@@ -181,6 +172,7 @@ export default function CandidateListAppliedJobs() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
 
           {/* Mobile Cards */}
