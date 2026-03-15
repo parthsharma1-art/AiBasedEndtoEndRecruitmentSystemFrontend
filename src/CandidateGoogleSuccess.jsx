@@ -38,8 +38,8 @@ export default function CandidateGoogleSuccess() {
                 localStorage.setItem("id", id);
                 localStorage.setItem("loginTimestamp", Date.now().toString());
 
-                // Call GET API using id to fetch candidate data
-                const res = await axios.get(`${Config.BACKEND_URL}/candidate/get/${id}`, {
+                // Call GET API to fetch candidate data (auth via token)
+                const res = await axios.get(`${Config.BACKEND_URL}/candidate/get`, {
                     headers: {
                         Authorization: `Bearer ${tokenFromUrl}`,
                     },
