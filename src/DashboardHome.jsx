@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Config from "./config/config";
 import showToast from "./utils/toast";
+import "./styles/dashboard.css";
 
 export default function DashboardHome() {
     const [profile, setProfile] = useState(null);
@@ -191,7 +192,7 @@ export default function DashboardHome() {
 
     if (loading) {
         return (
-            <div style={center}>
+            <div className="dashboard-content hr-profile-page hr-profile-loading" style={center}>
                 <h2>Loading profile...</h2>
             </div>
         );
@@ -199,7 +200,7 @@ export default function DashboardHome() {
 
     if (!profile) {
         return (
-            <div style={center}>
+            <div className="dashboard-content hr-profile-page hr-profile-loading" style={center}>
                 <h2>No profile data available</h2>
             </div>
         );
@@ -215,11 +216,11 @@ export default function DashboardHome() {
     console.log("Final image URL:", profileImageUrl);
 
     return (
-        <div style={container}>
-            <div style={card}>
+        <div className="dashboard-content hr-profile-page" style={container}>
+            <div className="hr-profile-card" style={card}>
                 {/* HEADER */}
-                <div style={header}>
-                    <div style={avatarWrapper}>
+                <div className="hr-profile-header" style={header}>
+                    <div className="hr-profile-avatar-wrap" style={avatarWrapper}>
                         {profileImageUrl ? (
                             <img
                                 src={profileImageUrl}
@@ -248,7 +249,7 @@ export default function DashboardHome() {
                 </div>
 
                 {/* INFO GRID */}
-                <div style={infoGrid}>
+                <div className="hr-profile-info-grid" style={infoGrid}>
                     <InfoItem label="Email: " value={profile.email} />
                     <InfoItem label="Phone: " value={profile.mobileNumber} />
                     <InfoItem label="Company ID: " value={profile.companyId} />
@@ -256,7 +257,7 @@ export default function DashboardHome() {
                 </div>
 
                 {/* OVERVIEW */}
-                <div style={overviewBox}>
+                <div className="hr-profile-overview" style={overviewBox}>
                     <h3>Dashboard Overview</h3>
                     <p>
                         Welcome to the HR panel. Here you can manage candidates,
@@ -265,7 +266,7 @@ export default function DashboardHome() {
                 </div>
 
                 {/* UPDATE BUTTONS */}
-                <div style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+                <div className="hr-profile-actions" style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
                     <button
                         onClick={handleUpdateClick}
                         style={{
@@ -339,7 +340,7 @@ export default function DashboardHome() {
             {/* Update Password Modal */}
             {showPasswordModal && (
                 <>
-                    <div
+                    <div className="hr-profile-modal-overlay"
                         style={{
                             position: "fixed",
                             top: 0,
@@ -358,7 +359,7 @@ export default function DashboardHome() {
                             if (!passwordLoading) setShowPasswordModal(false);
                         }}
                     >
-                        <div
+                        <div className="hr-profile-modal hr-profile-modal-password"
                             style={{
                                 background: "#fff",
                                 borderRadius: "12px",
@@ -371,7 +372,7 @@ export default function DashboardHome() {
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div style={{
+                            <div className="hr-profile-modal-header" style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
@@ -530,7 +531,7 @@ export default function DashboardHome() {
             {/* Update Profile Modal */}
             {showUpdateModal && (
                 <>
-                    <div
+                    <div className="hr-profile-modal-overlay"
                         style={{
                             position: "fixed",
                             top: 0,
@@ -549,7 +550,7 @@ export default function DashboardHome() {
                             if (!updateLoading) setShowUpdateModal(false);
                         }}
                     >
-                        <div
+                        <div className="hr-profile-modal hr-profile-modal-update"
                             style={{
                                 background: "#fff",
                                 borderRadius: "12px",
@@ -564,7 +565,7 @@ export default function DashboardHome() {
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div style={{
+                            <div className="hr-profile-modal-header" style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
@@ -648,7 +649,7 @@ export default function DashboardHome() {
                                     />
                                 </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                                <div className="hr-profile-form-row">
                                     <div>
                                         <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, color: "#1e293b", fontSize: "0.9rem" }}>
                                             Age
@@ -678,7 +679,7 @@ export default function DashboardHome() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                                <div className="hr-profile-form-row">
                                     <div>
                                         <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, color: "#1e293b", fontSize: "0.9rem" }}>
                                             State
