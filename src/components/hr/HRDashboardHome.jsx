@@ -7,8 +7,9 @@ export default function HRDashboardHome() {
   const [stats, setStats] = useState({
     totalJobs: 0,
     totalApplications: 0,
-    shortlisted: 0,
-    interviewCompleted: 0,
+    totalCandidates: 0,
+    totalResumes: 0,
+    activeJobs: 0,
     selected: 0,
     rejected: 0,
   });
@@ -56,9 +57,10 @@ export default function HRDashboardHome() {
       const data = await response.json().catch(() => ({}));
       setStats({
         totalJobs: data.totalJobs ?? 0,
-        totalApplications: data.totalCandidates ?? data.totalResumes ?? 0,
-        shortlisted: data.shortlisted ?? 0,
-        interviewCompleted: data.interviewCompleted ?? 0,
+        totalApplications: data.totalApplications ?? 0,
+        totalCandidates: data.totalCandidates ?? 0,
+        totalResumes: data.totalResumes ?? 0,
+        activeJobs: data.activeJobs ?? 0,
         selected: data.selected ?? 0,
         rejected: data.rejected ?? 0,
       });
@@ -111,12 +113,12 @@ export default function HRDashboardHome() {
           <div className="value">{stats.totalApplications}</div>
         </div>
         <div className="summary-card">
-          <h3>Shortlisted</h3>
-          <div className="value">{stats.shortlisted}</div>
+          <h3>Total Candidates</h3>
+          <div className="value">{stats.totalCandidates}</div>
         </div>
         <div className="summary-card">
-          <h3>Interview Completed</h3>
-          <div className="value">{stats.interviewCompleted}</div>
+          <h3>Active Jobs</h3>
+          <div className="value">{stats.activeJobs}</div>
         </div>
         <div className="summary-card">
           <h3>Selected</h3>
@@ -133,13 +135,13 @@ export default function HRDashboardHome() {
         <div className="pipeline-funnel">
           <div className="pipeline-stage"><span>{stats.totalApplications}</span>Applications</div>
           <span className="pipeline-arrow">→</span>
-          <div className="pipeline-stage"><span>{stats.shortlisted}</span>Resume Matched</div>
+          <div className="pipeline-stage"><span>{stats.totalCandidates}</span>Candidates</div>
           <span className="pipeline-arrow">→</span>
-          <div className="pipeline-stage"><span>{stats.interviewCompleted}</span>Test Passed</div>
-          <span className="pipeline-arrow">→</span>
-          <div className="pipeline-stage"><span>{stats.selected}</span>Interview Passed</div>
+          <div className="pipeline-stage"><span>{stats.activeJobs}</span>Active Jobs</div>
           <span className="pipeline-arrow">→</span>
           <div className="pipeline-stage"><span>{stats.selected}</span>Selected</div>
+          <span className="pipeline-arrow">→</span>
+          <div className="pipeline-stage"><span>{stats.rejected}</span>Rejected</div>
         </div>
       </div>
 
