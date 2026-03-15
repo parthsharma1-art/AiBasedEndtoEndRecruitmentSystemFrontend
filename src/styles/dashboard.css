@@ -18,7 +18,8 @@
   right: 0; 
   margin-top: 8px; 
   width: 500px; 
-  max-height: 500px; 
+  max-width: calc(100vw - 32px);
+  max-height: 90vh;
   background: #fff; 
   border: 1px solid #e2e8f0; 
   border-radius: 12px; 
@@ -91,10 +92,12 @@
   color: #4f46e5;
 }
 
+/* Scrollable list: ~5 rows visible, then scroll */
 .notifications-list { 
   overflow-y: auto; 
   overflow-x: hidden;
-  max-height: 400px; 
+  max-height: 280px;
+  min-height: 80px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f8fafc;
@@ -224,15 +227,6 @@
   max-width: 200px; 
 }
 
-.notification-message-emoji {
-  font-size: 1.5rem;
-  text-align: center;
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  line-height: 1.2;
-}
-
 .notification-status { 
   text-align: center; 
   position: relative;
@@ -241,83 +235,8 @@
 .notification-status-content {
   display: flex;
   align-items: center;
-  gap: 8px;
   justify-content: flex-end;
   position: relative;
-}
-
-.notification-emoji-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.notification-emoji-btn:hover {
-  background: #f1f5f9;
-  transform: scale(1.1);
-}
-
-.notification-emoji-display {
-  font-size: 1.1rem;
-  display: inline-block;
-}
-
-.emoji-picker {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 8px;
-  display: flex;
-  gap: 4px;
-  z-index: 1001;
-  margin-bottom: 4px;
-  animation: slideUp 0.2s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.emoji-option {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-}
-
-.emoji-option:hover {
-  background: #f1f5f9;
-  transform: scale(1.2);
-}
-
-.emoji-option:active {
-  transform: scale(1.1);
 }
 
 .status-read { 
@@ -342,13 +261,16 @@
   .notifications-dropdown { 
     width: calc(100vw - 32px); 
     max-width: 400px; 
-    right: -10px; 
-    max-height: calc(100vh - 120px);
+    right: 0;
+    left: auto;
+    margin-top: 8px;
+    max-height: min(90vh, 420px);
   }
   
   .notifications-header {
-    padding: 12px;
+    padding: 12px 14px;
     flex-wrap: wrap;
+    gap: 8px;
   }
   
   .notifications-header h4 {
@@ -356,24 +278,21 @@
   }
   
   .btn-mark-all-read {
-    padding: 5px 10px;
-    font-size: 0.7rem;
+    padding: 6px 10px;
+    font-size: 0.75rem;
   }
   
   .notifications-list {
-    max-height: calc(100vh - 200px);
+    max-height: 260px;
+    -webkit-overflow-scrolling: touch;
   }
   
-  .notifications-table th:nth-child(1) { width: 35%; }
-  .notifications-table th:nth-child(2) { width: 45%; }
-  .notifications-table th:nth-child(3) { width: 20%; }
+  .notifications-table th:nth-child(1) { width: 28%; }
+  .notifications-table th:nth-child(2) { width: 44%; }
+  .notifications-table th:nth-child(3) { width: 28%; }
   
   .notification-message { 
-    max-width: 150px; 
-  }
-  
-  .notification-message-emoji {
-    font-size: 1.3rem;
+    max-width: 140px; 
   }
   
   .notification-row td {
@@ -385,33 +304,18 @@
     padding: 10px 12px;
     font-size: 0.7rem;
   }
-  
-  .emoji-picker {
-    right: auto;
-    left: 0;
-  }
-  
-  .notification-emoji-btn {
-    font-size: 0.9rem;
-    padding: 3px;
-  }
-  
-  .emoji-option {
-    font-size: 1rem;
-    padding: 5px;
-    min-width: 28px;
-    min-height: 28px;
-  }
 }
 
 @media (max-width: 480px) {
   .notifications-dropdown {
-    width: calc(100vw - 24px);
-    right: -8px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
   }
   
   .notifications-header {
-    padding: 10px;
+    padding: 10px 12px;
   }
   
   .notifications-header h4 {
@@ -419,12 +323,13 @@
   }
   
   .btn-mark-all-read {
-    padding: 4px 8px;
-    font-size: 0.65rem;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   
   .notifications-list {
-    max-height: calc(100vh - 180px);
+    max-height: 240px;
+    -webkit-overflow-scrolling: touch;
   }
   
   .notification-row td {
@@ -438,33 +343,7 @@
   }
   
   .notification-message {
-    max-width: 120px;
-  }
-  
-  .notification-message-emoji {
-    font-size: 1.2rem;
-  }
-  
-  .emoji-picker {
-    right: auto;
-    left: 0;
-    padding: 6px;
-  }
-  
-  .notification-emoji-btn {
-    font-size: 0.85rem;
-    padding: 2px;
-  }
-  
-  .emoji-option {
-    font-size: 0.9rem;
-    padding: 4px;
-    min-width: 24px;
-    min-height: 24px;
-  }
-  
-  .notification-emoji-display {
-    font-size: 1rem;
+    max-width: 100px;
   }
 }
 .top-nav-profile { position: relative; }
@@ -472,6 +351,33 @@
 .top-nav-dropdown { position: absolute; top: 100%; right: 0; margin-top: 4px; min-width: 160px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 100; }
 .top-nav-dropdown a, .top-nav-dropdown button { display: block; width: 100%; padding: 10px 16px; text-align: left; border: none; background: none; cursor: pointer; color: #334155; text-decoration: none; font-size: 14px; }
 .top-nav-dropdown a:hover, .top-nav-dropdown button:hover { background: #f1f5f9; }
+
+/* HR Dashboard Home - Welcome */
+.hr-dashboard-home .hr-dashboard-welcome {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #fff;
+  padding: 24px 28px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+}
+.hr-dashboard-welcome-title {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.hr-dashboard-welcome-sub {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.92;
+}
+.hr-dashboard-home .hr-dashboard-overview-heading {
+  margin: 0 0 20px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
 
 /* Summary cards */
 .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -672,6 +578,13 @@ a.btn-sm.btn-view:hover {
     .dashboard-content {
         padding: 16px !important;
     }
+
+    .hr-dashboard-home .hr-dashboard-welcome {
+        padding: 20px 24px;
+    }
+    .hr-dashboard-welcome-title {
+        font-size: 1.35rem;
+    }
     
     .summary-cards {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
@@ -701,6 +614,21 @@ a.btn-sm.btn-view:hover {
     
     .dashboard-content {
         padding: 12px !important;
+    }
+
+    .hr-dashboard-home .hr-dashboard-welcome {
+        padding: 18px 20px;
+        margin-bottom: 20px;
+    }
+    .hr-dashboard-welcome-title {
+        font-size: 1.25rem;
+    }
+    .hr-dashboard-welcome-sub {
+        font-size: 0.9rem;
+    }
+    .hr-dashboard-home .hr-dashboard-overview-heading {
+        font-size: 1.1rem;
+        margin-bottom: 16px;
     }
     
     .top-nav {
@@ -790,10 +718,25 @@ a.btn-sm.btn-view:hover {
 }
 
 @media (max-width: 480px) {
+    .hr-dashboard-home .hr-dashboard-welcome {
+        padding: 16px 18px;
+        margin-bottom: 16px;
+    }
+    .hr-dashboard-welcome-title {
+        font-size: 1.15rem;
+    }
+    .hr-dashboard-welcome-sub {
+        font-size: 0.85rem;
+    }
+    .hr-dashboard-home .hr-dashboard-overview-heading {
+        font-size: 1rem;
+        margin-bottom: 14px;
+    }
+
     .summary-cards {
         grid-template-columns: 1fr !important;
     }
-    
+
     .score-grid {
         grid-template-columns: 1fr !important;
     }
