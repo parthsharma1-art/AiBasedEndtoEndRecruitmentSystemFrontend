@@ -12,43 +12,13 @@ export default function HRTopNav({ onMenuClick }) {
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [processingNotification, setProcessingNotification] = useState(null);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(null);
   const notificationRef = useRef(null);
-  const emojiPickerRef = useRef(null);
   const navigate = useNavigate();
 
-  const emojis = ['❤️', '😊', '😄', '😂', '👍', '🎉'];
-  
-  // Emoji mapping with IDs (same as chat)
-  const emojiMap = {
-    'heart': '❤️',
-    'smile': '😊',
-    'big_smile': '😄',
-    'laugh': '😂',
-    'thumbs_up': '👍',
-    'celebration': '🎉'
-  };
-
-  // Helper function to get emoji from emojiId
-  const getEmojiFromId = (emojiId) => {
-    return emojiMap[emojiId] || null;
-  };
-
-  // Helper function to check if message contains emojiId and extract it
+  // Show text only: no emoji. For emojiId messages show "New reaction"
   const getNotificationMessageDisplay = (message, emojiId = null) => {
-    // If emojiId is provided as separate field, use it
-    if (emojiId) {
-      const emoji = getEmojiFromId(emojiId);
-      if (emoji) return emoji;
-    }
-    
-    // Check if message contains emojiId prefix
-    if (message && message.startsWith('emojiId:')) {
-      const extractedEmojiId = message.replace('emojiId:', '');
-      return getEmojiFromId(extractedEmojiId) || message;
-    }
-    
-    return message;
+    if (emojiId || (message && message.startsWith('emojiId:'))) return 'New reaction';
+    return message || '';
   };
   
   // Hook for responsive design
@@ -105,10 +75,6 @@ export default function HRTopNav({ onMenuClick }) {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setShowNotifications(false);
-        setEmojiPickerOpen(null);
-      }
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
-        setEmojiPickerOpen(null);
       }
     };
 
@@ -229,19 +195,6 @@ export default function HRTopNav({ onMenuClick }) {
     }
   };
 
-  const handleEmojiClick = (e, notificationId) => {
-    e.stopPropagation();
-    setEmojiPickerOpen(emojiPickerOpen === notificationId ? null : notificationId);
-  };
-
-  const handleEmojiSelect = (e, notificationId, emoji) => {
-    e.stopPropagation();
-    setNotifications(prev =>
-      prev.map(n => n.id === notificationId ? { ...n, emoji: emoji } : n)
-    );
-    setEmojiPickerOpen(null);
-  };
-
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleLogout = async () => {
@@ -348,36 +301,11 @@ export default function HRTopNav({ onMenuClick }) {
                           style={{ cursor: processingNotification === notification.id ? 'wait' : 'pointer' }}
                         >
                           <td className={`notification-title ${notification.read ? 'read' : 'unread'}`}>{notification.title || 'Notification'}</td>
-                          <td className={`notification-message ${notification.read ? 'read' : 'unread'} ${(notification.message && notification.message.startsWith('emojiId:')) || notification.emojiId ? 'notification-message-emoji' : ''}`}>
-                            {getNotificationMessageDisplay(notification.message, notification.emojiId) || ''}
+                          <td className={`notification-message ${notification.read ? 'read' : 'unread'}`}>
+                            {getNotificationMessageDisplay(notification.message, notification.emojiId)}
                           </td>
                           <td className="notification-status">
                             <div className="notification-status-content">
-                              {notification.emoji && (
-                                <span className="notification-emoji-display">{notification.emoji}</span>
-                              )}
-                              <button
-                                type="button"
-                                className="notification-emoji-btn"
-                                onClick={(e) => handleEmojiClick(e, notification.id)}
-                                title="Add reaction"
-                              >
-                                😊
-                              </button>
-                              {emojiPickerOpen === notification.id && (
-                                <div className="emoji-picker" ref={emojiPickerRef} onClick={(e) => e.stopPropagation()}>
-                                  {emojis.map((emoji) => (
-                                    <button
-                                      key={emoji}
-                                      type="button"
-                                      className="emoji-option"
-                                      onClick={(e) => handleEmojiSelect(e, notification.id, emoji)}
-                                    >
-                                      {emoji}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
                               {notification.read ? (
                                 <span className="status-read">Read</span>
                               ) : (
